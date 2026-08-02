@@ -141,25 +141,82 @@ internal fun moduleFaqs(module: CurriculumModule): List<ModuleFaq> {
     require(module.lessons.isNotEmpty())
     return List(20) { index ->
         val lesson = module.lessons[index % module.lessons.size]
-        when ((index / module.lessons.size) % 5) {
+        when (index % 20) {
             0 -> ModuleFaq("What is ${lesson.title}?", lesson.concept)
             1 -> ModuleFaq("What is the key relationship for ${lesson.title}?", "${lesson.formula}. ${formulaMeaningForFaq(module.title)}")
             2 -> ModuleFaq("How is ${lesson.title} used in practice?", lesson.realWorldApplication)
             3 -> ModuleFaq("What mistake should I avoid in ${lesson.title}?", lesson.commonMistake)
+            4 -> ModuleFaq("What worked example illustrates ${lesson.title}?", lesson.workedExample)
+            5 -> ModuleFaq(
+                "What is the first step in a ${lesson.title} problem?",
+                lesson.exampleSteps.firstOrNull() ?: "Identify the chemical species, quantities, evidence and assumptions."
+            )
+            6 -> ModuleFaq(
+                "Which units and symbols matter in ${lesson.title}?",
+                "Interpret ${lesson.formula}, define every symbol and preserve compatible units through the calculation."
+            )
+            7 -> ModuleFaq(
+                "What evidence supports a conclusion about ${lesson.title}?",
+                "Use calibrated experimental or computational evidence that directly tests the model, then report uncertainty and limitations."
+            )
+            8 -> ModuleFaq(
+                "Which assumptions should be checked for ${lesson.title}?",
+                "Check the model domain, chemical conditions, equilibrium or kinetic assumptions, sample quality and measurement calibration."
+            )
+            9 -> ModuleFaq(
+                "How can I validate a ${lesson.title} result?",
+                "Repeat the analysis where appropriate, test limiting cases and compare with an independent method, reference or observable trend."
+            )
+            10 -> ModuleFaq(
+                "How does ${lesson.title} connect with ${module.title}?",
+                "${lesson.title} provides one part of the structure, mechanism, measurement and application framework developed across ${module.title}."
+            )
+            11 -> ModuleFaq(
+                "What advanced idea follows from ${lesson.title}?",
+                lesson.advancedConcepts.firstOrNull() ?: "Extend the model by testing its molecular mechanism and quantitative limits."
+            )
+            12 -> ModuleFaq(
+                "How should two approaches to ${lesson.title} be compared?",
+                "Compare assumptions, required data, accuracy, uncertainty, computational or experimental cost and chemical interpretability."
+            )
+            13 -> ModuleFaq(
+                "How should a ${lesson.title} answer be explained?",
+                "State the claim, show the relationship or mechanism, connect it with evidence and explain why alternatives are less consistent."
+            )
+            14 -> ModuleFaq(
+                "How should ${lesson.title} data be reported?",
+                "Report units, significant figures, uncertainty, conditions, calibration or model details and enough method information for reproduction."
+            )
+            15 -> ModuleFaq(
+                "What makes a ${lesson.title} model useful?",
+                "A useful model explains observations, makes testable predictions and states the conditions under which its approximation remains valid."
+            )
+            16 -> ModuleFaq(
+                "What limitation should be considered in ${lesson.title}?",
+                "Every result depends on assumptions and evidence quality; identify interferences, non-ideal behaviour, sampling limits and model uncertainty."
+            )
+            17 -> ModuleFaq(
+                "How can ${lesson.title} be studied safely?",
+                "Plan hazards, controls, containment, waste handling and emergency response before practical work; use validated procedures and supervision."
+            )
+            18 -> ModuleFaq(
+                "How should I revise ${lesson.title}?",
+                "Explain the concept from memory, reproduce the example, solve all knowledge checks and revisit each incorrect reasoning step."
+            )
             else -> ModuleFaq(
-                "How should I study ${lesson.title} effectively?",
-                "Explain the concept in your own words, reproduce the worked example, complete all 15 knowledge-check questions, and revisit any answer whose reasoning is unclear."
+                "What is the final check for ${lesson.title}?",
+                "Confirm conservation, signs, units, magnitude, chemical plausibility, uncertainty and consistency with the stated conditions."
             )
         }
     }
 }
 
 private fun formulaMeaningForFaq(moduleTitle: String): String = when (moduleTitle) {
-    "Atomic Structure" -> "Interpret every symbol using the stated atomic or quantum model."
-    "Periodic Table" -> "Use the relationship as a trend or organizing rule while remembering documented exceptions."
-    "Chemical Bonding" -> "Connect electron arrangement to geometry, energy and measurable properties."
-    "States of Matter" -> "Keep temperature, pressure and phase conditions explicit."
-    "Chemical Reactions" -> "Balance atoms and charge before drawing mechanistic conclusions."
+    "Atomic Structure", "Atomic Structure: Senior Secondary" -> "Interpret every symbol using the stated atomic or quantum model."
+    "Periodic Table", "Periodic Table and Trends" -> "Use the relationship as a trend or organizing rule while remembering documented exceptions."
+    "Chemical Bonding", "Chemical Bonding: Senior Secondary" -> "Connect electron arrangement to geometry, energy and measurable properties."
+    "States of Matter", "States and Phases: Senior Secondary" -> "Keep temperature, pressure and phase conditions explicit."
+    "Chemical Reactions", "Reaction Equations and Redox" -> "Balance atoms and charge before drawing mechanistic conclusions."
     "Equilibrium and Solutions" -> "Distinguish equilibrium composition from the rates of forward and reverse change."
     "Kinetics and Electrochemistry" -> "Track sign conventions, units and the direction of electron transfer."
     else -> "Use consistent units, identify assumptions and compare the result with experimental evidence."

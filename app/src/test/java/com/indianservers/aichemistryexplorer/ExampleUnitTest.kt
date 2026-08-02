@@ -15,14 +15,19 @@ class ExampleUnitTest {
     fun everyConceptHasLearningContent() {
         val lessons = curriculum.flatMap { it.lessons }
 
-        assertEquals(365, lessons.size)
-        assertTrue(lessons.all { it.theory.length >= 400 })
-        assertTrue(lessons.all { it.workedExample.length >= 80 })
-        assertTrue(lessons.all { it.exampleSteps.size >= 4 })
-        assertTrue(lessons.all { it.exampleSteps.all { step -> step.length >= 30 } })
-        assertTrue(lessons.all { it.commonMistake.length >= 60 })
-        assertTrue(lessons.all { it.realWorldApplication.length >= 60 })
-        assertTrue(lessons.all { it.advancedConcepts.size >= 3 })
+        assertEquals(638, lessons.size)
+        val incomplete = lessons.flatMap { lesson ->
+            listOfNotNull(
+                "${lesson.title}: theory is too short".takeIf { lesson.theory.length < 400 },
+                "${lesson.title}: worked example is too short".takeIf { lesson.workedExample.length < 80 },
+                "${lesson.title}: needs four learning steps".takeIf { lesson.exampleSteps.size < 4 },
+                "${lesson.title}: learning step is too short".takeIf { lesson.exampleSteps.any { step -> step.length < 30 } },
+                "${lesson.title}: misconception is too short".takeIf { lesson.commonMistake.length < 60 },
+                "${lesson.title}: application is too short".takeIf { lesson.realWorldApplication.length < 60 },
+                "${lesson.title}: needs three connections".takeIf { lesson.advancedConcepts.size < 3 }
+            )
+        }
+        assertTrue(incomplete.joinToString("\n"), incomplete.isEmpty())
         assertTrue(lessons.none { it.title.contains("Thermodynamics", ignoreCase = true) })
     }
 
@@ -30,6 +35,6 @@ class ExampleUnitTest {
     fun curriculumCoversEveryLearningLevel() {
         val expected = setOf("Class 6–8", "Class 9–10", "Class 11–12", "Undergraduate", "Postgraduate")
         assertEquals(expected, curriculum.map { it.level }.toSet())
-        assertEquals(curriculum.size, curriculum.map { it.title }.distinct().size)
+        assertEquals(curriculum.size, curriculum.map { it.level to it.title }.distinct().size)
     }
 }

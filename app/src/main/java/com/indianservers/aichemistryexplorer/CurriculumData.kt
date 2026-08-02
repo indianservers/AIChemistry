@@ -45,28 +45,28 @@ private fun lesson(title: String, concept: String, formula: String, question: St
     )
 
 internal val curriculum by lazy { listOf(
-    CurriculumModule("Atomic Structure", "⚛", Cyan, "Build matter from particles, nuclei and quantum orbitals.", listOf(
+    CurriculumModule("Atomic Structure: Senior Secondary", "⚛", Cyan, "Build matter from particles, nuclei and quantum orbitals.", listOf(
         lesson("Subatomic particles", "Protons and neutrons occupy the nucleus; electrons occupy the surrounding probability cloud.", "proton +1 · neutron 0 · electron −1", "Which particle determines an element's atomic number?", 1, "Electron", "Proton", "Neutron", "Photon"),
         lesson("Atomic number and mass number", "Atomic number counts protons. Mass number counts protons plus neutrons.", "A = Z + N", "An atom has 11 protons and 12 neutrons. Its mass number is…", 2, "11", "12", "23", "24"),
         lesson("Isotopes and ions", "Isotopes share a proton count but differ in neutrons; ions form by gaining or losing electrons.", "charge = protons − electrons", "Two isotopes of carbon differ in their number of…", 1, "Protons", "Neutrons", "Valence shells", "Chemical symbols"),
         lesson("Bohr’s atomic model", "Bohr proposed quantized energy levels. Electrons absorb or emit photons while moving between them.", "ΔE = hν", "Light is emitted when an electron moves to…", 0, "A lower energy level", "A higher energy level", "The nucleus", "Another atom"),
         lesson("Quantum numbers and orbitals", "Four quantum numbers describe an electron's energy level, orbital shape, orientation and spin.", "n, ℓ, mℓ, ms", "The maximum number of electrons in one orbital is…", 1, "1", "2", "6", "10")
     )),
-    CurriculumModule("Periodic Table", "▦", Color(0xFF4D8BFF), "Read the table as a map of structure and chemical behavior.", listOf(
+    CurriculumModule("Periodic Table and Trends", "▦", Color(0xFF4D8BFF), "Read the table as a map of structure and chemical behavior.", listOf(
         lesson("Periods, groups and blocks", "Rows are periods, columns are groups, and s, p, d and f blocks reflect the valence subshell being filled.", "group → similar valence behavior", "Elements in one group usually share similar…", 2, "Mass numbers", "Neutron counts", "Chemical properties", "Nuclear sizes"),
         lesson("Electronic configuration", "Electrons fill lower-energy orbitals first while obeying Pauli exclusion and Hund's rule.", "1s → 2s → 2p → 3s", "The ground-state configuration of lithium ends in…", 0, "2s¹", "2p¹", "3s¹", "1p¹"),
         lesson("Atomic and ionic radius", "Atomic radius generally decreases across a period and increases down a group.", "cation < atom < anion", "Which is typically smaller than its neutral atom?", 1, "Anion", "Cation", "Isotope", "Noble gas"),
         lesson("Ionization energy", "Ionization energy is the energy needed to remove a gaseous electron and generally rises across a period.", "X(g) → X⁺(g) + e⁻", "Ionization energy is highest near which region?", 3, "Lower left", "Center", "Lower right", "Upper right"),
         lesson("Electronegativity and metallic character", "Electronegativity rises toward fluorine; metallic character rises toward francium.", "F = 3.98 on the Pauling scale", "The most electronegative element is…", 2, "Oxygen", "Chlorine", "Fluorine", "Nitrogen")
     )),
-    CurriculumModule("Chemical Bonding", "⚭", Purple, "Connect electron behavior with bonds, shapes and properties.", listOf(
+    CurriculumModule("Chemical Bonding: Senior Secondary", "⚭", Purple, "Connect electron behavior with bonds, shapes and properties.", listOf(
         lesson("Ionic bonding", "Electron transfer creates oppositely charged ions held in a three-dimensional electrostatic lattice.", "Na → Na⁺ + e⁻", "Ionic compounds usually conduct electricity when…", 2, "Solid only", "Cold", "Molten or dissolved", "Under vacuum"),
         lesson("Covalent bonding", "Covalent bonds form when atoms share electron pairs between their nuclei.", "bond order: single < double < triple", "A double covalent bond shares how many electron pairs?", 1, "One", "Two", "Three", "Four"),
         lesson("Metallic bonding", "Metal cations are attracted to mobile, delocalized valence electrons.", "metal ions + electron sea", "Metal conductivity is explained by…", 3, "Fixed protons", "Neutron flow", "Ionic molecules", "Mobile electrons"),
         lesson("Lewis structures and formal charge", "Lewis structures track valence electrons; preferred structures minimize formal charge.", "FC = valence − dots − bonds", "How many valence electrons does oxygen have?", 2, "2", "4", "6", "8"),
         lesson("VSEPR theory and molecular shapes", "Electron domains repel and arrange to maximize separation around a central atom.", "2 linear · 3 planar · 4 tetrahedral", "The molecular shape of methane is…", 3, "Bent", "Linear", "Trigonal planar", "Tetrahedral")
     )),
-    CurriculumModule("States of Matter", "◫", Color(0xFF73D0FF), "Relate particles and forces to gases, liquids, solids and phases.", listOf(
+    CurriculumModule("States and Phases: Senior Secondary", "◫", Color(0xFF73D0FF), "Relate particles and forces to gases, liquids, solids and phases.", listOf(
         lesson("Properties of solids, liquids and gases", "Particle spacing, motion and attraction explain shape, volume, density and compressibility.", "solid → liquid → gas", "Which state is most compressible?", 2, "Solid", "Liquid", "Gas", "Crystal"),
         lesson("Gas laws", "Pressure, volume, temperature and amount are connected by the ideal gas equation.", "PV = nRT", "At constant temperature, doubling pressure does what to volume?", 1, "Doubles it", "Halves it", "No change", "Quadruples it"),
         lesson("Intermolecular forces", "Dispersion, dipole forces and hydrogen bonding act between molecules and influence boiling points.", "dispersion < dipole < H-bond", "Hydrogen bonding occurs strongly in…", 0, "Water", "Methane", "Carbon dioxide", "Argon"),
@@ -80,7 +80,7 @@ internal val curriculum by lazy { listOf(
         lesson("Organic reaction mechanisms", "Mechanisms use curved arrows to track electron-pair movement through elementary steps.", "nucleophile → electron-poor center", "A nucleophile donates…", 0, "An electron pair", "A proton only", "A neutron", "Heat"),
         lesson("Polymers and biomolecules", "Monomers join into polymers; biological macromolecules include proteins, nucleic acids and carbohydrates.", "n monomers → polymer", "Proteins are polymers of…", 1, "Nucleotides", "Amino acids", "Glucose only", "Fatty acids")
     )),
-    CurriculumModule("Chemical Reactions", "⇌", Orange, "Represent, classify and balance transformations of matter.", listOf(
+    CurriculumModule("Reaction Equations and Redox", "⇌", Orange, "Represent, classify and balance transformations of matter.", listOf(
         lesson("Writing and balancing equations", "Coefficients conserve each type of atom without changing the identity of any substance.", "2H₂ + O₂ → 2H₂O", "The balanced coefficient of O₂ in water formation is…", 0, "1", "2", "3", "4"),
         lesson("Combination and decomposition reactions", "Combination joins reactants into one product; decomposition splits one reactant into simpler products.", "A + B → AB · AB → A + B", "CaCO₃ → CaO + CO₂ is…", 2, "Combination", "Displacement", "Decomposition", "Neutralization"),
         lesson("Displacement and precipitation reactions", "Ions exchange partners; an insoluble product leaves solution as a precipitate.", "Ag⁺ + Cl⁻ → AgCl↓", "The downward arrow indicates…", 3, "A gas", "Heat", "A catalyst", "A precipitate"),
@@ -111,12 +111,12 @@ internal val curriculum by lazy { listOf(
 ).map { it.withCurriculumClassification() } + expandedCurriculum }
 
 private fun CurriculumModule.withCurriculumClassification(): CurriculumModule = when (title) {
-    "Atomic Structure" -> copy(category = "Physical Chemistry", subcategory = "Atomic foundations")
-    "Periodic Table" -> copy(category = "Inorganic Chemistry", subcategory = "Periodic properties")
-    "Chemical Bonding" -> copy(category = "Physical Chemistry", subcategory = "Molecular structure")
-    "States of Matter" -> copy(category = "Physical Chemistry", subcategory = "States and phases")
+    "Atomic Structure: Senior Secondary" -> copy(category = "Physical Chemistry", subcategory = "Atomic foundations")
+    "Periodic Table and Trends" -> copy(category = "Inorganic Chemistry", subcategory = "Periodic properties")
+    "Chemical Bonding: Senior Secondary" -> copy(category = "Physical Chemistry", subcategory = "Molecular structure")
+    "States and Phases: Senior Secondary" -> copy(category = "Physical Chemistry", subcategory = "States and phases")
     "Organic Chemistry" -> copy(category = "Organic Chemistry", subcategory = "Core organic chemistry")
-    "Chemical Reactions" -> copy(category = "General Chemistry", subcategory = "Reaction chemistry")
+    "Reaction Equations and Redox" -> copy(category = "General Chemistry", subcategory = "Reaction chemistry")
     "Equilibrium and Solutions" -> copy(category = "Physical Chemistry", subcategory = "Equilibria and solutions")
     "Kinetics and Electrochemistry" -> copy(category = "Physical Chemistry", subcategory = "Kinetics and electrochemistry")
     "Analytical and Applied Chemistry" -> copy(category = "Analytical Chemistry", subcategory = "Analysis and applications")
@@ -141,11 +141,19 @@ private fun seed(
 
 private fun generatedLesson(seed: CurriculumSeed, concept: String): CurriculumLesson {
     val topic = seed.title
-    val summary = conceptSummary(concept, topic)
+    val authoredContent = when (seed.category) {
+        "Introduction to Chemistry" -> levelOneConceptContent[concept]
+        "High School Chemistry" -> levelTwoConceptContent[concept]
+        "Physical Chemistry" -> levelThreeConceptContent["${seed.title}|$concept"]
+        "Undergraduate Chemistry" -> levelFourFiveConceptContent["Undergraduate|${seed.title}|$concept"]
+        "Postgraduate Chemistry" -> levelFourFiveConceptContent["Postgraduate|${seed.title}|$concept"]
+        else -> null
+    }
+    val summary = authoredContent?.summary ?: conceptSummary(concept, topic)
     return CurriculumLesson(
         title = concept,
         concept = summary,
-        formula = keyRelationshipFor(concept),
+        formula = authoredContent?.keyRelationship ?: keyRelationshipFor(concept),
         question = "Which approach best demonstrates understanding of $concept?",
         answers = listOf(
             "Memorizing its name only",
@@ -154,12 +162,12 @@ private fun generatedLesson(seed: CurriculumSeed, concept: String): CurriculumLe
             "Using an unrelated model"
         ),
         correct = 1,
-        theory = expandedTheory(concept, summary, topic, seed.category, seed.level),
-        workedExample = workedExampleFor(concept, seed.category),
-        exampleSteps = exampleStepsFor(concept, seed.category),
-        commonMistake = commonMistakeFor(concept, seed.category),
-        realWorldApplication = applicationFor(concept, seed.category),
-        advancedConcepts = advancedConceptsFor(concept)
+        theory = authoredContent?.theory(topic) ?: expandedTheory(concept, summary, topic, seed.category, seed.level),
+        workedExample = authoredContent?.workedExample ?: workedExampleFor(concept, seed.category),
+        exampleSteps = authoredContent?.learningSteps ?: exampleStepsFor(concept, seed.category),
+        commonMistake = authoredContent?.commonMistake ?: commonMistakeFor(concept, seed.category),
+        realWorldApplication = authoredContent?.application ?: applicationFor(concept, seed.category),
+        advancedConcepts = authoredContent?.connections ?: advancedConceptsFor(concept)
     )
 }
 
@@ -487,16 +495,49 @@ private fun advancedConceptsFor(title: String): List<String> {
 }
 
 private val expandedCurriculum = listOf(
-    seed("Matter in Everyday Life", "Class 6–8", "Foundations", "Matter and measurement",
-        "Materials and their properties", "Solids, liquids and gases", "Physical and chemical changes", "Elements, compounds and mixtures", "Separation in daily life"),
-    seed("Measurement and Laboratory Skills", "Class 6–8", "Foundations", "Practical chemistry",
-        "SI units and prefixes", "Mass, volume and density", "Temperature and thermometers", "Safe handling and hazard symbols", "Observation and scientific records"),
+    seed("Matter Around Us", "Class 6–8", "Introduction to Chemistry", "Matter Around Us",
+        "What is matter?", "States of matter", "Properties of solids", "Liquids", "Gases", "Plasma",
+        "Bose-Einstein Condensate", "Physical changes", "Chemical changes", "Classification of matter",
+        "Mixtures", "Pure substances"),
+    seed("Measurement in Chemistry", "Class 6–8", "Introduction to Chemistry", "Measurement in Chemistry",
+        "SI Units", "Derived Units", "Scientific notation", "Significant figures", "Precision", "Accuracy",
+        "Errors", "Density", "Temperature scales", "Laboratory measurements"),
+    seed("Atoms", "Class 6–8", "Introduction to Chemistry", "Atoms",
+        "Discovery of atom", "Dalton theory", "Thomson model", "Rutherford model", "Bohr model",
+        "Modern atomic model", "Subatomic particles", "Atomic number", "Mass number", "Isotopes",
+        "Isobars", "Isotones", "Isoelectronic species"),
+    seed("Molecules", "Class 6–8", "Introduction to Chemistry", "Molecules",
+        "Elements", "Compounds", "Molecules", "Atomicity", "Molecular mass", "Formula mass", "Valency",
+        "Chemical formula"),
+    seed("Periodic Table", "Class 6–8", "Introduction to Chemistry", "Periodic Table",
+        "History", "Mendeleev table", "Modern periodic table", "Groups", "Periods", "Metals",
+        "Nonmetals", "Metalloids", "Periodic trends", "Electronic configuration basics"),
+    seed("Chemical Reactions", "Class 6–8", "Introduction to Chemistry", "Chemical Reactions",
+        "Combination", "Decomposition", "Displacement", "Double displacement", "Neutralization",
+        "Combustion", "Oxidation", "Reduction", "Redox basics"),
     seed("Air, Water and Environment", "Class 6–8", "Environmental Chemistry", "Earth systems",
         "Composition of air", "Water cycle and purification", "Combustion and air pollution", "Greenhouse effect", "Resources and sustainability"),
     seed("Acids, Bases and Salts: Foundations", "Class 6–8", "Foundations", "Acids and bases",
         "Natural indicators", "Acidic and basic substances", "Neutralization", "Common salts", "Everyday applications"),
     seed("Metals, Non-metals and Carbon", "Class 6–8", "Inorganic Chemistry", "Descriptive chemistry",
         "Physical properties of metals", "Reactivity of metals", "Non-metals and their uses", "Corrosion and prevention", "Carbon forms and fuels"),
+
+    seed("Atomic Structure", "Class 9–10", "High School Chemistry", "Atomic Structure",
+        "Quantum numbers", "Orbitals", "Electron configuration", "Aufbau", "Hund rule", "Pauli principle"),
+    seed("Chemical Bonding", "Class 9–10", "High School Chemistry", "Chemical Bonding",
+        "Ionic bond", "Covalent bond", "Coordinate bond", "Metallic bond", "Hydrogen bond",
+        "Van der Waals forces", "Lewis structures", "VSEPR", "Hybridization", "Molecular geometry"),
+    seed("Mole Concept", "Class 9–10", "High School Chemistry", "Mole Concept",
+        "Avogadro number", "Moles", "Stoichiometry", "Empirical formula", "Molecular formula",
+        "Limiting reagent", "Percentage yield"),
+    seed("States of Matter", "Class 9–10", "High School Chemistry", "States of Matter",
+        "Gas laws", "Ideal gas equation", "Kinetic theory", "Liquids", "Surface tension", "Viscosity",
+        "Vapour pressure", "Solids", "Crystal lattice"),
+    seed("Solutions", "Class 9–10", "High School Chemistry", "Solutions",
+        "Types", "Solubility", "Concentration", "Molarity", "Molality", "Normality", "Mole fraction",
+        "ppm", "Dilution"),
+    seed("Acids Bases Salts", "Class 9–10", "High School Chemistry", "Acids Bases Salts",
+        "Arrhenius", "Bronsted", "Lewis", "pH", "Buffers", "Indicators", "Hydrolysis", "Salt chemistry"),
 
     seed("Particle Theory and Atomic Models", "Class 9–10", "Physical Chemistry", "Atomic foundations",
         "Laws of chemical combination", "Dalton atomic theory", "Atoms and molecules", "Mole concept introduction", "Atomic models and valency"),
@@ -508,6 +549,24 @@ private val expandedCurriculum = listOf(
         "Occurrence of metals", "Ore concentration", "Reduction and refining", "Alloys", "Recycling metals"),
     seed("Carbon Compounds", "Class 9–10", "Organic Chemistry", "Introductory organic",
         "Covalent bonding in carbon", "Homologous series", "Basic nomenclature", "Ethanol and ethanoic acid", "Soaps and detergents"),
+
+    seed("Thermodynamics", "Class 11–12", "Physical Chemistry", "Thermodynamics",
+        "System", "Surroundings", "Work", "Heat", "Internal energy", "Enthalpy", "Entropy",
+        "Gibbs free energy", "Hess Law", "Spontaneity"),
+    seed("Thermochemistry", "Class 11–12", "Physical Chemistry", "Thermochemistry",
+        "Heat capacity", "Specific heat", "Calorimetry", "Bond enthalpy", "Lattice energy", "Born-Haber cycle"),
+    seed("Chemical Equilibrium", "Class 11–12", "Physical Chemistry", "Chemical Equilibrium",
+        "Dynamic equilibrium", "Equilibrium constant", "Le Chatelier principle", "Ionic equilibrium", "Buffer systems"),
+    seed("Chemical Kinetics", "Class 11–12", "Physical Chemistry", "Chemical Kinetics",
+        "Rate laws", "Order", "Molecularity", "Arrhenius equation", "Activation energy", "Catalysis"),
+    seed("Electrochemistry", "Class 11–12", "Physical Chemistry", "Electrochemistry",
+        "Redox", "Galvanic cells", "Electrolysis", "Nernst equation", "EMF", "Batteries", "Fuel cells", "Corrosion"),
+    seed("Surface Chemistry", "Class 11–12", "Physical Chemistry", "Surface Chemistry",
+        "Adsorption", "Catalysis", "Colloids", "Emulsions", "Micelles"),
+    seed("Solid State", "Class 11–12", "Physical Chemistry", "Solid State",
+        "Crystal systems", "Unit cell", "Packing", "Defects", "Semiconductors"),
+    seed("Nuclear Chemistry", "Class 11–12", "Physical Chemistry", "Nuclear Chemistry",
+        "Radioactivity", "Alpha decay", "Beta decay", "Gamma rays", "Half-life", "Nuclear fission", "Nuclear fusion"),
 
     seed("Advanced Mole Concept", "Class 11–12", "Physical Chemistry", "Stoichiometry",
         "Empirical and molecular formulae", "Limiting reagent", "Concentration units", "Equivalent mass", "Redox titration calculations"),
@@ -523,10 +582,6 @@ private val expandedCurriculum = listOf(
         "Electronic configurations", "Oxidation states and color", "Magnetic properties", "Lanthanoid contraction", "Actinoids"),
     seed("Coordination Compounds", "Class 11–12", "Inorganic Chemistry", "Coordination chemistry",
         "Werner theory", "Ligands and nomenclature", "Isomerism", "Crystal field splitting", "Stability and applications"),
-    seed("Solid State Chemistry", "Class 11–12", "Physical Chemistry", "Solids and materials",
-        "Unit cells", "Packing efficiency", "Crystal defects", "Electrical properties", "Magnetic properties"),
-    seed("Surface Chemistry", "Class 11–12", "Physical Chemistry", "Interfaces",
-        "Adsorption", "Catalysis", "Colloids", "Emulsions", "Surface area and applications"),
     seed("Principles of Organic Chemistry", "Class 11–12", "Organic Chemistry", "Structure and mechanism",
         "Electronic effects", "Reaction intermediates", "Acidity and basicity", "Purification methods", "Qualitative organic analysis"),
     seed("Hydrocarbons and Halo Compounds", "Class 11–12", "Organic Chemistry", "Organic families",
@@ -537,6 +592,35 @@ private val expandedCurriculum = listOf(
         "Carbohydrates", "Amino acids and proteins", "Enzymes", "Nucleic acids", "Natural and synthetic polymers"),
     seed("Chemistry in Society", "Class 11–12", "Applied Chemistry", "Health and industry",
         "Medicines and drug classes", "Food chemistry", "Cleansing agents", "Nanomaterials", "Green chemistry principles"),
+
+    seed("Advanced Physical Chemistry", "Undergraduate", "Undergraduate Chemistry", "Advanced Physical Chemistry",
+        "Quantum chemistry", "Statistical mechanics", "Spectroscopy", "Molecular symmetry", "Group theory", "Phase rule", "Non-ideal systems"),
+    seed("Advanced Organic Chemistry", "Undergraduate", "Undergraduate Chemistry", "Advanced Organic Chemistry",
+        "Reaction mechanisms", "Pericyclic reactions", "Rearrangements", "Named reactions", "Heterocyclic chemistry",
+        "Organometallic chemistry", "Stereochemistry", "Asymmetric synthesis"),
+    seed("Advanced Inorganic Chemistry", "Undergraduate", "Undergraduate Chemistry", "Advanced Inorganic Chemistry",
+        "Crystal field theory", "Ligand field theory", "Bioinorganic chemistry", "Organometallic compounds", "Cluster compounds"),
+    seed("Analytical Chemistry", "Undergraduate", "Undergraduate Chemistry", "Analytical Chemistry",
+        "Gravimetric analysis", "Volumetric analysis", "Complexometric titrations", "Redox titrations",
+        "Instrumental analysis", "Error analysis"),
+    seed("Spectroscopy", "Undergraduate", "Undergraduate Chemistry", "Spectroscopy",
+        "UV", "IR", "Raman", "NMR", "ESR", "Mass spectrometry", "XRD", "XPS"),
+    seed("Separation Techniques", "Undergraduate", "Undergraduate Chemistry", "Separation Techniques",
+        "Chromatography", "HPLC", "GC", "TLC", "Ion exchange", "Electrophoresis"),
+    seed("Computational Chemistry", "Undergraduate", "Undergraduate Chemistry", "Computational Chemistry",
+        "Molecular modeling", "Gaussian", "DFT", "Molecular dynamics", "Docking"),
+    seed("Polymer Chemistry", "Undergraduate", "Undergraduate Chemistry", "Polymer Chemistry",
+        "Polymerization", "Conducting polymers", "Biopolymers"),
+    seed("Industrial Chemistry", "Undergraduate", "Undergraduate Chemistry", "Industrial Chemistry",
+        "Cement", "Fertilizers", "Glass", "Ceramics", "Petrochemicals", "Soap", "Paint", "Dyes", "Explosives"),
+    seed("Environmental Chemistry", "Undergraduate", "Undergraduate Chemistry", "Environmental Chemistry",
+        "Air pollution", "Water pollution", "Green chemistry", "Waste management", "Atmospheric chemistry"),
+    seed("Biochemistry", "Undergraduate", "Undergraduate Chemistry", "Biochemistry",
+        "Proteins", "DNA", "RNA", "Enzymes", "Metabolism", "ATP", "Photosynthesis", "Respiration"),
+    seed("Medicinal Chemistry", "Undergraduate", "Undergraduate Chemistry", "Medicinal Chemistry",
+        "Drug discovery", "SAR", "Pharmacokinetics", "Antibiotics", "Antivirals"),
+    seed("Materials Chemistry", "Undergraduate", "Undergraduate Chemistry", "Materials Chemistry",
+        "Nanomaterials", "Ceramics", "Smart materials", "Biomaterials", "Batteries", "Solar cells"),
 
     seed("Chemical Kinetics and Dynamics", "Undergraduate", "Physical Chemistry", "Reaction dynamics",
         "Integrated rate laws", "Complex reactions", "Steady-state approximation", "Transition-state theory", "Photochemical kinetics"),
@@ -573,8 +657,50 @@ private val expandedCurriculum = listOf(
     seed("Environmental and Industrial Chemistry", "Undergraduate", "Applied Chemistry", "Processes and sustainability",
         "Atmospheric chemistry", "Water and wastewater treatment", "Industrial unit operations", "Petrochemicals", "Life-cycle assessment"),
 
-    seed("Computational Chemistry", "Postgraduate", "Computational Chemistry", "Molecular modelling",
-        "Hartree–Fock theory", "Density functional theory", "Basis sets", "Molecular dynamics", "Docking and free-energy methods"),
+    seed("Advanced Quantum Chemistry", "Postgraduate", "Postgraduate Chemistry", "Advanced Quantum Chemistry", "Core principles and applications"),
+    seed("Advanced Thermodynamics", "Postgraduate", "Postgraduate Chemistry", "Advanced Thermodynamics", "Core principles and applications"),
+    seed("Statistical Thermodynamics", "Postgraduate", "Postgraduate Chemistry", "Statistical Thermodynamics", "Core principles and applications"),
+    seed("Advanced Chemical Kinetics", "Postgraduate", "Postgraduate Chemistry", "Advanced Chemical Kinetics", "Core principles and applications"),
+    seed("Photochemistry", "Postgraduate", "Postgraduate Chemistry", "Photochemistry", "Core principles and applications"),
+    seed("Electroanalytical Chemistry", "Postgraduate", "Postgraduate Chemistry", "Electroanalytical Chemistry", "Core principles and applications"),
+    seed("Supramolecular Chemistry", "Postgraduate", "Postgraduate Chemistry", "Supramolecular Chemistry", "Core principles and applications"),
+    seed("Solid State Chemistry", "Postgraduate", "Postgraduate Chemistry", "Solid State Chemistry", "Core principles and applications"),
+    seed("Organometallic Chemistry", "Postgraduate", "Postgraduate Chemistry", "Organometallic Chemistry", "Core principles and applications"),
+    seed("Bioorganic Chemistry", "Postgraduate", "Postgraduate Chemistry", "Bioorganic Chemistry", "Core principles and applications"),
+    seed("Bioinorganic Chemistry", "Postgraduate", "Postgraduate Chemistry", "Bioinorganic Chemistry", "Core principles and applications"),
+    seed("Synthetic Organic Chemistry", "Postgraduate", "Postgraduate Chemistry", "Synthetic Organic Chemistry", "Core principles and applications"),
+    seed("Retrosynthetic Analysis", "Postgraduate", "Postgraduate Chemistry", "Retrosynthetic Analysis", "Core principles and applications"),
+    seed("Green Chemistry", "Postgraduate", "Postgraduate Chemistry", "Green Chemistry", "Core principles and applications"),
+    seed("Catalysis", "Postgraduate", "Postgraduate Chemistry", "Catalysis",
+        "Homogeneous", "Heterogeneous", "Enzyme catalysis", "Photocatalysis"),
+    seed("Nanochemistry", "Postgraduate", "Postgraduate Chemistry", "Nanochemistry", "Core principles and applications"),
+    seed("Surface Science", "Postgraduate", "Postgraduate Chemistry", "Surface Science", "Core principles and applications"),
+    seed("Medicinal Chemistry", "Postgraduate", "Postgraduate Chemistry", "Medicinal Chemistry", "Core principles and applications"),
+    seed("Pharmaceutical Chemistry", "Postgraduate", "Postgraduate Chemistry", "Pharmaceutical Chemistry", "Core principles and applications"),
+    seed("Food Chemistry", "Postgraduate", "Postgraduate Chemistry", "Food Chemistry", "Core principles and applications"),
+    seed("Agricultural Chemistry", "Postgraduate", "Postgraduate Chemistry", "Agricultural Chemistry", "Core principles and applications"),
+    seed("Petrochemical Chemistry", "Postgraduate", "Postgraduate Chemistry", "Petrochemical Chemistry", "Core principles and applications"),
+    seed("Forensic Chemistry", "Postgraduate", "Postgraduate Chemistry", "Forensic Chemistry", "Core principles and applications"),
+    seed("Geochemistry", "Postgraduate", "Postgraduate Chemistry", "Geochemistry", "Core principles and applications"),
+    seed("Atmospheric Chemistry", "Postgraduate", "Postgraduate Chemistry", "Atmospheric Chemistry", "Core principles and applications"),
+    seed("Marine Chemistry", "Postgraduate", "Postgraduate Chemistry", "Marine Chemistry", "Core principles and applications"),
+    seed("Radiochemistry", "Postgraduate", "Postgraduate Chemistry", "Radiochemistry", "Core principles and applications"),
+    seed("Astrochemistry", "Postgraduate", "Postgraduate Chemistry", "Astrochemistry", "Core principles and applications"),
+    seed("Materials Science", "Postgraduate", "Postgraduate Chemistry", "Materials Science", "Core principles and applications"),
+    seed("Computational Chemistry", "Postgraduate", "Postgraduate Chemistry", "Computational Chemistry", "Core principles and applications"),
+    seed("Chemical Biology", "Postgraduate", "Postgraduate Chemistry", "Chemical Biology", "Core principles and applications"),
+    seed("Chemical Engineering Fundamentals", "Postgraduate", "Postgraduate Chemistry", "Chemical Engineering Fundamentals",
+        "Unit operations", "Mass transfer", "Heat transfer", "Reactor design"),
+    seed("Instrumentation", "Postgraduate", "Postgraduate Chemistry", "Instrumentation",
+        "GC-MS", "LC-MS/MS", "ICP-MS", "AAS", "ICP-OES", "XRF", "SEM", "TEM", "AFM", "Confocal microscopy"),
+    seed("Research Methodology", "Postgraduate", "Postgraduate Chemistry", "Research Methodology",
+        "Literature review", "Experimental design", "Scientific writing", "Data analysis", "Chemometrics"),
+    seed("Advanced Laboratory Techniques", "Postgraduate", "Postgraduate Chemistry", "Advanced Laboratory Techniques",
+        "Air-sensitive synthesis", "Glove box", "Schlenk line", "High-pressure reactions", "Cryogenic techniques"),
+    seed("Emerging Areas", "Postgraduate", "Postgraduate Chemistry", "Emerging Areas",
+        "AI in Chemistry", "Machine Learning", "Quantum Computing for Chemistry", "CRISPR Chemistry",
+        "Molecular Electronics", "Soft Matter", "MOFs", "COFs", "Click Chemistry", "Flow Chemistry", "Microfluidics"),
+
     seed("Advanced Spectroscopic Structure Elucidation", "Postgraduate", "Analytical Chemistry", "Structure determination",
         "Multidimensional NMR", "Advanced mass fragmentation", "Time-resolved spectroscopy", "EPR spectroscopy", "X-ray crystallography"),
     seed("Supramolecular and Materials Chemistry", "Postgraduate", "Materials Chemistry", "Functional materials",
@@ -583,10 +709,6 @@ private val expandedCurriculum = listOf(
         "Ligand substitution kinetics", "Inner- and outer-sphere transfer", "Activation of small molecules", "Metal clusters", "Catalytic cycles"),
     seed("Advanced Organic Synthesis", "Postgraduate", "Organic Chemistry", "Modern synthesis",
         "Asymmetric synthesis", "Cross-coupling reactions", "C–H activation", "Photoredox chemistry", "Flow and automated synthesis"),
-    seed("Chemical Biology", "Postgraduate", "Biochemistry", "Chemical biology",
-        "Bioconjugation", "Chemical probes", "Proteomics and metabolomics", "Genome editing chemistry", "Synthetic biology"),
-    seed("Medicinal Chemistry", "Postgraduate", "Drug Discovery", "Medicinal chemistry",
-        "Drug targets and mechanisms", "Structure–activity relationships", "Physicochemical properties", "Bioisosteres and scaffold hopping", "Lead optimization"),
     seed("Drug Discovery Pipeline", "Postgraduate", "Drug Discovery", "Discovery workflow",
         "Target identification and validation", "Assay development", "Hit discovery and screening", "Hit-to-lead optimization", "Candidate selection"),
     seed("Pharmacokinetics and Drug Metabolism", "Postgraduate", "Drug Discovery", "ADME and safety",
@@ -608,8 +730,6 @@ private val expandedCurriculum = listOf(
         "Nuclear stability and decay", "Decay kinetics and half-life", "Nuclear reactions", "Radiochemical methods", "Applications and radiation safety"),
     seed("Photochemistry", "Undergraduate", "Physical Chemistry", "Excited-state chemistry",
         "Light absorption and excited states", "Jablonski diagrams", "Quantum yield", "Photochemical reactions", "Photosensitization and applications"),
-    seed("Polymer Chemistry", "Undergraduate", "Organic Chemistry", "Macromolecular chemistry",
-        "Chain-growth polymerization", "Step-growth polymerization", "Molecular-weight distributions", "Polymer stereochemistry", "Thermal and mechanical characterization"),
     seed("Symmetry and Group Theory in Chemistry", "Postgraduate", "Inorganic Chemistry", "Molecular symmetry",
         "Symmetry elements and operations", "Point groups", "Character tables", "Vibrational-mode analysis", "Orbital symmetry applications"),
     seed("Advanced Acid–Base and Solvent Chemistry", "Postgraduate", "Inorganic Chemistry", "Solution chemistry",
@@ -624,7 +744,8 @@ private val expandedCurriculum = listOf(
     val palette = listOf(Cyan, Purple, Green, Orange, Color(0xFF4D8BFF), Color(0xFFC456FF))
     CurriculumModule(
         title = item.title,
-        icon = when (item.category) {
+        icon = levelOneModuleIcons[item.title] ?: levelTwoModuleIcons[item.title] ?: levelThreeModuleIcons[item.title]
+            ?: levelFourFiveModuleIcons["${item.level}|${item.title}"] ?: when (item.category) {
             "Biochemistry" -> "BIO"
             "Drug Discovery" -> "Rx"
             "Inorganic Chemistry" -> "M"

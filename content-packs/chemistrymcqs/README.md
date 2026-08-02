@@ -44,7 +44,7 @@ node tools\validate-content-packs.mjs content-packs\chemistrymcqs
 node tools\build-content-packs.mjs content-packs\chemistrymcqs
 ```
 
-The validator intentionally fails until all nine declared packs exist and contain exactly 3,600 valid questions. The builder requires a JDK `jar` command, calculates all hashes and sizes, invokes the validator, creates the nine versioned ZIP files, creates `chemistrymcqs.zip`, generates `catalog.json`, and writes `dist/release-report.json`.
+The validator intentionally fails until all nine declared packs exist and contain exactly 10,000 valid questions. The builder requires a JDK `jar` command, calculates all hashes and sizes, invokes the validator, creates the nine versioned ZIP files, creates `chemistrymcqs.zip`, generates `catalog.json`, and writes `dist/release-report.json`.
 
 Upload the contents of `dist/public/chemistrymcqs/` to `/edtech/chemistrymcqs/`, then upload `dist/chemistrymcqs.zip` to `/edtech/chemistrymcqs.zip`.
 
@@ -52,16 +52,16 @@ Upload the contents of `dist/public/chemistrymcqs/` to `/edtech/chemistrymcqs/`,
 
 | Pack ID | Questions |
 |---|---:|
-| `chemistry-class-06-en` | 150 |
-| `chemistry-class-07-en` | 150 |
-| `chemistry-class-08-en` | 150 |
-| `chemistry-class-09-en` | 300 |
-| `chemistry-class-10-en` | 400 |
-| `chemistry-class-11-en` | 650 |
-| `chemistry-class-12-en` | 750 |
-| `chemistry-undergraduate-en` | 650 |
-| `chemistry-postgraduate-en` | 400 |
-| **Total** | **3,600** |
+| `chemistry-class-06-en` | 500 |
+| `chemistry-class-07-en` | 500 |
+| `chemistry-class-08-en` | 500 |
+| `chemistry-class-09-en` | 800 |
+| `chemistry-class-10-en` | 1,000 |
+| `chemistry-class-11-en` | 1,500 |
+| `chemistry-class-12-en` | 1,700 |
+| `chemistry-undergraduate-en` | 1,800 |
+| `chemistry-postgraduate-en` | 1,700 |
+| **Total** | **10,000** |
 
 ## Release rules
 

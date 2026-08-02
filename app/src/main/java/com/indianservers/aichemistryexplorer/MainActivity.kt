@@ -76,6 +76,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
@@ -86,6 +87,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -217,19 +220,33 @@ fun ChemistryApp() {
         containerColor = palette.background,
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
-            Box {
-                Text(
-                    "Aa · Theme",
-                    color = White,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+            Box(contentAlignment = Alignment.BottomEnd) {
+                Box(
                     modifier = Modifier
+                        .size(42.dp)
+                        .shadow(10.dp, CircleShape, ambientColor = Color.Black.copy(.45f), spotColor = Cyan.copy(.18f))
                         .clip(CircleShape)
-                        .background(palette.surfaceAlt)
-                        .border(1.dp, Cyan.copy(alpha = .55f), CircleShape)
-                        .clickable { readingMenu = true }
-                        .padding(horizontal = 13.dp, vertical = 9.dp)
-                )
+                        .background(palette.surfaceAlt.copy(alpha = .94f))
+                        .border(1.dp, White.copy(alpha = .22f), CircleShape)
+                        .semantics { contentDescription = "Reading theme and text size" }
+                        .clickable { readingMenu = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "◐",
+                        color = Cyan,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center
+                    )
+                    Box(
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(7.dp)
+                            .size(5.dp)
+                            .background(Green, CircleShape)
+                    )
+                }
                 DropdownMenu(
                     expanded = readingMenu,
                     onDismissRequest = { readingMenu = false },

@@ -103,6 +103,11 @@ private fun ExperimentCatalog(open: (VirtualExperiment) -> Unit) {
                             Text(experiment.objective, color = Muted, fontSize = 11.sp)
                             Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                                 Tag(experiment.level.uppercase(), techniqueColor(experiment.technique))
+                                if (experiment.category == "Laboratory foundations") {
+                                    Tag("FOUNDATION COMPETENCY", Green)
+                                } else if (experiment.category == "General chemistry laboratories") {
+                                    Tag("ACCURACY PROTOCOL", Green)
+                                }
                                 Text(experiment.measuredQuantity, color = White.copy(alpha = .72f), fontSize = 9.sp)
                             }
                         }
@@ -156,7 +161,14 @@ private fun Workbench(
         item {
             GlowCard(Modifier.fillMaxWidth(), techniqueColor(experiment.technique)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Tag(experiment.technique.name.replace('_', ' '), techniqueColor(experiment.technique))
+                    Tag(
+                        when (experiment.category) {
+                            "Laboratory foundations" -> "FOUNDATION · ${experiment.technique.name.replace('_', ' ')}"
+                            "General chemistry laboratories" -> "GENERAL CHEM · ${experiment.technique.name.replace('_', ' ')}"
+                            else -> experiment.technique.name.replace('_', ' ')
+                        },
+                        techniqueColor(experiment.technique)
+                    )
                     Text("$actionIndex/${actions.size} operations", color = Muted, fontSize = 10.sp)
                 }
                 Text(experiment.objective, color = White, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
@@ -216,6 +228,19 @@ private fun Method(experiment: VirtualExperiment) {
         item {
             Info("EXPECTED RESULT", experiment.expectedResult, Green)
             Info("CALCULATION", experiment.analysis, Purple)
+            if (experiment.category == "Laboratory foundations") {
+                Info(
+                    "COMPETENCY EVIDENCE",
+                    "Passing requires the stated target, acceptable controls, a traceable notebook and correct response to every critical safety checkpoint. Completion alone is not competency.",
+                    Orange
+                )
+            } else if (experiment.category == "General chemistry laboratories") {
+                Info(
+                    "ACCURACY STANDARD",
+                    "Accept the result only after method-specific calibration, blank/reference controls, independent replicates, correct units and uncertainty evaluation. A plausible-looking value is not sufficient.",
+                    Orange
+                )
+            }
             Info("QUALITY CONTROL", qualityControl(experiment.technique), Green)
         }
     }

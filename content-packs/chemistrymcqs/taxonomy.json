@@ -8,6 +8,26 @@
   ],
   "categories": [
     {
+      "id": "introduction-to-chemistry",
+      "title": "Introduction to Chemistry",
+      "subcategories": ["Matter Around Us", "Measurement in Chemistry", "Atoms", "Molecules", "Periodic Table", "Chemical Reactions"]
+    },
+    {
+      "id": "high-school-chemistry",
+      "title": "High School Chemistry",
+      "subcategories": ["Atomic Structure", "Chemical Bonding", "Mole Concept", "States of Matter", "Solutions", "Acids Bases Salts"]
+    },
+    {
+      "id": "undergraduate-chemistry",
+      "title": "Undergraduate Chemistry",
+      "subcategories": ["Advanced Physical Chemistry", "Advanced Organic Chemistry", "Advanced Inorganic Chemistry", "Analytical Chemistry", "Spectroscopy", "Separation Techniques", "Computational Chemistry", "Polymer Chemistry", "Industrial Chemistry", "Environmental Chemistry", "Biochemistry", "Medicinal Chemistry", "Materials Chemistry"]
+    },
+    {
+      "id": "postgraduate-chemistry",
+      "title": "Postgraduate Chemistry",
+      "subcategories": ["Advanced Quantum Chemistry", "Advanced Thermodynamics", "Statistical Thermodynamics", "Advanced Chemical Kinetics", "Photochemistry", "Electroanalytical Chemistry", "Supramolecular Chemistry", "Solid State Chemistry", "Organometallic Chemistry", "Bioorganic Chemistry", "Bioinorganic Chemistry", "Synthetic Organic Chemistry", "Retrosynthetic Analysis", "Green Chemistry", "Catalysis", "Nanochemistry", "Surface Science", "Medicinal Chemistry", "Pharmaceutical Chemistry", "Food Chemistry", "Agricultural Chemistry", "Petrochemical Chemistry", "Forensic Chemistry", "Geochemistry", "Atmospheric Chemistry", "Marine Chemistry", "Radiochemistry", "Astrochemistry", "Materials Science", "Computational Chemistry", "Chemical Biology", "Chemical Engineering Fundamentals", "Instrumentation", "Research Methodology", "Advanced Laboratory Techniques", "Emerging Areas"]
+    },
+    {
       "id": "foundations",
       "title": "Foundations",
       "subcategories": ["Matter", "Measurement", "Laboratory Skills", "Chemical Change"]
@@ -15,7 +35,7 @@
     {
       "id": "physical-chemistry",
       "title": "Physical Chemistry",
-      "subcategories": ["Atomic Structure", "Chemical Bonding", "States and Phases", "Solutions", "Equilibrium", "Kinetics", "Electrochemistry", "Surface Chemistry", "Quantum Chemistry"]
+      "subcategories": ["Atomic Structure", "Chemical Bonding", "States and Phases", "Solutions", "Thermodynamics", "Thermochemistry", "Chemical Equilibrium", "Chemical Kinetics", "Electrochemistry", "Surface Chemistry", "Solid State", "Nuclear Chemistry", "Quantum Chemistry"]
     },
     {
       "id": "inorganic-chemistry",

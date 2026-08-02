@@ -88,7 +88,7 @@ private fun expectedExperimentResult(
  * Reference values are accepted/typical values at the conditions stated in each
  * experiment. Simulated readings intentionally include small measurement scatter.
  */
-internal val virtualExperiments = listOf(
+internal val coreVirtualExperiments = listOf(
     experiment("vol-01", "Strong acid–base titration", "Volumetric analysis", "Foundation", LabTechnique.TITRATION,
         "Determine HCl concentration using standardized NaOH.", "HCl + NaOH → NaCl + H₂O",
         "50 mL burette · 25 mL pipette · conical flask", "0.1000 M NaOH · HCl · phenolphthalein",
@@ -523,3 +523,11 @@ internal val virtualExperiments = listOf(
         "No single test proves a structure; a decision tree combines mutually supporting positive and negative results.",
         "Observe solubility, odor only by safe wafting where permitted, and pH.", "Run an unsaturation test on a separate aliquot.", "Test carbonyl/oxidation behavior and carbonate effervescence as appropriate.", "Compare the complete pattern with known references and report uncertainty.")
 )
+
+/**
+ * The workbench includes the original core experiments plus the complete
+ * chemistry-relevant laboratory inventory. Requested entries use original
+ * scenarios, procedures and wording; no third-party stories or assets are used.
+ */
+internal val virtualExperiments: List<VirtualExperiment> =
+    coreVirtualExperiments + requestedVirtualExperiments
