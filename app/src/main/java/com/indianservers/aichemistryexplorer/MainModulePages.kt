@@ -32,7 +32,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.Text as MaterialText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -267,67 +267,13 @@ internal fun MultiPageQuizScreen() {
     var page by remember { mutableIntStateOf(0) }
     val pages = listOf("Play", "Review", "History", "League")
     Column(Modifier.fillMaxSize()) {
-        ScreenTitle("Quiz Zone", "${pages[page]} · Level 12")
+        ScreenTitle("Quiz Zone", "${pages[page]} · downloadable chemistry packs")
         ModuleTabs(pages, page, Purple) { page = it }
         when (page) {
-            0 -> QuizPlayPage()
+            0 -> DynamicMcqLibraryPage()
             1 -> QuizReviewPage()
             2 -> QuizHistoryPage()
             else -> QuizLeaguePage()
-        }
-    }
-}
-
-@Composable
-private fun QuizPlayPage() {
-    val questions = listOf(
-        Triple("Which element has the highest electronegativity?", listOf("Oxygen", "Fluorine", "Chlorine", "Nitrogen"), 1),
-        Triple("What is the geometry of methane?", listOf("Linear", "Bent", "Planar", "Tetrahedral"), 3),
-        Triple("Where does oxidation occur in a cell?", listOf("Cathode", "Anode", "Bridge", "Solution"), 1)
-    )
-    var index by remember { mutableIntStateOf(0) }
-    var selected by remember(index) { mutableIntStateOf(-1) }
-    var score by remember { mutableIntStateOf(0) }
-    val question = questions[index]
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            LinearProgressIndicator(
-                progress = { (index + 1f) / questions.size }, modifier = Modifier.weight(1f).height(6.dp),
-                color = Cyan, trackColor = Border
-            )
-            Text("  ${index + 1}/${questions.size}", color = Muted, fontSize = 10.sp)
-        }
-        GlowCard(Modifier.fillMaxWidth().padding(top = 18.dp), Purple) {
-            Tag("MIXED CHEMISTRY", Orange)
-            Text(question.first, color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold, lineHeight = 28.sp, modifier = Modifier.padding(top = 13.dp))
-        }
-        question.second.forEachIndexed { answerIndex, answer ->
-            val correct = selected >= 0 && answerIndex == question.third
-            val wrong = selected == answerIndex && !correct
-            val color = if (correct) Green else if (wrong) Color(0xFFFF6378) else Border
-            Row(
-                Modifier.fillMaxWidth().padding(top = 9.dp).background(color.copy(.1f), RoundedCornerShape(11.dp))
-                    .border(1.dp, color, RoundedCornerShape(11.dp))
-                    .clickable(enabled = selected < 0) {
-                        selected = answerIndex
-                        if (correct || answerIndex == question.third) score++
-                    }.padding(14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(('A' + answerIndex).toString(), color = if (selected >= 0) color else Muted, fontWeight = FontWeight.Bold)
-                Text(answer, color = White, modifier = Modifier.weight(1f).padding(start = 13.dp))
-                if (correct) Text("✓", color = Green)
-            }
-        }
-        if (selected >= 0) {
-            Button(
-                onClick = {
-                    index = (index + 1) % questions.size
-                    if (index == questions.lastIndex) score = 0
-                },
-                modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
-                colors = ButtonDefaults.buttonColors(Purple)
-            ) { Text(if (index == questions.lastIndex) "Finish round · Score $score" else "Next question") }
         }
     }
 }
@@ -357,7 +303,7 @@ private fun QuizReviewPage() {
 
 @Composable
 private fun QuizHistoryPage() {
-    val attempts = listOf("Periodic Trends" to 90, "Chemical Bonding" to 80, "Thermodynamics" to 70, "Organic Chemistry" to 85)
+    val attempts = listOf("Periodic Trends" to 90, "Chemical Bonding" to 80, "Inorganic Chemistry" to 70, "Organic Chemistry" to 85)
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp)) {
         itemsIndexed(attempts) { _, attempt ->
             GlowCard(Modifier.fillMaxWidth().padding(bottom = 9.dp), if (attempt.second >= 80) Green else Orange) {
@@ -376,7 +322,7 @@ private fun QuizHistoryPage() {
 
 @Composable
 private fun QuizLeaguePage() {
-    val leaders = listOf("Maya" to 4280, "Arjun" to 3910, "Alex" to 3650, "Noah" to 3420, "Sara" to 3180)
+    val leaders = listOf("Maya" to 4280, "Arjun" to 3910, "ChemLearner" to 3650, "Noah" to 3420, "Sara" to 3180)
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp)) {
         item {
             GlowCard(Modifier.fillMaxWidth().padding(bottom = 14.dp), Orange) {
@@ -386,13 +332,13 @@ private fun QuizLeaguePage() {
         }
         itemsIndexed(leaders) { index, leader ->
             Row(
-                Modifier.fillMaxWidth().padding(bottom = 8.dp).background(if (leader.first == "Alex") Cyan.copy(.09f) else Panel, RoundedCornerShape(11.dp))
-                    .border(1.dp, if (leader.first == "Alex") Cyan.copy(.5f) else Border, RoundedCornerShape(11.dp)).padding(13.dp),
+                Modifier.fillMaxWidth().padding(bottom = 8.dp).background(Panel, RoundedCornerShape(11.dp))
+                    .border(1.dp, Border, RoundedCornerShape(11.dp)).padding(13.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("${index + 1}", color = if (index < 3) Orange else Muted, fontWeight = FontWeight.Bold, modifier = Modifier.width(28.dp))
                 Text(leader.first, color = White, modifier = Modifier.weight(1f))
-                Text("${leader.second} XP", color = if (leader.first == "Alex") Cyan else Muted, fontSize = 11.sp)
+                Text("${leader.second} XP", color = Muted, fontSize = 11.sp)
             }
         }
     }
@@ -443,7 +389,7 @@ private fun ProgressOverviewPage() {
 
 @Composable
 private fun ProgressTopicsPage() {
-    val topics = listOf("Atomic Structure" to .92f, "Periodic Table" to .84f, "Chemical Bonding" to .78f, "Thermodynamics" to .65f, "Organic Chemistry" to .58f, "Electrochemistry" to .52f)
+    val topics = listOf("Atomic Structure" to .92f, "Periodic Table" to .84f, "Chemical Bonding" to .78f, "Inorganic Chemistry" to .65f, "Organic Chemistry" to .58f, "Electrochemistry" to .52f)
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp)) {
         itemsIndexed(topics) { index, topic ->
             GlowCard(Modifier.fillMaxWidth().padding(bottom = 9.dp), if (index % 2 == 0) Cyan else Purple) {

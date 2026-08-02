@@ -1,0 +1,441 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "3bb5865649edacb07400406eba3bd4a5",
+    "entities": [
+      {
+        "tableName": "mcq_packs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packId` TEXT NOT NULL, `subject` TEXT NOT NULL, `title` TEXT NOT NULL, `language` TEXT NOT NULL, `level` TEXT NOT NULL, `classNumber` INTEGER, `version` INTEGER NOT NULL, `questionCount` INTEGER NOT NULL, `contentLicense` TEXT NOT NULL, `installedAtEpochMs` INTEGER NOT NULL, `sourceSha256` TEXT NOT NULL, PRIMARY KEY(`packId`))",
+        "fields": [
+          {
+            "fieldPath": "packId",
+            "columnName": "packId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subject",
+            "columnName": "subject",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "level",
+            "columnName": "level",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classNumber",
+            "columnName": "classNumber",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "questionCount",
+            "columnName": "questionCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentLicense",
+            "columnName": "contentLicense",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "installedAtEpochMs",
+            "columnName": "installedAtEpochMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceSha256",
+            "columnName": "sourceSha256",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "packId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_mcq_packs_subject",
+            "unique": false,
+            "columnNames": [
+              "subject"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_packs_subject` ON `${TABLE_NAME}` (`subject`)"
+          },
+          {
+            "name": "index_mcq_packs_subject_level_classNumber",
+            "unique": false,
+            "columnNames": [
+              "subject",
+              "level",
+              "classNumber"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_packs_subject_level_classNumber` ON `${TABLE_NAME}` (`subject`, `level`, `classNumber`)"
+          }
+        ]
+      },
+      {
+        "tableName": "mcq_questions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `packId` TEXT NOT NULL, `schemaVersion` INTEGER NOT NULL, `subject` TEXT NOT NULL, `language` TEXT NOT NULL, `level` TEXT NOT NULL, `classNumber` INTEGER, `category` TEXT NOT NULL, `subcategory` TEXT NOT NULL, `conceptId` TEXT NOT NULL, `concept` TEXT NOT NULL, `difficulty` TEXT NOT NULL, `cognitiveLevel` TEXT NOT NULL, `type` TEXT NOT NULL, `question` TEXT NOT NULL, `correctOptionId` TEXT NOT NULL, `explanation` TEXT NOT NULL, `hint` TEXT NOT NULL, `formula` TEXT, `relatedConceptsJson` TEXT NOT NULL, `syllabusReferencesJson` TEXT NOT NULL, `tagsJson` TEXT NOT NULL, `estimatedSeconds` INTEGER NOT NULL, `shuffleOptions` INTEGER NOT NULL, `revision` INTEGER NOT NULL, `mediaPath` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`packId`) REFERENCES `mcq_packs`(`packId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packId",
+            "columnName": "packId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "schemaVersion",
+            "columnName": "schemaVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subject",
+            "columnName": "subject",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "level",
+            "columnName": "level",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classNumber",
+            "columnName": "classNumber",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subcategory",
+            "columnName": "subcategory",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conceptId",
+            "columnName": "conceptId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "concept",
+            "columnName": "concept",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "difficulty",
+            "columnName": "difficulty",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cognitiveLevel",
+            "columnName": "cognitiveLevel",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "question",
+            "columnName": "question",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correctOptionId",
+            "columnName": "correctOptionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "explanation",
+            "columnName": "explanation",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hint",
+            "columnName": "hint",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "formula",
+            "columnName": "formula",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "relatedConceptsJson",
+            "columnName": "relatedConceptsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syllabusReferencesJson",
+            "columnName": "syllabusReferencesJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tagsJson",
+            "columnName": "tagsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estimatedSeconds",
+            "columnName": "estimatedSeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shuffleOptions",
+            "columnName": "shuffleOptions",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revision",
+            "columnName": "revision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mediaPath",
+            "columnName": "mediaPath",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_mcq_questions_packId",
+            "unique": false,
+            "columnNames": [
+              "packId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_questions_packId` ON `${TABLE_NAME}` (`packId`)"
+          },
+          {
+            "name": "index_mcq_questions_subject",
+            "unique": false,
+            "columnNames": [
+              "subject"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_questions_subject` ON `${TABLE_NAME}` (`subject`)"
+          },
+          {
+            "name": "index_mcq_questions_level",
+            "unique": false,
+            "columnNames": [
+              "level"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_questions_level` ON `${TABLE_NAME}` (`level`)"
+          },
+          {
+            "name": "index_mcq_questions_classNumber",
+            "unique": false,
+            "columnNames": [
+              "classNumber"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_questions_classNumber` ON `${TABLE_NAME}` (`classNumber`)"
+          },
+          {
+            "name": "index_mcq_questions_category",
+            "unique": false,
+            "columnNames": [
+              "category"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_questions_category` ON `${TABLE_NAME}` (`category`)"
+          },
+          {
+            "name": "index_mcq_questions_subcategory",
+            "unique": false,
+            "columnNames": [
+              "subcategory"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_questions_subcategory` ON `${TABLE_NAME}` (`subcategory`)"
+          },
+          {
+            "name": "index_mcq_questions_conceptId",
+            "unique": false,
+            "columnNames": [
+              "conceptId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_questions_conceptId` ON `${TABLE_NAME}` (`conceptId`)"
+          },
+          {
+            "name": "index_mcq_questions_difficulty",
+            "unique": false,
+            "columnNames": [
+              "difficulty"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_questions_difficulty` ON `${TABLE_NAME}` (`difficulty`)"
+          },
+          {
+            "name": "index_mcq_questions_packId_conceptId",
+            "unique": false,
+            "columnNames": [
+              "packId",
+              "conceptId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_questions_packId_conceptId` ON `${TABLE_NAME}` (`packId`, `conceptId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "mcq_packs",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "packId"
+            ],
+            "referencedColumns": [
+              "packId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "mcq_options",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`questionId` TEXT NOT NULL, `optionId` TEXT NOT NULL, `text` TEXT NOT NULL, `explanation` TEXT NOT NULL, `displayOrder` INTEGER NOT NULL, PRIMARY KEY(`questionId`, `optionId`), FOREIGN KEY(`questionId`) REFERENCES `mcq_questions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "questionId",
+            "columnName": "questionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionId",
+            "columnName": "optionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "explanation",
+            "columnName": "explanation",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayOrder",
+            "columnName": "displayOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "questionId",
+            "optionId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_mcq_options_questionId",
+            "unique": false,
+            "columnNames": [
+              "questionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mcq_options_questionId` ON `${TABLE_NAME}` (`questionId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "mcq_questions",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "questionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3bb5865649edacb07400406eba3bd4a5')"
+    ]
+  }
+}

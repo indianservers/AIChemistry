@@ -35,7 +35,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.Text as MaterialText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -66,9 +66,9 @@ internal fun CurriculumModuleScreen(
     val module = curriculum.firstOrNull { it.title == moduleTitle } ?: curriculum.first()
     val completed = module.lessons.count { "${module.title}/${it.title}" in completedLessons }
     var modulePage by remember(module.title) { mutableIntStateOf(0) }
-    val pageNames = listOf("Overview", "Lessons", "Formulas", "Progress")
+    val pageNames = listOf("Overview", "Lessons", "Formulas", "Progress", "FAQs")
     Column(Modifier.fillMaxSize()) {
-        ScreenTitle(module.title, "${pageNames[modulePage]} · $completed/5 complete", onBack)
+        ScreenTitle(module.title, "${module.level} · ${module.category} · $completed/${module.lessons.size} complete", onBack)
         Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 5.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             pageNames.forEachIndexed { index, name ->
                 Text(
@@ -84,7 +84,8 @@ internal fun CurriculumModuleScreen(
                 0 -> ModuleOverviewPage(module, completed) { modulePage = 1 }
                 1 -> ModuleLessonsPage(module, completedLessons, onLesson)
                 2 -> ModuleFormulaPage(module)
-                else -> ModuleProgressPage(module, completed)
+                3 -> ModuleProgressPage(module, completed)
+                else -> ModuleFaqPage(module)
             }
         }
     }
@@ -95,12 +96,13 @@ private fun ModuleOverviewPage(module: CurriculumModule, completed: Int, openLes
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
         GlowCard(Modifier.fillMaxWidth(), module.color) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(66.dp).background(module.color.copy(.14f), CircleShape), contentAlignment = Alignment.Center) {
-                    Text(module.icon, color = module.color, fontSize = 34.sp)
+                Box(Modifier.size(72.dp), contentAlignment = Alignment.Center) {
+                    AtomGraphic(68.dp, module.color)
+                    Text(module.icon, color = White, fontSize = if (module.icon.length > 1) 12.sp else 20.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(Modifier.width(14.dp))
                 Column(Modifier.weight(1f)) {
-                    Tag("CORE MODULE", module.color)
+                    Tag(module.subcategory.uppercase(), module.color)
                     Text(module.description, color = White, fontSize = 14.sp, lineHeight = 20.sp, modifier = Modifier.padding(top = 8.dp))
                 }
             }
@@ -141,14 +143,14 @@ private fun ModuleLessonsPage(module: CurriculumModule, completedLessons: Set<St
                 shape = RoundedCornerShape(14.dp)
             ) {
                 Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        Modifier.size(42.dp).background((if (done) Green else module.color).copy(.12f), RoundedCornerShape(11.dp)),
-                        contentAlignment = Alignment.Center
-                    ) { Text(if (done) "✓" else "${index + 1}", color = if (done) Green else module.color, fontWeight = FontWeight.Bold) }
+                    Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
+                        AtomGraphic(43.dp, if (done) Green else module.color)
+                        Text(if (done) "✓" else "${index + 1}", color = White, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(lesson.title, color = White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                        Text("4 pages · Concept · Visual Lab · Challenge", color = Muted, fontSize = 9.sp)
+                Text("4 pages · Concept · Visual Lab · 15-question check", color = Muted, fontSize = 9.sp)
                     }
                     Text("›", color = module.color, fontSize = 24.sp)
                 }
@@ -186,29 +188,66 @@ private fun ModuleFormulaPage(module: CurriculumModule) {
 
 @Composable
 private fun ModuleProgressPage(module: CurriculumModule, completed: Int) {
+    val total = module.lessons.size.coerceAtLeast(1)
+    val percent = completed * 100 / total
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(132.dp), contentAlignment = Alignment.Center) {
             Canvas(Modifier.fillMaxSize()) {
                 drawArc(Border, -90f, 360f, false, style = Stroke(12f, cap = StrokeCap.Round))
-                drawArc(Brush.sweepGradient(listOf(Purple, module.color)), -90f, 360f * completed / 5f, false, style = Stroke(12f, cap = StrokeCap.Round))
+                drawArc(Brush.sweepGradient(listOf(Purple, module.color)), -90f, 360f * completed / total.toFloat(), false, style = Stroke(12f, cap = StrokeCap.Round))
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("${completed * 20}%", color = White, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                Text("$percent%", color = White, fontSize = 25.sp, fontWeight = FontWeight.Bold)
                 Text("MASTERY", color = Muted, fontSize = 8.sp)
             }
         }
-        Text(if (completed == 5) "Module mastered" else "${5 - completed} lessons remaining", color = module.color, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 13.dp))
+        Text(if (completed == total) "Module mastered" else "${total - completed} lessons remaining", color = module.color, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 13.dp))
         Row(Modifier.fillMaxWidth().padding(top = 24.dp), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-            ModuleStat("LESSONS", "$completed/5", module.color, Modifier.weight(1f))
+            ModuleStat("LESSONS", "$completed/$total", module.color, Modifier.weight(1f))
             ModuleStat("XP", "${completed * 100}", Orange, Modifier.weight(1f))
             ModuleStat("LEVEL", if (completed >= 4) "Expert" else if (completed >= 2) "Growing" else "Starter", Green, Modifier.weight(1f))
         }
         GlowCard(Modifier.fillMaxWidth().padding(top = 18.dp), module.color) {
             Text("MASTERY MILESTONES", color = Muted, fontSize = 9.sp)
-            listOf("Complete all concept pages", "Run every visual lab", "Pass five knowledge checks").forEachIndexed { index, goal ->
+            listOf("Complete all concept pages", "Run every visual lab", "Pass every 15-question knowledge check").forEachIndexed { index, goal ->
                 Row(Modifier.fillMaxWidth().padding(top = 11.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(if (completed > index) "✓" else "○", color = if (completed > index) Green else Muted)
                     Text(goal, color = White, fontSize = 11.sp, modifier = Modifier.padding(start = 10.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ModuleFaqPage(module: CurriculumModule) {
+    val faqs = remember(module.title) { moduleFaqs(module) }
+    var expanded by remember(module.title) { mutableIntStateOf(-1) }
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp)) {
+        item {
+            Text(
+                "20 frequently asked questions for ${module.title}. Tap a question to expand its answer.",
+                color = Muted, fontSize = 11.sp, modifier = Modifier.padding(bottom = 12.dp)
+            )
+        }
+        itemsIndexed(faqs) { index, faq ->
+            Card(
+                Modifier.fillMaxWidth().padding(bottom = 8.dp).clickable {
+                    expanded = if (expanded == index) -1 else index
+                },
+                colors = CardDefaults.cardColors(Panel),
+                border = androidx.compose.foundation.BorderStroke(1.dp, if (expanded == index) module.color.copy(.7f) else Border),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(Modifier.padding(13.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("${index + 1}", color = module.color, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(28.dp))
+                        Text(faq.question, color = White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                        Text(if (expanded == index) "−" else "+", color = module.color, fontSize = 18.sp)
+                    }
+                    if (expanded == index) {
+                        Text(faq.answer, color = Muted, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.padding(start = 28.dp, top = 10.dp))
+                    }
                 }
             }
         }
@@ -234,7 +273,9 @@ internal fun CurriculumLessonScreen(
     val module = curriculum.firstOrNull { it.title == moduleTitle } ?: curriculum.first()
     val lesson = module.lessons.firstOrNull { it.title == lessonTitle } ?: module.lessons.first()
     var page by remember(moduleTitle, lessonTitle) { mutableIntStateOf(0) }
-    var answer by remember(moduleTitle, lessonTitle) { mutableIntStateOf(-1) }
+    val checks = remember(moduleTitle, lessonTitle) { knowledgeChecksFor(module, lesson) }
+    var challengeIndex by remember(moduleTitle, lessonTitle) { mutableIntStateOf(0) }
+    var challengeAnswers by remember(moduleTitle, lessonTitle) { mutableStateOf<Map<Int, Int>>(emptyMap()) }
     Column(Modifier.fillMaxSize()) {
         ScreenTitle(lesson.title, "${module.title} · Page ${page + 1}/4", onBack)
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -249,8 +290,19 @@ internal fun CurriculumLessonScreen(
             when (current) {
                 0 -> LessonConceptPage(module, lesson)
                 1 -> InteractiveVisualPage(module, lesson)
-                2 -> LessonChallengePage(module, lesson, answer) { answer = it }
-                else -> LessonSummaryPage(module, lesson, answer == lesson.correct, onComplete, onQuiz)
+                2 -> LessonChallengePage(
+                    module = module,
+                    checks = checks,
+                    questionIndex = challengeIndex,
+                    selected = challengeAnswers[challengeIndex] ?: -1,
+                    choose = { choice -> challengeAnswers = challengeAnswers + (challengeIndex to choice) },
+                    next = { challengeIndex = (challengeIndex + 1).coerceAtMost(checks.lastIndex) },
+                    previous = { challengeIndex = (challengeIndex - 1).coerceAtLeast(0) }
+                )
+                else -> {
+                    val score = checks.indices.count { challengeAnswers[it] == checks[it].correct }
+                    LessonSummaryPage(module, lesson, score, checks.size, onComplete, onQuiz)
+                }
             }
         }
         if (page < 3) {
@@ -265,9 +317,18 @@ internal fun CurriculumLessonScreen(
                     ) { Text("Previous", color = White) }
                 }
                 Button(
-                    onClick = { page++ }, enabled = page != 2 || answer >= 0, modifier = Modifier.weight(1f),
+                    onClick = { page++ },
+                    enabled = page != 2 || challengeAnswers.size == checks.size,
+                    modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(module.color, disabledContainerColor = Border), shape = RoundedCornerShape(11.dp)
-                ) { Text(if (page == 2) "View summary" else "Next page", color = Night, fontWeight = FontWeight.Bold) }
+                ) {
+                    Text(
+                        if (page == 2) {
+                            if (challengeAnswers.size == checks.size) "View score" else "${challengeAnswers.size}/${checks.size} answered"
+                        } else "Next page",
+                        color = Night, fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
@@ -276,20 +337,81 @@ internal fun CurriculumLessonScreen(
 @Composable
 private fun LessonConceptPage(module: CurriculumModule, lesson: CurriculumLesson) {
     var formulaOpen by remember(module.title, lesson.title) { mutableStateOf(false) }
+    var knowMoreOpen by remember(module.title, lesson.title) { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
-        Tag("CONCEPT", module.color)
+        Tag("THEORY + EXAMPLE", module.color)
         ChemistryLessonVisual(module.color, module.icon, .48f)
         Text(lesson.title, color = White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Text(lesson.concept, color = Muted, fontSize = 14.sp, lineHeight = 22.sp, modifier = Modifier.padding(top = 9.dp, bottom = 16.dp))
+        Text("THEORY", color = module.color, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp))
+        Text(lesson.theory, color = White, fontSize = 13.sp, lineHeight = 21.sp, modifier = Modifier.padding(top = 7.dp, bottom = 16.dp))
         GlowCard(Modifier.fillMaxWidth().clickable { formulaOpen = !formulaOpen }, module.color) {
             Text("KEY RELATIONSHIP", color = Muted, fontSize = 9.sp)
             Text(lesson.formula, color = module.color, fontSize = 19.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 7.dp))
             Text(if (formulaOpen) formulaMeaning(module.title) else "Tap to explain variables and meaning", color = if (formulaOpen) White else Muted, fontSize = 10.sp, modifier = Modifier.padding(top = 7.dp))
         }
+        GlowCard(Modifier.fillMaxWidth().padding(top = 12.dp), Green) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                AtomGraphic(54.dp, Green)
+                Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                    Text("WORKED EXAMPLE", color = Green, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                    Text(lesson.workedExample, color = White, fontSize = 12.sp, lineHeight = 18.sp, modifier = Modifier.padding(top = 6.dp))
+                }
+            }
+            Text("REASONING STEPS", color = Muted, fontSize = 8.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 12.dp))
+            lesson.exampleSteps.forEachIndexed { index, step ->
+                Row(Modifier.fillMaxWidth().padding(top = 7.dp), verticalAlignment = Alignment.Top) {
+                    Box(
+                        Modifier.size(22.dp).background(Green.copy(.14f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("${index + 1}", color = Green, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Text(step, color = White, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.weight(1f).padding(start = 9.dp))
+                }
+            }
+        }
+        Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+            GlowCard(Modifier.weight(1f), Orange) {
+                Text("COMMON MISTAKE", color = Orange, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                Text(lesson.commonMistake, color = White, fontSize = 10.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 6.dp))
+            }
+            GlowCard(Modifier.weight(1f), Cyan) {
+                Text("WHY IT MATTERS", color = Cyan, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                Text(lesson.realWorldApplication, color = White, fontSize = 10.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 6.dp))
+            }
+        }
+        Button(
+            onClick = { knowMoreOpen = !knowMoreOpen },
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            colors = ButtonDefaults.buttonColors(if (knowMoreOpen) Purple else Panel),
+            shape = RoundedCornerShape(11.dp)
+        ) {
+            Text(if (knowMoreOpen) "Hide advanced concepts" else "Know More · Advanced concepts", color = if (knowMoreOpen) White else Cyan)
+        }
+        if (knowMoreOpen) {
+            GlowCard(Modifier.fillMaxWidth().padding(top = 9.dp), Purple) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    AtomGraphic(64.dp, Purple)
+                    Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                        Text("GO DEEPER", color = Purple, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        lesson.advancedConcepts.forEach { advanced ->
+                            Text("• $advanced", color = White, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 6.dp))
+                        }
+                    }
+                }
+                Text(
+                    "These extensions connect the current lesson with undergraduate and postgraduate chemistry. Master the core idea first, then return here.",
+                    color = Muted,
+                    fontSize = 10.sp,
+                    lineHeight = 16.sp,
+                    modifier = Modifier.padding(top = 10.dp)
+                )
+            }
+        }
         Row(Modifier.fillMaxWidth().padding(top = 17.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            MiniFact("READ", "2 min", module.color, Modifier.weight(1f))
+            MiniFact("READ", "6–8 min", module.color, Modifier.weight(1f))
             MiniFact("VISUAL", "Interactive", Green, Modifier.weight(1f))
-            MiniFact("XP", "+50", Orange, Modifier.weight(1f))
+            MiniFact("DEPTH", "Core +", Orange, Modifier.weight(1f))
         }
     }
 }
@@ -342,13 +464,28 @@ private fun InteractiveVisualPage(module: CurriculumModule, lesson: CurriculumLe
 }
 
 @Composable
-private fun LessonChallengePage(module: CurriculumModule, lesson: CurriculumLesson, selected: Int, choose: (Int) -> Unit) {
+private fun LessonChallengePage(
+    module: CurriculumModule,
+    checks: List<KnowledgeCheck>,
+    questionIndex: Int,
+    selected: Int,
+    choose: (Int) -> Unit,
+    next: () -> Unit,
+    previous: () -> Unit
+) {
+    val check = checks[questionIndex]
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
-        Tag("KNOWLEDGE CHECK", Orange)
-        Text(lesson.question, color = White, fontSize = 21.sp, fontWeight = FontWeight.Bold, lineHeight = 29.sp, modifier = Modifier.padding(vertical = 18.dp))
-        lesson.answers.forEachIndexed { index, option ->
-            val correct = selected >= 0 && index == lesson.correct
-            val wrong = selected == index && index != lesson.correct
+        Tag("KNOWLEDGE CHECK · ${questionIndex + 1}/${checks.size}", Orange)
+        LinearProgressIndicator(
+            progress = { (questionIndex + 1) / checks.size.toFloat() },
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            color = module.color,
+            trackColor = Border
+        )
+        Text(check.question, color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold, lineHeight = 28.sp, modifier = Modifier.padding(vertical = 18.dp))
+        check.options.forEachIndexed { index, option ->
+            val correct = selected >= 0 && index == check.correct
+            val wrong = selected == index && index != check.correct
             val color = if (correct) Green else if (wrong) Color(0xFFFF6378) else Border
             Row(
                 Modifier.fillMaxWidth().padding(bottom = 9.dp).background(color.copy(.1f), RoundedCornerShape(12.dp))
@@ -363,9 +500,21 @@ private fun LessonChallengePage(module: CurriculumModule, lesson: CurriculumLess
             }
         }
         if (selected >= 0) {
-            GlowCard(Modifier.fillMaxWidth().padding(top = 8.dp), if (selected == lesson.correct) Green else Orange) {
-                Text(if (selected == lesson.correct) "Correct · +50 XP" else "Not quite", color = if (selected == lesson.correct) Green else Orange, fontWeight = FontWeight.Bold)
-                Text(if (selected == lesson.correct) "You’ve understood this concept." else "The highlighted answer is correct. Review the key relationship before continuing.", color = Muted, fontSize = 11.sp)
+            GlowCard(Modifier.fillMaxWidth().padding(top = 8.dp), if (selected == check.correct) Green else Orange) {
+                Text(if (selected == check.correct) "Correct" else "Review this reasoning", color = if (selected == check.correct) Green else Orange, fontWeight = FontWeight.Bold)
+                Text(check.explanation, color = Muted, fontSize = 11.sp, lineHeight = 17.sp)
+            }
+            Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (questionIndex > 0) {
+                    Button(onClick = previous, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(Panel)) {
+                        Text("Previous", color = White)
+                    }
+                }
+                if (questionIndex < checks.lastIndex) {
+                    Button(onClick = next, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(module.color)) {
+                        Text("Next question", color = Night, fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         }
     }
@@ -375,7 +524,8 @@ private fun LessonChallengePage(module: CurriculumModule, lesson: CurriculumLess
 private fun LessonSummaryPage(
     module: CurriculumModule,
     lesson: CurriculumLesson,
-    correct: Boolean,
+    score: Int,
+    total: Int,
     onComplete: () -> Unit,
     onQuiz: () -> Unit
 ) {
@@ -386,12 +536,17 @@ private fun LessonSummaryPage(
         Box(
             Modifier.size(112.dp).background(Brush.radialGradient(listOf(Green.copy(.3f), Color.Transparent)), CircleShape),
             contentAlignment = Alignment.Center
-        ) { Text(if (correct) "✓" else "★", color = Green, fontSize = 54.sp) }
+        ) { Text(if (score >= total * .8f) "✓" else "★", color = Green, fontSize = 54.sp) }
         Text("Lesson complete", color = White, fontSize = 25.sp, fontWeight = FontWeight.Bold)
-        Text("${if (correct) 100 else 50} XP earned", color = Orange, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 5.dp))
+        Text("$score/$total correct · ${score * 10} XP earned", color = Orange, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 5.dp))
         GlowCard(Modifier.fillMaxWidth().padding(top = 20.dp), module.color) {
-            Text("REMEMBER", color = Muted, fontSize = 9.sp)
-            Text(lesson.concept, color = White, fontSize = 12.sp, lineHeight = 19.sp, modifier = Modifier.padding(vertical = 8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                AtomGraphic(56.dp, module.color)
+                Column(Modifier.weight(1f).padding(start = 11.dp)) {
+                    Text("REMEMBER", color = Muted, fontSize = 9.sp)
+                    Text(lesson.concept, color = White, fontSize = 12.sp, lineHeight = 19.sp, modifier = Modifier.padding(vertical = 8.dp))
+                }
+            }
             Text(lesson.formula, color = module.color, fontWeight = FontWeight.Bold)
         }
         Button(
@@ -441,7 +596,6 @@ private fun controlLabels(module: String): Pair<String, String> = when (module) 
     "States of Matter" -> "Temperature" to "K"
     "Organic Chemistry" -> "Reaction progress" to "%"
     "Chemical Reactions" -> "Reactant concentration" to "%"
-    "Thermodynamics" -> "Thermal energy" to "kJ"
     "Equilibrium and Solutions" -> "Added reactant" to "%"
     "Kinetics and Electrochemistry" -> "Activation input" to "mV"
     else -> "Measured signal" to "%"
@@ -452,7 +606,6 @@ private fun observation(module: String, value: Float): String = when (module) {
     "Periodic Table" -> if (value > .65f) "Moving right generally increases effective nuclear attraction and electronegativity." else "The left side is dominated by larger, more metallic atoms."
     "Chemical Bonding" -> if (value > .65f) "Greater electronegativity difference shifts electron density and increases ionic character." else "Electron density is shared more evenly, producing covalent character."
     "States of Matter" -> if (value > .65f) "Particles move faster and overcome more intermolecular attraction." else "Particles cluster as kinetic energy falls below attractive forces."
-    "Thermodynamics" -> if (value > .65f) "More thermal energy increases molecular motion and accessible microstates." else "Lower thermal energy restricts motion and favors ordered states."
     "Equilibrium and Solutions" -> if (value > .65f) "The system responds to the concentration stress by favoring product formation." else "Only a small equilibrium shift is produced at this setting."
     "Kinetics and Electrochemistry" -> if (value > .65f) "More particles overcome the activation barrier, increasing the observed rate." else "Few collisions have enough energy to react successfully."
     "Analytical and Applied Chemistry" -> "The response grows with concentration; calibration converts this signal into a measured amount."
@@ -466,7 +619,6 @@ private fun formulaMeaning(module: String): String = when (module) {
     "States of Matter" -> "P is pressure, V volume, n amount, R the gas constant and T absolute temperature where applicable."
     "Organic Chemistry" -> "n represents the number of carbon atoms or repeating units; functional notation identifies reactive groups."
     "Chemical Reactions" -> "Coefficients express mole ratios while preserving every atom and overall charge."
-    "Thermodynamics" -> "Δ means final minus initial; q is heat, w work, H enthalpy, S entropy and G Gibbs energy."
     "Equilibrium and Solutions" -> "Concentrations are equilibrium molar values; stoichiometric powers follow the balanced equation."
     "Kinetics and Electrochemistry" -> "k is the rate constant, E potential, I current, t time and concentration powers are reaction orders."
     else -> "Signal, concentration and calibration constants connect an instrumental response to the amount of analyte."

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "subject": "chemistry",
+  "levels": [
+    {"id": "school", "title": "School", "classes": [6, 7, 8, 9, 10, 11, 12]},
+    {"id": "undergraduate", "title": "Undergraduate", "classes": []},
+    {"id": "postgraduate", "title": "Postgraduate", "classes": []}
+  ],
+  "categories": [
+    {
+      "id": "foundations",
+      "title": "Foundations",
+      "subcategories": ["Matter", "Measurement", "Laboratory Skills", "Chemical Change"]
+    },
+    {
+      "id": "physical-chemistry",
+      "title": "Physical Chemistry",
+      "subcategories": ["Atomic Structure", "Chemical Bonding", "States and Phases", "Solutions", "Equilibrium", "Kinetics", "Electrochemistry", "Surface Chemistry", "Quantum Chemistry"]
+    },
+    {
+      "id": "inorganic-chemistry",
+      "title": "Inorganic Chemistry",
+      "subcategories": ["Periodic Properties", "Main-Group Chemistry", "Transition Elements", "Coordination Chemistry", "Organometallic Chemistry", "Bioinorganic Chemistry", "Nuclear Chemistry"]
+    },
+    {
+      "id": "organic-chemistry",
+      "title": "Organic Chemistry",
+      "subcategories": ["Nomenclature", "Structure and Bonding", "Stereochemistry", "Reaction Mechanisms", "Functional Groups", "Organic Synthesis", "Heterocycles", "Natural Products", "Polymer Chemistry"]
+    },
+    {
+      "id": "analytical-chemistry",
+      "title": "Analytical Chemistry",
+      "subcategories": ["Qualitative Analysis", "Volumetric Analysis", "Chromatography", "Spectroscopy", "Electroanalysis", "Thermal Analysis", "Chemometrics", "Metrology"]
+    },
+    {
+      "id": "biochemistry",
+      "title": "Biochemistry",
+      "subcategories": ["Biomolecules", "Enzymology", "Metabolism", "Bioenergetics", "Chemical Biology"]
+    },
+    {
+      "id": "materials-chemistry",
+      "title": "Materials Chemistry",
+      "subcategories": ["Solid State", "Polymers", "Nanochemistry", "Supramolecular Chemistry", "Energy Materials"]
+    },
+    {
+      "id": "applied-chemistry",
+      "title": "Applied Chemistry",
+      "subcategories": ["Environmental Chemistry", "Green Chemistry", "Industrial Chemistry", "Petrochemistry", "Agricultural Chemistry", "Food Chemistry"]
+    },
+    {
+      "id": "drug-discovery",
+      "title": "Drug Discovery",
+      "subcategories": ["Medicinal Chemistry", "Structure–Activity Relationships", "ADME", "Drug Metabolism", "Toxicology", "Computer-Aided Drug Design", "Pharmaceutical Chemistry"]
+    }
+  ]
+}

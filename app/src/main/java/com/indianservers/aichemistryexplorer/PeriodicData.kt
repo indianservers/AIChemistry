@@ -40,19 +40,6 @@ private val names104to118 = listOf(
 
 private val periodicNames = names1to36 + names37to71 + names72to103 + names104to118
 
-internal val paulingElectronegativity = mapOf(
-    "H" to 2.20f, "Li" to 0.98f, "Be" to 1.57f, "B" to 2.04f, "C" to 2.55f,
-    "N" to 3.04f, "O" to 3.44f, "F" to 3.98f, "Na" to 0.93f, "Mg" to 1.31f,
-    "Al" to 1.61f, "Si" to 1.90f, "P" to 2.19f, "S" to 2.58f, "Cl" to 3.16f,
-    "K" to 0.82f, "Ca" to 1.00f, "Sc" to 1.36f, "Ti" to 1.54f, "V" to 1.63f,
-    "Cr" to 1.66f, "Mn" to 1.55f, "Fe" to 1.83f, "Co" to 1.88f, "Ni" to 1.91f,
-    "Cu" to 1.90f, "Zn" to 1.65f, "Ga" to 1.81f, "Ge" to 2.01f, "As" to 2.18f,
-    "Se" to 2.55f, "Br" to 2.96f, "Kr" to 3.00f, "Rb" to 0.82f, "Sr" to 0.95f,
-    "Ag" to 1.93f, "Cd" to 1.69f, "Sn" to 1.96f, "I" to 2.66f, "Xe" to 2.60f,
-    "Cs" to 0.79f, "Ba" to 0.89f, "W" to 2.36f, "Pt" to 2.28f, "Au" to 2.54f,
-    "Hg" to 2.00f, "Pb" to 2.33f, "Bi" to 2.02f, "At" to 2.20f, "Fr" to 0.70f
-)
-
 private val noble = setOf("He","Ne","Ar","Kr","Xe","Rn","Og")
 private val halogens = setOf("F","Cl","Br","I","At","Ts")
 private val nonmetals = setOf("H","C","N","O","P","S","Se")
@@ -62,8 +49,8 @@ private val alkaline = setOf("Be","Mg","Ca","Sr","Ba","Ra")
 private val postTransition = setOf("Al","Ga","In","Sn","Tl","Pb","Bi","Nh","Fl","Mc","Lv")
 
 internal fun periodicCategory(number: Int, symbol: String): String = when {
-    number in 58..71 -> "Lanthanide"
-    number in 90..103 -> "Actinide"
+    number in 57..71 -> "Lanthanide"
+    number in 89..103 -> "Actinide"
     symbol in noble -> "Noble gas"
     symbol in halogens -> "Halogen"
     symbol in nonmetals -> "Non-metal"
@@ -87,10 +74,20 @@ internal fun categoryColor(category: String): Color = when (category) {
 }
 
 internal fun completePeriodicTable(rich: List<Element>): List<Element> = periodicSymbols.mapIndexed { index, symbol ->
-    rich.firstOrNull { it.number == index + 1 } ?: run {
-        val category = periodicCategory(index + 1, symbol)
-        Element(index + 1, symbol, periodicNames[index], "—", category, categoryColor(category), "—", "—")
-    }
+    val number = index + 1
+    val facts = elementFacts(number)
+    val category = periodicCategory(number, symbol)
+    val preferredColor = rich.firstOrNull { it.number == number }?.color ?: categoryColor(category)
+    Element(
+        number = number,
+        symbol = symbol,
+        name = periodicNames[index],
+        mass = facts.atomicMass,
+        category = category,
+        color = preferredColor,
+        radius = factOrDash(facts.atomicRadiusPm, "pm (van der Waals)"),
+        boiling = factOrDash(facts.boilingPointK, "K")
+    )
 }
 
 internal val periodicRows: List<List<Int?>> = listOf(

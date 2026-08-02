@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "subject": "chemistry",
+  "language": "en",
+  "expectedQuestionCount": 3600,
+  "catalogUrl": "https://www.indianservers.com/edtech/chemistrymcqs/catalog.json",
+  "taxonomyUrl": "https://www.indianservers.com/edtech/chemistrymcqs/taxonomy.json",
+  "packBaseUrl": "https://www.indianservers.com/edtech/chemistrymcqs/packs/",
+  "completeBundleUrl": "https://www.indianservers.com/edtech/chemistrymcqs.zip",
+  "packs": [
+    {"packId": "chemistry-class-06-en", "level": "school", "class": 6, "questionCount": 150},
+    {"packId": "chemistry-class-07-en", "level": "school", "class": 7, "questionCount": 150},
+    {"packId": "chemistry-class-08-en", "level": "school", "class": 8, "questionCount": 150},
+    {"packId": "chemistry-class-09-en", "level": "school", "class": 9, "questionCount": 300},
+    {"packId": "chemistry-class-10-en", "level": "school", "class": 10, "questionCount": 400},
+    {"packId": "chemistry-class-11-en", "level": "school", "class": 11, "questionCount": 650},
+    {"packId": "chemistry-class-12-en", "level": "school", "class": 12, "questionCount": 750},
+    {"packId": "chemistry-undergraduate-en", "level": "undergraduate", "class": null, "questionCount": 650},
+    {"packId": "chemistry-postgraduate-en", "level": "postgraduate", "class": null, "questionCount": 400}
+  ]
+}

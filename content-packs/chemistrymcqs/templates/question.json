@@ -1,0 +1,41 @@
+{
+  "id": "chem-c06-matter-0001",
+  "schemaVersion": 1,
+  "subject": "chemistry",
+  "language": "en",
+  "level": "school",
+  "class": 6,
+  "category": "Foundations",
+  "subcategory": "Matter",
+  "conceptId": "states-of-matter",
+  "concept": "States of matter",
+  "difficulty": "foundational",
+  "cognitiveLevel": "understanding",
+  "type": "single_choice",
+  "question": "Which state of matter has a fixed volume but takes the shape of its container?",
+  "options": [
+    {"id": "a", "text": "Solid"},
+    {"id": "b", "text": "Liquid"},
+    {"id": "c", "text": "Gas"},
+    {"id": "d", "text": "Plasma"}
+  ],
+  "correctOptionId": "b",
+  "explanation": "A liquid keeps nearly constant volume, while its particles move past one another so it adopts the shape of its container.",
+  "optionExplanations": {
+    "a": "A solid normally has both fixed shape and fixed volume.",
+    "b": "Correct. A liquid has fixed volume but no fixed shape.",
+    "c": "A gas has neither fixed shape nor fixed volume.",
+    "d": "Plasma behaves more like an ionized gas and has no fixed volume."
+  },
+  "hint": "Think about water placed in differently shaped vessels.",
+  "formula": null,
+  "relatedConcepts": ["particle-model", "physical-properties"],
+  "syllabusReferences": [
+    {"framework": "NCERT", "level": "Class 6", "unit": "Materials"}
+  ],
+  "tags": ["matter", "liquid"],
+  "estimatedSeconds": 45,
+  "shuffleOptions": true,
+  "status": "published",
+  "revision": 1
+}

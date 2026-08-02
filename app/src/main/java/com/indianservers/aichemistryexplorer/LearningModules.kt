@@ -22,7 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Text
+import androidx.compose.material3.Text as MaterialText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -86,16 +86,16 @@ private val courses = listOf(
     ),
     Course(
         "Physical Chemistry", "⚛", Orange,
-        "Connect microscopic particles with energy, equilibrium and measurable change.",
-        listOf("Apply gas relationships", "Interpret energy changes", "Connect rate with molecular collisions"),
-        "Energy and spontaneity",
-        "Thermodynamics predicts whether change is possible. Enthalpy tracks heat, entropy tracks energy dispersal, and Gibbs energy combines both effects.",
-        listOf("ΔH < 0" to "The process releases heat.", "ΔS > 0" to "Energy or matter becomes more dispersed.", "ΔG < 0" to "The process is thermodynamically spontaneous."),
-        "Freezing water at −10 °C",
-        listOf("Freezing releases heat, so ΔH is negative.", "The liquid becomes ordered, so ΔS is negative.", "Below 0 °C the enthalpy term dominates and ΔG is negative."),
-        "Which sign of ΔG indicates a spontaneous process?",
-        listOf("Positive", "Negative", "Zero only", "Undefined"), 1,
-        "A process is spontaneous under the stated conditions when ΔG is negative."
+        "Connect microscopic particles with reaction rates, equilibrium and measurable change.",
+        listOf("Apply gas relationships", "Interpret chemical equilibrium", "Connect rate with molecular collisions"),
+        "Reaction rates and collisions",
+        "Chemical kinetics explains how concentration, temperature, catalysts and molecular collisions control reaction speed.",
+        listOf("Rate law" to "Relates reaction rate to reactant concentrations.", "Activation energy" to "Minimum barrier for a successful reaction.", "Catalyst" to "Provides a lower-energy reaction pathway."),
+        "Changing reactant concentration",
+        listOf("More reactant particles occupy the same volume.", "Collision frequency increases.", "For a positive reaction order, the observed rate increases."),
+        "What does a catalyst change?",
+        listOf("The products", "The activation-energy pathway", "The equilibrium constant", "The atoms present"), 1,
+        "A catalyst changes the pathway and rate without changing the reaction's products or equilibrium constant."
     ),
     Course(
         "Analytical Chemistry", "⌁", Cyan,
@@ -135,19 +135,6 @@ private val courses = listOf(
         "What is the molecular shape of CH₄?",
         listOf("Linear", "Bent", "Trigonal planar", "Tetrahedral"), 3,
         "Four bonding pairs repel equally around carbon, producing a tetrahedral geometry."
-    ),
-    Course(
-        "Thermodynamics", "↯", Color(0xFFC456FF),
-        "Track heat, work and energy as chemical systems transform.",
-        listOf("Use the first law", "Read energy diagrams", "Calculate reaction enthalpy"),
-        "Energy is conserved",
-        "The first law states that a system's internal-energy change equals heat added to it plus work done on it: ΔU = q + w.",
-        listOf("System" to "The part of the universe under study.", "Surroundings" to "Everything outside the system.", "State function" to "Depends only on initial and final states."),
-        "Expansion against pressure",
-        listOf("A gas expands by 2.0 L against 100 kPa.", "Work w = −PΔV.", "w = −200 J; energy leaves the system as work."),
-        "For an exothermic reaction, ΔH is…",
-        listOf("Positive", "Negative", "Always zero", "Temperature only"), 1,
-        "An exothermic system releases heat, so its enthalpy change is negative."
     ),
     Course(
         "Electrochemistry", "ϟ", Color(0xFF1DBBFF),

@@ -48,6 +48,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -56,9 +58,10 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.material3.Text as MaterialText
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -81,10 +84,13 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 import com.indianservers.aichemistryexplorer.ui.theme.AIChemistryExplorerTheme
 import kotlinx.coroutines.launch
@@ -104,7 +110,8 @@ internal val Border = Color(0xFF18324A)
 
 enum class Screen {
     Home, Explore, Table, Lab, Quiz, Progress, Element, Reactions, Molecule,
-    FullTable, Categories, Trends, HeatMap, Compare, Notebook, ModuleLesson, TopicLesson, Search
+    FullTable, Categories, Trends, HeatMap, Compare, Notebook, PeriodicStudio,
+    ModuleLesson, TopicLesson, Search
 }
 
 data class Element(
@@ -159,24 +166,108 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ChemistryApp() {
+    val context = LocalContext.current
+    val periodicPrefs = remember { context.getSharedPreferences("periodic_progress", 0) }
+    val readingPrefs = remember { context.getSharedPreferences("reading_preferences", 0) }
+    var readingTheme by remember { mutableIntStateOf(readingPrefs.getInt("theme", 0).coerceIn(readingPalettes.indices)) }
+    var fontScale by remember { mutableFloatStateOf(readingPrefs.getFloat("font_scale", 1f).coerceIn(.85f, 1.35f)) }
+    var readingMenu by remember { mutableStateOf(false) }
+    val palette = readingPalettes[readingTheme]
+    val density = LocalDensity.current
     var screen by remember { mutableStateOf(Screen.Home) }
+    var navigationHistory by remember { mutableStateOf(emptyList<Screen>()) }
     var selected by remember { mutableStateOf(elements.first { it.symbol == "O" }) }
     var selectedModule by remember { mutableStateOf("Atomic Structure") }
     var selectedLesson by remember { mutableStateOf("Subatomic particles") }
     var completedLessons by remember { mutableStateOf(setOf<String>()) }
-    var savedElements by remember { mutableStateOf(setOf<Int>()) }
+    var savedElements by remember {
+        mutableStateOf(
+            periodicPrefs.getStringSet("saved_elements", emptySet()).orEmpty()
+                .mapNotNull { it.toIntOrNull() }.toSet()
+        )
+    }
     val allElements = remember { completePeriodicTable(elements) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val mainScreens = setOf(Screen.Home, Screen.Explore, Screen.Table, Screen.Lab, Screen.Quiz, Screen.Progress)
-    BackHandler(screen !in mainScreens || screen != Screen.Home) { screen = Screen.Home }
+    fun navigateTo(destination: Screen) {
+        val result = pushNavigation(screen, navigationHistory, destination)
+        screen = result.screen
+        navigationHistory = result.history
+    }
+    fun navigateBack() {
+        val result = popNavigation(navigationHistory)
+        screen = result.screen
+        navigationHistory = result.history
+    }
+    fun navigateHome() {
+        val result = homeNavigation()
+        screen = result.screen
+        navigationHistory = result.history
+    }
+    BackHandler(screen != Screen.Home) { navigateBack() }
 
+    CompositionLocalProvider(
+        LocalReadingPalette provides palette,
+        LocalDensity provides Density(density.density, density.fontScale * fontScale),
+        LocalHomeAction provides { navigateHome() },
+        LocalBackAction provides { navigateBack() }
+    ) {
     Scaffold(
-        containerColor = Night,
+        containerColor = palette.background,
         snackbarHost = { SnackbarHost(snackbar) },
+        floatingActionButton = {
+            Box {
+                Text(
+                    "Aa · Theme",
+                    color = White,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(palette.surfaceAlt)
+                        .border(1.dp, Cyan.copy(alpha = .55f), CircleShape)
+                        .clickable { readingMenu = true }
+                        .padding(horizontal = 13.dp, vertical = 9.dp)
+                )
+                DropdownMenu(
+                    expanded = readingMenu,
+                    onDismissRequest = { readingMenu = false },
+                    modifier = Modifier.background(palette.surface)
+                ) {
+                    Text("Reading theme", color = White, fontWeight = FontWeight.Bold, modifier = Modifier.padding(12.dp, 5.dp))
+                    readingPalettes.forEachIndexed { index, item ->
+                        DropdownMenuItem(
+                            text = { Text(if (index == readingTheme) "✓ ${item.name}" else item.name, color = White) },
+                            onClick = {
+                                readingTheme = index
+                                readingPrefs.edit().putInt("theme", index).apply()
+                                readingMenu = false
+                            }
+                        )
+                    }
+                    HorizontalDivider(color = palette.outline)
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(onClick = {
+                            fontScale = (fontScale - .1f).coerceAtLeast(.85f)
+                            readingPrefs.edit().putFloat("font_scale", fontScale).apply()
+                        }) { Text("A−", color = Cyan, fontSize = 17.sp) }
+                        Text("${(fontScale * 100).toInt()}%", color = White, fontSize = 12.sp)
+                        TextButton(onClick = {
+                            fontScale = (fontScale + .1f).coerceAtMost(1.35f)
+                            readingPrefs.edit().putFloat("font_scale", fontScale).apply()
+                        }) { Text("A+", color = Cyan, fontSize = 17.sp) }
+                    }
+                }
+            }
+        },
         bottomBar = {
             if (screen in mainScreens) {
-                BottomNav(screen) { screen = it }
+                BottomNav(screen) { navigateTo(it) }
             }
         }
     ) { padding ->
@@ -185,13 +276,13 @@ fun ChemistryApp() {
                 .fillMaxSize()
                 .background(
                     Brush.radialGradient(
-                        listOf(Color(0xFF0B1830), Night),
+                        listOf(palette.glow, palette.background),
                         center = Offset(600f, 100f),
                         radius = 1000f
                     )
                 )
                 .drawBehind {
-                    val grid = Color(0xFF17304A).copy(alpha = .10f)
+                    val grid = palette.outline.copy(alpha = .10f)
                     var x = 0f
                     while (x < size.width) { drawLine(grid, Offset(x, 0f), Offset(x, size.height), 1f); x += 72f }
                     var y = 0f
@@ -203,104 +294,130 @@ fun ChemistryApp() {
             AnimatedContent(screen, label = "screen") { current ->
                 when (current) {
                     Screen.Home -> HomeScreen(
-                        onExplore = { screen = Screen.Explore },
-                        onTable = { screen = Screen.Table },
-                        onReactions = { screen = Screen.Reactions },
-                        onMolecule = { screen = Screen.Molecule },
-                        onContinue = { screen = Screen.Explore },
-                        onSearch = { screen = Screen.Search }
+                        onExplore = { navigateTo(Screen.Explore) },
+                        onTable = { navigateTo(Screen.Table) },
+                        onReactions = { navigateTo(Screen.Reactions) },
+                        onMolecule = { navigateTo(Screen.Molecule) },
+                        onContinue = { navigateTo(Screen.Explore) },
+                        onSearch = { navigateTo(Screen.Search) }
                     )
                     Screen.Search -> GlobalChemistrySearchScreen(
                         elements = allElements,
-                        onBack = { screen = Screen.Home },
-                        onElement = { selected = it; screen = Screen.Element },
-                        onModule = { selectedModule = it; screen = Screen.ModuleLesson },
-                        onDestination = { screen = it }
+                        onBack = { navigateBack() },
+                        onElement = { selected = it; navigateTo(Screen.Element) },
+                        onModule = { selectedModule = it; navigateTo(Screen.ModuleLesson) },
+                        onDestination = { navigateTo(it) }
                     )
                     Screen.Explore -> ExploreScreen(
-                        onOpen = { destination -> screen = destination },
-                        onModule = { module -> selectedModule = module; screen = Screen.ModuleLesson }
+                        onOpen = { destination -> navigateTo(destination) },
+                        onModule = { module -> selectedModule = module; navigateTo(Screen.ModuleLesson) }
                     )
                     Screen.ModuleLesson -> CurriculumModuleScreen(
                         moduleTitle = selectedModule,
                         completedLessons = completedLessons,
-                        onBack = { screen = Screen.Explore },
-                        onLesson = { lesson -> selectedLesson = lesson; screen = Screen.TopicLesson }
+                        onBack = { navigateBack() },
+                        onLesson = { lesson -> selectedLesson = lesson; navigateTo(Screen.TopicLesson) }
                     )
                     Screen.TopicLesson -> CurriculumLessonScreen(
                         moduleTitle = selectedModule,
                         lessonTitle = selectedLesson,
-                        onBack = { screen = Screen.ModuleLesson },
+                        onBack = { navigateBack() },
                         onComplete = {
                             completedLessons = completedLessons + "$selectedModule/$selectedLesson"
-                            screen = Screen.ModuleLesson
+                            navigateBack()
                         },
-                        onQuiz = { screen = Screen.Quiz }
+                        onQuiz = { navigateTo(Screen.Quiz) }
                     )
                     Screen.Table -> PeriodicHubScreen(
                         savedCount = savedElements.size,
-                        onOpen = { screen = it },
-                        onSelect = { selected = it; screen = Screen.Element }
+                        onOpen = { navigateTo(it) },
+                        onSelect = { selected = it; navigateTo(Screen.Element) }
                     )
                     Screen.FullTable -> EnhancedPeriodicTableScreen(
                         elements = allElements,
-                        onBack = { screen = Screen.Table },
-                        onSelect = { selected = it; screen = Screen.Element },
-                        onCompare = { screen = Screen.Compare }
+                        onBack = { navigateBack() },
+                        onSelect = { selected = it; navigateTo(Screen.Element) },
+                        onCompare = { navigateTo(Screen.Compare) }
                     )
                     Screen.Categories -> ElementCategoriesScreen(
                         elements = allElements,
-                        onBack = { screen = Screen.Table },
-                        onSelect = { selected = it; screen = Screen.Element }
+                        onBack = { navigateBack() },
+                        onSelect = { selected = it; navigateTo(Screen.Element) }
                     )
                     Screen.Trends -> PeriodicTrendsScreen(
-                        onBack = { screen = Screen.Table },
-                        onHeatMap = { screen = Screen.HeatMap }
+                        onBack = { navigateBack() },
+                        onHeatMap = { navigateTo(Screen.HeatMap) }
                     )
-                    Screen.HeatMap -> HeatMapScreen(allElements, onBack = { screen = Screen.Trends }) {
-                        selected = it; screen = Screen.Element
+                    Screen.HeatMap -> HeatMapScreen(allElements, onBack = { navigateBack() }) {
+                        selected = it; navigateTo(Screen.Element)
                     }
-                    Screen.Compare -> ElementComparisonScreen(allElements, onBack = { screen = Screen.Table }) {
-                        selected = it; screen = Screen.Element
+                    Screen.Compare -> ElementComparisonScreen(allElements, onBack = { navigateBack() }) {
+                        selected = it; navigateTo(Screen.Element)
                     }
                     Screen.Notebook -> ElementNotebookScreen(
                         elements = allElements.filter { it.number in savedElements },
-                        onBack = { screen = Screen.Table },
-                        onSelect = { selected = it; screen = Screen.Element },
-                        onRemove = { savedElements = savedElements - it.number }
+                        onBack = { navigateBack() },
+                        onSelect = { selected = it; navigateTo(Screen.Element) },
+                        onRemove = {
+                            savedElements = savedElements - it.number
+                            periodicPrefs.edit().putStringSet("saved_elements", savedElements.map(Int::toString).toSet()).apply()
+                        }
+                    )
+                    Screen.PeriodicStudio -> PeriodicDiscoveryStudioScreen(
+                        elements = allElements,
+                        onBack = { navigateBack() },
+                        onSelect = { selected = it; navigateTo(Screen.Element) }
                     )
                     Screen.Element -> ElementScreen(
                         element = selected,
                         isSaved = selected.number in savedElements,
-                        onBack = { screen = Screen.Table },
+                        onBack = { navigateBack() },
                         onToggleSaved = {
                             savedElements = if (selected.number in savedElements) savedElements - selected.number else savedElements + selected.number
+                            periodicPrefs.edit().putStringSet("saved_elements", savedElements.map(Int::toString).toSet()).apply()
                             scope.launch { snackbar.showSnackbar(if (selected.number in savedElements) "${selected.symbol} saved to notebook" else "${selected.symbol} removed") }
                         }
-                    ) { screen = Screen.Molecule }
-                    Screen.Lab -> MultiPageLabScreen { scope.launch { snackbar.showSnackbar(it) } }
+                    ) { navigateTo(Screen.Molecule) }
+                    Screen.Lab -> VirtualLabScreen()
                     Screen.Quiz -> MultiPageQuizScreen()
                     Screen.Progress -> MultiPageProgressScreen()
-                    Screen.Reactions -> ReactionsScreen(onBack = { screen = Screen.Explore })
-                    Screen.Molecule -> MoleculeScreen(onBack = { screen = Screen.Explore })
+                    Screen.Reactions -> ReactionsScreen(onBack = { navigateBack() })
+                    Screen.Molecule -> MoleculeScreen(onBack = { navigateBack() })
                 }
             }
         }
+    }
     }
 }
 
 @Composable
 internal fun ScreenTitle(title: String, subtitle: String? = null, back: (() -> Unit)? = null) {
+    val home = LocalHomeAction.current
+    val resolvedBack = back ?: LocalBackAction.current
     Row(
         Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (back != null) {
-            Text("‹", color = White, fontSize = 38.sp, modifier = Modifier.clickable { back() }.padding(end = 12.dp))
+        if (resolvedBack != null) {
+            Text("‹", color = White, fontSize = 38.sp, modifier = Modifier.clickable { resolvedBack() }.padding(end = 12.dp))
         }
-        Column {
+        Column(Modifier.weight(1f)) {
             Text(title, color = White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
             subtitle?.let { Text(it, color = Muted, fontSize = 12.sp) }
+        }
+        if (home != null) {
+            Text(
+                "⌂",
+                color = Cyan,
+                fontSize = 25.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.clip(CircleShape)
+                    .background(LocalReadingPalette.current.surfaceAlt)
+                    .border(1.dp, Cyan.copy(alpha = .45f), CircleShape)
+                    .clickable { home() }
+                    .padding(horizontal = 11.dp, vertical = 6.dp)
+            )
         }
     }
 }
@@ -316,21 +433,21 @@ private fun HomeScreen(
     ) {
         item {
             Row(
-                Modifier.fillMaxWidth().padding(20.dp, 10.dp),
+                Modifier.fillMaxWidth().padding(20.dp, 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Hello, Alex", color = White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    Text("Ready to discover something new?", color = Muted, fontSize = 13.sp)
+                    Text("AI Chemistry Explorer", color = White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    Text("Open learning · Class 6 to postgraduate", color = Muted, fontSize = 13.sp)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("⌕", color = Cyan, fontSize = 25.sp, modifier = Modifier.clickable { onSearch() }.padding(9.dp))
-                    Box(
-                        Modifier.size(42.dp).clip(CircleShape)
-                            .background(Brush.linearGradient(listOf(Purple, Cyan))),
-                        contentAlignment = Alignment.Center
-                    ) { Text("A", color = White, fontWeight = FontWeight.Bold) }
+                    Text(
+                        "⌂", color = Cyan, fontSize = 23.sp,
+                        modifier = Modifier.clip(CircleShape).background(LocalReadingPalette.current.surfaceAlt)
+                            .padding(horizontal = 9.dp, vertical = 5.dp)
+                    )
+                    Text("⌕", color = Cyan, fontSize = 27.sp, modifier = Modifier.clickable { onSearch() }.padding(9.dp))
                 }
             }
         }
@@ -348,23 +465,25 @@ private fun HomeScreen(
                     AtomGraphic(108.dp, Cyan)
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
-                        Tag("LEVEL 12", Purple)
+                        Tag("OPEN CURRICULUM", Purple)
                         Spacer(Modifier.height(8.dp))
-                        Text("Master the elements", color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text("Your chemistry universe is expanding.", color = Muted, fontSize = 12.sp)
+                        Text("Chemistry without gaps", color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text("Foundations, inorganic, organic, biochemistry, materials and drug discovery.", color = Muted, fontSize = 12.sp)
                         Spacer(Modifier.height(12.dp))
-                        LinearProgressIndicator(
-                            progress = { .68f },
-                            modifier = Modifier.fillMaxWidth().height(5.dp).clip(CircleShape),
-                            color = Cyan, trackColor = Color(0xFF172942)
-                        )
-                        Text("2,450 / 3,600 XP", color = Cyan, fontSize = 10.sp, modifier = Modifier.padding(top = 5.dp))
+                        Text("${curriculum.size} modules · ${curriculum.sumOf { it.lessons.size }} concepts", color = Cyan, fontSize = 10.sp)
                     }
                 }
             }
         }
-        item { LearningPulseCard(onContinue) }
-        item { SectionHeader("Explore by topic", "View all", onExplore) }
+        item {
+            Button(
+                onClick = onContinue,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 12.dp),
+                colors = ButtonDefaults.buttonColors(Cyan),
+                shape = RoundedCornerShape(12.dp)
+            ) { Text("Browse the complete curriculum", color = Night, fontWeight = FontWeight.Bold) }
+        }
+        item { SectionHeader("Explore by discipline", "View all", onExplore) }
         item {
             Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 TopicCard("Organic\nChemistry", "⌬", Purple, Modifier.weight(1f), onExplore)
@@ -374,30 +493,6 @@ private fun HomeScreen(
             Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 TopicCard("Chemical\nReactions", "⇌", Orange, Modifier.weight(1f), onReactions)
                 TopicCard("Molecule\nViewer", "⬡", Green, Modifier.weight(1f), onMolecule)
-            }
-        }
-        item { SectionHeader("Continue learning", null, null) }
-        item {
-            GlowCard(Modifier.fillMaxWidth().padding(horizontal = 18.dp), Purple) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("⚭", fontSize = 30.sp, color = Purple)
-                    Spacer(Modifier.width(12.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text("Chemical Bonding", color = White, fontWeight = FontWeight.SemiBold)
-                        Text("Chapter 4 · Ionic & covalent bonds", color = Muted, fontSize = 11.sp)
-                        Spacer(Modifier.height(7.dp))
-                        LinearProgressIndicator(
-                            progress = { .45f }, modifier = Modifier.fillMaxWidth().height(4.dp),
-                            color = Purple, trackColor = Color(0xFF1B2037)
-                        )
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    Button(
-                        onClick = onContinue,
-                        colors = ButtonDefaults.buttonColors(Purple),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 13.dp, vertical = 4.dp)
-                    ) { Text("Continue", fontSize = 11.sp) }
-                }
             }
         }
     }
@@ -460,51 +555,96 @@ private fun TopicCard(title: String, icon: String, color: Color, modifier: Modif
 @Composable
 private fun ExploreScreen(onOpen: (Screen) -> Unit, onModule: (String) -> Unit) {
     var query by remember { mutableStateOf("") }
-    val topics = listOf(
-        Triple("Atomic Structure", "Explore atoms, orbitals and electrons.", Cyan),
-        Triple("Periodic Table", "Groups, blocks and repeating chemical trends.", Color(0xFF4D8BFF)),
-        Triple("Chemical Bonding", "Ionic, covalent and metallic bonds.", Purple),
-        Triple("States of Matter", "Gases, liquids, solids and phase behavior.", Color(0xFF73D0FF)),
-        Triple("Organic Chemistry", "Carbon compounds, functional groups and mechanisms.", Purple),
-        Triple("Chemical Reactions", "Equations, reaction types and redox change.", Orange),
-        Triple("Thermodynamics", "Energy, enthalpy, entropy and spontaneity.", Color(0xFFC456FF)),
-        Triple("Equilibrium and Solutions", "Concentration, pH, buffers and balance.", Green),
-        Triple("Kinetics and Electrochemistry", "Rates, catalysts, cells and electrolysis.", Color(0xFF1DBBFF)),
-        Triple("Analytical and Applied Chemistry", "Measurement, environment, medicine and industry.", Cyan)
-    )
+    var level by remember { mutableStateOf("All levels") }
+    var category by remember { mutableStateOf("All categories") }
+    var subcategory by remember { mutableStateOf("All subcategories") }
+    val levels = listOf("All levels", "Class 6–8", "Class 9–10", "Class 11–12", "Undergraduate", "Postgraduate")
+    val levelModules = curriculum.filter { level == "All levels" || it.level == level }
+    val categories = listOf("All categories") + levelModules.map { it.category }.distinct().sorted()
+    val categoryModules = levelModules.filter { category == "All categories" || it.category == category }
+    val subcategories = listOf("All subcategories") + categoryModules.map { it.subcategory }.distinct().sorted()
+    val topics = categoryModules.filter {
+        (subcategory == "All subcategories" || it.subcategory == subcategory) &&
+            (query.isBlank() || it.title.contains(query, true) || it.description.contains(query, true) ||
+                it.category.contains(query, true) || it.subcategory.contains(query, true) ||
+                it.lessons.any { lesson -> lesson.title.contains(query, true) })
+    }
     Column(Modifier.fillMaxSize()) {
-        ScreenTitle("Explore", "Concepts, reactions and compounds")
+        ScreenTitle("Curriculum", "Class 6 to PG · category and subcategory")
         OutlinedTextField(
             value = query, onValueChange = { query = it },
-            placeholder = { Text("Search topics...", color = Muted) },
+            placeholder = { Text("Search modules or concepts...", color = Muted) },
             leadingIcon = { Text("⌕", color = Cyan, fontSize = 22.sp) },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp),
             shape = RoundedCornerShape(14.dp),
             singleLine = true
         )
-        Spacer(Modifier.height(12.dp))
+        CurriculumFilterRow(levels, level, Cyan) {
+            level = it
+            category = "All categories"
+            subcategory = "All subcategories"
+        }
+        CurriculumFilterRow(categories, category, Purple) {
+            category = it
+            subcategory = "All subcategories"
+        }
+        CurriculumFilterRow(subcategories, subcategory, Green) { subcategory = it }
+        Text(
+            "${topics.size} modules · ${topics.sumOf { it.lessons.size }} concepts",
+            color = Muted,
+            fontSize = 10.sp,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+        )
         LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(18.dp)) {
-            items(topics.filter { it.first.contains(query, true) || it.second.contains(query, true) }) { topic ->
+            items(topics) { topic ->
                 Card(
-                    Modifier.fillMaxWidth().padding(bottom = 10.dp).clickable { onModule(topic.first) },
+                    Modifier.fillMaxWidth().padding(bottom = 10.dp).clickable { onModule(topic.title) },
                     colors = CardDefaults.cardColors(Panel),
                     shape = RoundedCornerShape(16.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Border)
                 ) {
                     Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            Modifier.size(54.dp).clip(CircleShape).background(topic.third.copy(alpha = .12f)),
-                            contentAlignment = Alignment.Center
-                        ) { Text(if (topic.first == "Chemical Reactions") "⇌" else "⚛", color = topic.third, fontSize = 25.sp) }
+                        Box(Modifier.size(56.dp), contentAlignment = Alignment.Center) {
+                            AtomGraphic(52.dp, topic.color)
+                            Text(
+                                topic.icon,
+                                color = White,
+                                fontSize = if (topic.icon.length > 1) 10.sp else 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                         Spacer(Modifier.width(14.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(topic.first, color = White, fontWeight = FontWeight.SemiBold)
-                            Text(topic.second, color = Muted, fontSize = 11.sp)
+                            Text(topic.title, color = White, fontWeight = FontWeight.SemiBold)
+                            Text("${topic.level} · ${topic.category}", color = topic.color, fontSize = 9.sp)
+                            Text(topic.subcategory, color = Muted, fontSize = 11.sp)
                         }
                         Text("›", color = Muted, fontSize = 26.sp)
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CurriculumFilterRow(options: List<String>, selected: String, accent: Color, onSelect: (String) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(7.dp)
+    ) {
+        options.forEach { option ->
+            Text(
+                option,
+                color = if (selected == option) Night else Muted,
+                fontSize = 9.sp,
+                maxLines = 1,
+                modifier = Modifier.clip(CircleShape)
+                    .background(if (selected == option) accent else Panel)
+                    .border(1.dp, if (selected == option) accent else Border, CircleShape)
+                    .clickable { onSelect(option) }
+                    .padding(horizontal = 11.dp, vertical = 7.dp)
+            )
         }
     }
 }
@@ -584,6 +724,7 @@ private fun ElementScreen(
     onToggleSaved: () -> Unit,
     onModel: () -> Unit
 ) {
+    val facts = elementFacts(element.number)
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.weight(1f)) { ScreenTitle("Element Detail", element.category, onBack) }
@@ -601,7 +742,7 @@ private fun ElementScreen(
                     Spacer(Modifier.height(8.dp))
                     Tag(element.category.uppercase(), element.color)
                 }
-                AtomGraphic(150.dp, element.color)
+                ElementHeaderAtom(element)
             }
         }
         Row(
@@ -620,24 +761,29 @@ private fun ElementScreen(
         PropertyRow("Atomic number", element.number.toString())
         PropertyRow("Atomic mass", "${element.mass} u")
         PropertyRow("Atomic radius", element.radius)
-        PropertyRow("Electron configuration", electronConfiguration(element.number))
+        PropertyRow("Electron configuration", facts.electronConfiguration)
+        PropertyRow("Standard state", facts.standardState)
+        PropertyRow("Melting point", factOrDash(facts.meltingPointK, "K"))
         PropertyRow("Boiling point", element.boiling)
-        PropertyRow("Electronegativity", if (element.symbol == "O") "3.44" else "—")
+        PropertyRow("Density", factOrDash(facts.densityGcm3, "g/cm³"))
+        PropertyRow("Electronegativity", facts.electronegativity)
+        PropertyRow("First ionization energy", factOrDash(facts.ionizationEnergyEv, "eV"))
         Text("COMMON COMPOUNDS", color = Muted, fontSize = 11.sp, modifier = Modifier.padding(20.dp, 18.dp, 20.dp, 8.dp))
-        val compounds = when (element.symbol) {
-            "O" -> listOf("H₂O", "CO₂", "O₂", "SiO₂")
-            "C" -> listOf("CO₂", "CH₄", "CaCO₃", "C₂H₅OH")
-            "Cu" -> listOf("CuO", "Cu₂O", "CuSO₄", "CuCl₂")
-            "Fe" -> listOf("Fe₂O₃", "FeO", "FeS", "FeCl₃")
-            "H" -> listOf("H₂O", "HCl", "NH₃", "CH₄")
-            else -> listOf("${element.symbol}O", "${element.symbol}Cl", "${element.symbol}₂O", "${element.symbol}F")
-        }
-        Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            compounds.forEach {
-                Text(it, color = Cyan, fontSize = 12.sp, textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f).clip(RoundedCornerShape(8.dp)).background(Panel).padding(10.dp))
+        val compounds = validatedCompoundsFor(element)
+        if (compounds.isEmpty()) {
+            Text(
+                "No curated common-compound examples are available in the offline dataset.",
+                color = Muted, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 20.dp)
+            )
+        } else {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                compounds.forEach {
+                    Text(it, color = Cyan, fontSize = 12.sp, textAlign = TextAlign.Center,
+                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(8.dp)).background(Panel).padding(10.dp))
+                }
             }
         }
+        ElementKnowledgeLab(element)
         Button(
             onClick = onModel,
             modifier = Modifier.fillMaxWidth().padding(18.dp),
@@ -645,19 +791,6 @@ private fun ElementScreen(
             shape = RoundedCornerShape(12.dp)
         ) { Text("Open atomic model", color = Night, fontWeight = FontWeight.Bold) }
     }
-}
-
-private fun electronConfiguration(n: Int): String = when {
-    n == 1 -> "1s¹"
-    n == 2 -> "1s²"
-    n in 3..10 -> "[He] 2s² 2p${(n - 4).coerceAtLeast(0)}"
-    n in 11..18 -> "[Ne] 3s² 3p${(n - 12).coerceAtLeast(0)}"
-    n in 19..30 -> "[Ar] 3d${(n - 20).coerceIn(0, 10)} 4s²"
-    n == 35 -> "[Ar] 3d¹⁰ 4s² 4p⁵"
-    n == 47 -> "[Kr] 4d¹⁰ 5s¹"
-    n == 53 -> "[Kr] 4d¹⁰ 5s² 5p⁵"
-    n == 79 -> "[Xe] 4f¹⁴ 5d¹⁰ 6s¹"
-    else -> "Condensed orbital notation"
 }
 
 @Composable
@@ -674,38 +807,67 @@ private fun PropertyRow(label: String, value: String) {
 
 @Composable
 private fun ReactionsScreen(onBack: () -> Unit) {
+    val chapters = remember { listOf("All") + reactionLibrary.map { it.chapter }.distinct() }
+    var chapter by remember { mutableStateOf("All") }
+    var query by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf<String?>(null) }
-    val reactions = listOf(
-        Triple("Combustion of methane", "CH₄ + 2O₂ → CO₂ + 2H₂O", Orange),
-        Triple("Neutralization", "HCl + NaOH → NaCl + H₂O", Cyan),
-        Triple("Synthesis of ammonia", "N₂ + 3H₂ ⇌ 2NH₃", Purple),
-        Triple("Silver chloride precipitation", "AgNO₃ + NaCl → AgCl↓ + NaNO₃", Green),
-        Triple("Hydrogen peroxide decomposition", "2H₂O₂ → 2H₂O + O₂", Color(0xFF3D8CFF))
-    )
+    val reactions = reactionLibrary.filter {
+        (chapter == "All" || it.chapter == chapter) &&
+            (query.isBlank() || listOf(it.title, it.equation, it.type, it.purpose)
+                .any { field -> field.contains(query, ignoreCase = true) })
+    }
     Column(Modifier.fillMaxSize()) {
-        ScreenTitle("Reactions", "Balanced equations & mechanisms", onBack)
+        ScreenTitle("Reaction Explorer", "${reactionLibrary.size} reactions · equations, conditions and purpose", onBack)
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            label = { Text("Search reaction, equation or purpose") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp)
+        )
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            chapters.forEach { item ->
+                Text(
+                    item, color = if (chapter == item) Night else White, fontSize = 11.sp,
+                    modifier = Modifier.clip(CircleShape)
+                        .background(if (chapter == item) Cyan else LocalReadingPalette.current.surfaceAlt)
+                        .clickable { chapter = item }.padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+            }
+        }
+        Text(
+            "${reactions.size} matching reactions · Tap a card to learn why it matters",
+            color = Muted, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 3.dp)
+        )
         LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(18.dp)) {
             items(reactions) { reaction ->
                 GlowCard(
                     Modifier.fillMaxWidth().padding(bottom = 10.dp).clickable {
-                        selected = if (selected == reaction.first) null else reaction.first
-                    }, reaction.third
+                        selected = if (selected == reaction.title) null else reaction.title
+                    }, reaction.color
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (reaction.first.contains("Combustion")) "♨" else "⌬", color = reaction.third, fontSize = 26.sp)
+                        Text("⇌", color = reaction.color, fontSize = 26.sp)
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(reaction.first, color = White, fontWeight = FontWeight.SemiBold)
-                            Text(reaction.second, color = White.copy(alpha = .8f), fontSize = 13.sp)
-                            if (selected == reaction.first) {
+                            Text(reaction.title, color = White, fontWeight = FontWeight.SemiBold)
+                            Text(reaction.equation, color = White.copy(alpha = .88f), fontSize = 13.sp)
+                            Text(reaction.type, color = reaction.color, fontSize = 10.sp)
+                            if (selected == reaction.title) {
                                 Spacer(Modifier.height(9.dp))
-                                Text(
-                                    "Atoms are conserved on both sides. Tap again to collapse this reaction.",
-                                    color = Muted, fontSize = 11.sp
-                                )
+                                Text("WHY IT MATTERS", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                Text(reaction.purpose, color = White, fontSize = 12.sp)
+                                Spacer(Modifier.height(7.dp))
+                                Text("CONDITIONS", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                Text(reaction.conditions, color = White, fontSize = 12.sp)
+                                Spacer(Modifier.height(7.dp))
+                                Text(reaction.explanation, color = Muted, fontSize = 11.sp)
                             }
                         }
-                        Tag("BALANCED", Green)
+                        Tag(reaction.chapter.uppercase(), reaction.color)
                     }
                 }
             }
@@ -716,12 +878,113 @@ private fun ReactionsScreen(onBack: () -> Unit) {
 @Composable
 private fun MoleculeScreen(onBack: () -> Unit) {
     var model by remember { mutableStateOf(0) }
+    val chapters = remember { moleculeLibrary.map { it.chapter }.distinct() }
+    var chapter by remember { mutableStateOf("All") }
+    var moleculeName by remember { mutableStateOf(moleculeLibrary.first().name) }
+    var query by remember { mutableStateOf("") }
+    var showAll by remember { mutableStateOf(true) }
+    val available = moleculeLibrary.filter {
+        (chapter == "All" || it.chapter == chapter) &&
+            (query.isBlank() || "${it.name} ${it.formula} ${it.chapter} ${it.uses}".contains(query, true))
+    }
+    val molecule = moleculeLibrary.firstOrNull { it.name == moleculeName } ?: moleculeLibrary.first()
     val modes = listOf("Ball & stick", "Space fill", "Electron cloud")
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        ScreenTitle("Molecule Viewer", "Interactive ethanol model", onBack)
-        Text("Ethanol", color = White, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
-        Text("C₂H₅OH", color = Cyan, fontSize = 15.sp, modifier = Modifier.padding(horizontal = 20.dp))
-        MoleculeGraphic(Modifier.fillMaxWidth().height(320.dp), model)
+        ScreenTitle("Molecule Viewer", "${moleculeLibrary.size} molecules across ${chapters.size} categories", onBack)
+        OutlinedTextField(
+            value = query,
+            onValueChange = {
+                query = it
+                if (it.isNotBlank()) { chapter = "All"; showAll = true }
+            },
+            label = { Text("Search name, formula, category or use") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp)
+        )
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("CATEGORIES", color = Muted, fontSize = 10.sp)
+            Text(
+                if (showAll) "Hide catalog" else "Show All (${moleculeLibrary.size})",
+                color = Cyan, fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                modifier = Modifier.clip(CircleShape).border(1.dp, Cyan.copy(alpha = .55f), CircleShape)
+                    .clickable { showAll = !showAll; if (showAll) chapter = "All" }
+                    .padding(horizontal = 12.dp, vertical = 7.dp)
+            )
+        }
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            (listOf("All") + chapters).forEach { item ->
+                Text(
+                    item, color = if (chapter == item) Night else White, fontSize = 11.sp,
+                    modifier = Modifier.clip(CircleShape)
+                        .background(if (chapter == item) Cyan else LocalReadingPalette.current.surfaceAlt)
+                        .clickable {
+                            chapter = item
+                            val first = if (item == "All") moleculeLibrary.first()
+                                else moleculeLibrary.first { it.chapter == item }
+                            moleculeName = first.name
+                        }.padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+            }
+        }
+        if (showAll) {
+            val grouped = available.groupBy { it.chapter }
+            GlowCard(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp), Cyan) {
+                if (available.isEmpty()) {
+                    Text("No molecule matches “$query”.", color = Muted, fontSize = 12.sp)
+                }
+                grouped.forEach { (group, molecules) ->
+                    Text(
+                        "$group · ${molecules.size}",
+                        color = Cyan, fontSize = 10.sp, fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 7.dp, bottom = 5.dp)
+                    )
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                        molecules.forEach { item ->
+                            Text(
+                                "${item.name}  ${item.formula}",
+                                color = if (item.name == molecule.name) Night else White,
+                                fontSize = 10.sp,
+                                modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                                    .background(if (item.name == molecule.name) Cyan else LocalReadingPalette.current.surfaceAlt)
+                                    .clickable {
+                                        moleculeName = item.name
+                                        chapter = item.chapter
+                                        showAll = false
+                                        query = ""
+                                    }.padding(horizontal = 10.dp, vertical = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        } else {
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 5.dp),
+                horizontalArrangement = Arrangement.spacedBy(7.dp)
+            ) {
+                available.forEach { item ->
+                    Text(
+                        item.name, color = if (item.name == molecule.name) Cyan else Muted, fontSize = 11.sp,
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                            .border(1.dp, if (item.name == molecule.name) Cyan else Border, RoundedCornerShape(8.dp))
+                            .clickable { moleculeName = item.name }.padding(horizontal = 11.dp, vertical = 8.dp)
+                    )
+                }
+            }
+        }
+        Text(molecule.name, color = White, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(molecule.formula, color = Cyan, fontSize = 15.sp)
+            Tag(molecule.chapter.uppercase(), Purple)
+        }
+        MoleculeGraphic(Modifier.fillMaxWidth().height(280.dp), model, molecule.layout)
         Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             modes.forEachIndexed { index, mode ->
                 Text(
@@ -735,15 +998,45 @@ private fun MoleculeScreen(onBack: () -> Unit) {
         }
         GlowCard(Modifier.fillMaxWidth().padding(18.dp), Cyan) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                InfoStat("Molar mass", "46.07 g/mol")
-                InfoStat("Boiling point", "78.37 °C")
+                InfoStat("Molar mass", molecule.molarMass)
+                InfoStat("Geometry", molecule.geometry)
             }
             Spacer(Modifier.height(18.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                InfoStat("Density", "0.789 g/cm³")
-                InfoStat("Solubility", "Miscible")
+            Text("BONDING", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text(molecule.bonding, color = White, fontSize = 12.sp)
+            Spacer(Modifier.height(10.dp))
+            Text("Schematic teaching model; atom sizes and distances are not to scale.", color = Muted, fontSize = 10.sp)
+        }
+        GlowCard(Modifier.fillMaxWidth().padding(horizontal = 18.dp), Purple) {
+            Text("UNDERSTAND THE MOLECULE", color = Purple, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text(molecule.theory, color = White, fontSize = 12.sp, modifier = Modifier.padding(top = 7.dp))
+            Spacer(Modifier.height(12.dp))
+            Text("CHEMISTRY EXAMPLE", color = Orange, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text(molecule.exampleChemistry, color = White, fontSize = 12.sp, modifier = Modifier.padding(top = 5.dp))
+            Spacer(Modifier.height(12.dp))
+            Text("WHERE IT IS USED", color = Green, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text(molecule.uses, color = White, fontSize = 12.sp, modifier = Modifier.padding(top = 5.dp))
+        }
+        val relatedMolecules = (molecule.related.mapNotNull { name -> moleculeLibrary.firstOrNull { it.name == name } } +
+            moleculeLibrary.filter { it.chapter == molecule.chapter && it.name != molecule.name }).distinctBy { it.name }
+        if (relatedMolecules.isNotEmpty()) {
+            Text("RELATED MOLECULES", color = Muted, fontSize = 10.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp))
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 18.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                relatedMolecules.forEach { item ->
+                    Text(
+                        "${item.name} · ${item.formula}", color = Cyan, fontSize = 10.sp,
+                        modifier = Modifier.clip(RoundedCornerShape(9.dp)).background(LocalReadingPalette.current.surfaceAlt)
+                            .border(1.dp, Cyan.copy(alpha = .4f), RoundedCornerShape(9.dp))
+                            .clickable { moleculeName = item.name; chapter = item.chapter }
+                            .padding(horizontal = 11.dp, vertical = 9.dp)
+                    )
+                }
             }
         }
+        Spacer(Modifier.height(22.dp))
     }
 }
 
@@ -805,82 +1098,6 @@ private fun LabSlider(label: String, value: Float, display: String, onChange: (F
             valueRange = .1f..1f,
             colors = SliderDefaults.colors(thumbColor = Cyan, activeTrackColor = Cyan, inactiveTrackColor = Border)
         )
-    }
-}
-
-@Composable
-private fun QuizScreen() {
-    data class Question(val prompt: String, val answers: List<String>, val correct: Int, val explanation: String)
-    val questions = remember {
-        listOf(
-            Question("Which element has the highest electronegativity?", listOf("Oxygen", "Fluorine", "Chlorine", "Nitrogen"), 1, "Fluorine attracts shared electrons more strongly than any other element."),
-            Question("What is the hybridization of carbon in methane?", listOf("sp", "sp²", "sp³", "sp³d"), 2, "Four equivalent sigma bonds create tetrahedral sp³ hybridization."),
-            Question("Which particle defines an element's identity?", listOf("Electron", "Neutron", "Proton", "Photon"), 2, "The number of protons is the atomic number and uniquely identifies an element."),
-            Question("A solution with pH 3 is…", listOf("Basic", "Neutral", "Acidic", "Saturated"), 2, "Any aqueous solution below pH 7 is acidic.")
-        )
-    }
-    var index by remember { mutableIntStateOf(0) }
-    var selected by remember { mutableIntStateOf(-1) }
-    var score by remember { mutableIntStateOf(0) }
-    val q = questions[index]
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        ScreenTitle("Quiz Zone", "Level 12 · ${score * 100 + 1250} XP")
-        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-            LinearProgressIndicator(
-                progress = { (index + 1f) / questions.size },
-                modifier = Modifier.weight(1f).height(6.dp).clip(CircleShape),
-                color = Cyan, trackColor = Border
-            )
-            Text("  ${index + 1}/${questions.size}", color = Muted, fontSize = 11.sp)
-        }
-        Spacer(Modifier.height(24.dp))
-        GlowCard(Modifier.fillMaxWidth().padding(horizontal = 18.dp), Purple) {
-            Tag("MEDIUM", Orange)
-            Spacer(Modifier.height(15.dp))
-            Text(q.prompt, color = White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, lineHeight = 28.sp)
-        }
-        Column(Modifier.padding(18.dp, 12.dp)) {
-            q.answers.forEachIndexed { answerIndex, answer ->
-                val chosen = selected == answerIndex
-                val correct = selected >= 0 && answerIndex == q.correct
-                val color = when {
-                    correct -> Green
-                    chosen -> Color(0xFFFF5D76)
-                    else -> Border
-                }
-                Row(
-                    Modifier.fillMaxWidth().padding(bottom = 9.dp).clip(RoundedCornerShape(12.dp))
-                        .background(color.copy(alpha = if (chosen || correct) .13f else .28f))
-                        .border(1.dp, color, RoundedCornerShape(12.dp))
-                        .clickable(enabled = selected < 0) {
-                            selected = answerIndex
-                            if (answerIndex == q.correct) score++
-                        }.padding(15.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(('A' + answerIndex).toString(), color = color, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.width(15.dp))
-                    Text(answer, color = White, modifier = Modifier.weight(1f))
-                    if (correct) Text("✓", color = Green, fontWeight = FontWeight.Bold)
-                }
-            }
-        }
-        if (selected >= 0) {
-            GlowCard(Modifier.fillMaxWidth().padding(horizontal = 18.dp), if (selected == q.correct) Green else Orange) {
-                Text(if (selected == q.correct) "Correct!" else "Good try", color = if (selected == q.correct) Green else Orange, fontWeight = FontWeight.Bold)
-                Text(q.explanation, color = Muted, fontSize = 12.sp)
-            }
-            Button(
-                onClick = {
-                    index = (index + 1) % questions.size
-                    selected = -1
-                    if (index == 0) score = 0
-                },
-                modifier = Modifier.fillMaxWidth().padding(18.dp),
-                colors = ButtonDefaults.buttonColors(Purple),
-                shape = RoundedCornerShape(12.dp)
-            ) { Text(if (index == questions.lastIndex) "Finish quiz" else "Next question") }
-        }
     }
 }
 
@@ -991,9 +1208,10 @@ private fun SectionHeader(title: String, action: String?, onClick: (() -> Unit)?
 
 @Composable
 internal fun GlowCard(modifier: Modifier, glow: Color, content: @Composable ColumnScope.() -> Unit) {
+    val palette = LocalReadingPalette.current
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(Panel),
+        colors = CardDefaults.cardColors(palette.surface),
         shape = RoundedCornerShape(16.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, glow.copy(alpha = .36f))
     ) { Column(Modifier.padding(16.dp), content = content) }
@@ -1043,13 +1261,13 @@ internal fun AtomGraphic(size: androidx.compose.ui.unit.Dp, color: Color) {
 }
 
 @Composable
-private fun MoleculeGraphic(modifier: Modifier, mode: Int) {
+private fun MoleculeGraphic(modifier: Modifier, mode: Int, layout: String) {
     val transition = rememberInfiniteTransition(label = "molecule")
     val drift by transition.animateFloat(
         -8f, 8f, animationSpec = infiniteRepeatable(tween(2200), RepeatMode.Reverse), label = "drift"
     )
     Canvas(modifier) {
-        val points = listOf(
+        val ethanolPoints = listOf(
             Offset(size.width * .28f, size.height * .55f),
             Offset(size.width * .46f, size.height * .43f),
             Offset(size.width * .64f, size.height * .55f),
@@ -1059,8 +1277,47 @@ private fun MoleculeGraphic(modifier: Modifier, mode: Int) {
             Offset(size.width * .49f, size.height * .21f),
             Offset(size.width * .62f, size.height * .77f),
             Offset(size.width * .88f, size.height * .55f)
-        ).mapIndexed { i, p -> p + Offset(if (i % 2 == 0) drift else -drift, 0f) }
-        val bonds = listOf(0 to 1, 1 to 2, 2 to 3, 0 to 4, 0 to 5, 1 to 6, 2 to 7, 3 to 8)
+        )
+        val (basePoints, bonds) = when (layout) {
+            "diatomic" -> listOf(
+                Offset(size.width * .38f, size.height * .5f), Offset(size.width * .62f, size.height * .5f)
+            ) to listOf(0 to 1)
+            "bent" -> listOf(
+                Offset(size.width * .5f, size.height * .4f), Offset(size.width * .3f, size.height * .68f),
+                Offset(size.width * .7f, size.height * .68f)
+            ) to listOf(0 to 1, 0 to 2)
+            "linear3", "linear4" -> listOf(
+                Offset(size.width * .25f, size.height * .5f), Offset(size.width * .5f, size.height * .5f),
+                Offset(size.width * .75f, size.height * .5f)
+            ) to listOf(0 to 1, 1 to 2)
+            "pyramidal", "trigonal" -> listOf(
+                Offset(size.width * .5f, size.height * .45f), Offset(size.width * .5f, size.height * .18f),
+                Offset(size.width * .25f, size.height * .7f), Offset(size.width * .75f, size.height * .7f)
+            ) to listOf(0 to 1, 0 to 2, 0 to 3)
+            "tetrahedral", "square" -> listOf(
+                Offset(size.width * .5f, size.height * .5f), Offset(size.width * .28f, size.height * .25f),
+                Offset(size.width * .72f, size.height * .25f), Offset(size.width * .28f, size.height * .75f),
+                Offset(size.width * .72f, size.height * .75f)
+            ) to listOf(0 to 1, 0 to 2, 0 to 3, 0 to 4)
+            "bipyramidal", "octahedral" -> listOf(
+                Offset(size.width * .5f, size.height * .5f), Offset(size.width * .5f, size.height * .13f),
+                Offset(size.width * .5f, size.height * .87f), Offset(size.width * .2f, size.height * .5f),
+                Offset(size.width * .8f, size.height * .5f), Offset(size.width * .72f, size.height * .27f),
+                Offset(size.width * .28f, size.height * .73f)
+            ) to listOf(0 to 1, 0 to 2, 0 to 3, 0 to 4, 0 to 5, 0 to 6)
+            "ring" -> {
+                val ringPoints = (0..5).map { i ->
+                    val angle = Math.toRadians(i * 60.0 - 90.0)
+                    Offset(
+                        size.width * .5f + cos(angle).toFloat() * size.width * .25f,
+                        size.height * .5f + sin(angle).toFloat() * size.height * .31f
+                    )
+                }
+                ringPoints to (0..5).map { it to (it + 1) % 6 }
+            }
+            else -> ethanolPoints to listOf(0 to 1, 1 to 2, 2 to 3, 0 to 4, 0 to 5, 1 to 6, 2 to 7, 3 to 8)
+        }
+        val points = basePoints.mapIndexed { i, p -> p + Offset(if (i % 2 == 0) drift else -drift, 0f) }
         bonds.forEach { (a, b) -> drawLine(Color(0xFF8BA2B8), points[a], points[b], if (mode == 1) 12f else 7f, StrokeCap.Round) }
         points.forEachIndexed { i, p ->
             val atomColor = when (i) { 3 -> Color(0xFFFF4F48); 0, 1, 2 -> Color(0xFF445062); else -> Color.White }

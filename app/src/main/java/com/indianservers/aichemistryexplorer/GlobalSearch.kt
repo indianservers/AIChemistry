@@ -21,7 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.Text as MaterialText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,7 +55,7 @@ internal fun GlobalChemistrySearchScreen(
     }
     val tools = listOf(
         SearchItem("TOOL", "Periodic Table", "118 interactive elements", Cyan),
-        SearchItem("TOOL", "Virtual Lab", "Interactive titration experiment", Green),
+        SearchItem("TOOL", "Virtual Lab", "${virtualExperiments.size} guided experiments with theory and results", Green),
         SearchItem("TOOL", "Reaction Library", "Balanced reaction explorer", Orange),
         SearchItem("TOOL", "Molecule Viewer", "Dynamic molecular models", Purple)
     )
@@ -82,7 +82,12 @@ internal fun GlobalChemistrySearchScreen(
             }
             GlowCard(Modifier.fillMaxWidth().padding(18.dp), Purple) {
                 Text("QUICK COMMANDS", color = Purple, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                Text("Search any of 118 elements or all 50 curriculum lessons.", color = White, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
+                Text(
+                    "Search 118 elements and ${curriculum.sumOf { it.lessons.size }} curriculum concepts.",
+                    color = White,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
             }
         } else {
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp)) {

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "packId": "chemistry-class-06-en",
+  "subject": "chemistry",
+  "title": "Class 6 Chemistry MCQs",
+  "language": "en",
+  "level": "school",
+  "class": 6,
+  "version": 1,
+  "questionCount": 150,
+  "createdAt": "2026-08-01T00:00:00Z",
+  "minimumAppVersion": 1,
+  "questionsFile": "questions.jsonl",
+  "conceptIndexFile": "concept-index.json",
+  "assetsDirectory": "assets",
+  "questionsSha256": "REPLACE_DURING_RELEASE_BUILD",
+  "contentLicense": "Indian Servers educational content"
+}

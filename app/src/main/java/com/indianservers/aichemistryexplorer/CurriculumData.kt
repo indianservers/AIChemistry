@@ -8,7 +8,13 @@ internal data class CurriculumLesson(
     val formula: String,
     val question: String,
     val answers: List<String>,
-    val correct: Int
+    val correct: Int,
+    val theory: String = concept,
+    val workedExample: String = "Connect the definition to a chemical observation, identify the particles involved, and use the stated relationship to explain the result.",
+    val exampleSteps: List<String> = emptyList(),
+    val commonMistake: String = "Do not treat a chemical model as a fact without checking its assumptions, units and experimental conditions.",
+    val realWorldApplication: String = "Chemists use this concept to connect molecular behavior with measurable properties and practical decisions.",
+    val advancedConcepts: List<String> = emptyList()
 )
 
 internal data class CurriculumModule(
@@ -16,13 +22,29 @@ internal data class CurriculumModule(
     val icon: String,
     val color: Color,
     val description: String,
-    val lessons: List<CurriculumLesson>
+    val lessons: List<CurriculumLesson>,
+    val level: String = "Class 11–12",
+    val category: String = "General Chemistry",
+    val subcategory: String = "Core concepts"
 )
 
 private fun lesson(title: String, concept: String, formula: String, question: String, correct: Int, vararg answers: String) =
-    CurriculumLesson(title, concept, formula, question, answers.toList(), correct)
+    CurriculumLesson(
+        title = title,
+        concept = concept,
+        formula = formula,
+        question = question,
+        answers = answers.toList(),
+        correct = correct,
+        theory = expandedTheory(title, concept),
+        workedExample = workedExampleFor(title),
+        exampleSteps = exampleStepsFor(title),
+        commonMistake = commonMistakeFor(title),
+        realWorldApplication = applicationFor(title),
+        advancedConcepts = advancedConceptsFor(title)
+    )
 
-internal val curriculum = listOf(
+internal val curriculum by lazy { listOf(
     CurriculumModule("Atomic Structure", "⚛", Cyan, "Build matter from particles, nuclei and quantum orbitals.", listOf(
         lesson("Subatomic particles", "Protons and neutrons occupy the nucleus; electrons occupy the surrounding probability cloud.", "proton +1 · neutron 0 · electron −1", "Which particle determines an element's atomic number?", 1, "Electron", "Proton", "Neutron", "Photon"),
         lesson("Atomic number and mass number", "Atomic number counts protons. Mass number counts protons plus neutrons.", "A = Z + N", "An atom has 11 protons and 12 neutrons. Its mass number is…", 2, "11", "12", "23", "24"),
@@ -65,13 +87,6 @@ internal val curriculum = listOf(
         lesson("Combustion reactions", "Complete hydrocarbon combustion in excess oxygen produces carbon dioxide, water and energy.", "CₓHᵧ + O₂ → CO₂ + H₂O", "Complete combustion requires sufficient…", 1, "Nitrogen", "Oxygen", "Hydrogen", "Chlorine"),
         lesson("Redox reactions", "Oxidation loses electrons while reduction gains them; both processes occur together.", "OIL RIG", "A species that gains electrons is…", 2, "Oxidized", "A catalyst", "Reduced", "Neutralized")
     )),
-    CurriculumModule("Thermodynamics", "↯", Color(0xFFC456FF), "Follow heat, work, disorder and usable energy.", listOf(
-        lesson("System, surroundings and state functions", "A system is the chosen matter under study; state functions depend only on initial and final states.", "universe = system + surroundings", "Which is a state function?", 0, "Enthalpy", "Path length", "Friction", "Process time"),
-        lesson("Heat, work and internal energy", "The first law conserves energy: internal energy changes through heat and work.", "ΔU = q + w", "If q = +50 J and w = −20 J, ΔU is…", 1, "20 J", "30 J", "50 J", "70 J"),
-        lesson("Enthalpy and calorimetry", "At constant pressure, enthalpy change equals heat transferred; calorimetry measures that heat.", "q = mcΔT", "An exothermic reaction has ΔH that is…", 2, "Zero", "Positive", "Negative", "Undefined"),
-        lesson("Entropy and spontaneity", "Entropy measures energy dispersal and the number of accessible microscopic arrangements.", "ΔSᵤₙᵢᵥ > 0 for spontaneity", "Which state usually has greatest entropy?", 3, "Crystal", "Solid", "Liquid", "Gas"),
-        lesson("Gibbs free energy", "Gibbs energy combines enthalpy and entropy to predict spontaneity at constant temperature and pressure.", "ΔG = ΔH − TΔS", "A spontaneous process has ΔG…", 0, "< 0", "> 0", "= 1", "Always = 0")
-    )),
     CurriculumModule("Equilibrium and Solutions", "≋", Green, "Understand dissolved matter, reversible change, acids and buffers.", listOf(
         lesson("Dynamic chemical equilibrium", "Forward and reverse rates become equal while both reactions continue microscopically.", "K = products/reactants", "At equilibrium, forward and reverse rates are…", 1, "Zero", "Equal", "Increasing", "Random"),
         lesson("Le Chatelier’s principle", "An equilibrium shifts to oppose a change in concentration, pressure or temperature.", "stress → opposing shift", "Removing product generally shifts equilibrium…", 2, "Left", "Nowhere", "Right", "To zero"),
@@ -81,7 +96,7 @@ internal val curriculum = listOf(
     )),
     CurriculumModule("Kinetics and Electrochemistry", "ϟ", Color(0xFF1DBBFF), "Control reaction speed and channel electron transfer into useful work.", listOf(
         lesson("Reaction rate and rate laws", "Rate laws relate reaction speed to reactant concentrations using experimentally determined orders.", "rate = k[A]ᵐ[B]ⁿ", "Increasing a first-order reactant concentration twofold changes rate by…", 1, "Half", "Twofold", "Fourfold", "No change"),
-        lesson("Collision theory and activation energy", "Particles react only when they collide with sufficient energy and suitable orientation.", "k = Ae^(−Ea/RT)", "Higher temperature usually makes reactions…", 3, "Stop", "Reverse only", "Unchanged", "Faster"),
+        lesson("Collision theory and activation energy", "Particles react only when they collide with sufficient energy and suitable orientation.", "k = A e^{−Eₐ/(RT)}", "Higher temperature usually makes reactions…", 3, "Stop", "Reverse only", "Unchanged", "Faster"),
         lesson("Catalysts and reaction mechanisms", "Catalysts offer a lower-energy pathway and are regenerated by the mechanism.", "catalyst lowers Eₐ", "A catalyst changes the equilibrium constant?", 0, "No", "Yes, upward", "Yes, downward", "Only in gases"),
         lesson("Galvanic and electrolytic cells", "Galvanic cells generate electrical work; electrolytic cells consume electricity to force change.", "E°cell = E°cathode − E°anode", "Oxidation occurs at the…", 2, "Salt bridge", "Cathode", "Anode", "Voltmeter"),
         lesson("Batteries, corrosion and electrolysis", "Applied electrochemistry stores energy, explains corrosion and plates or separates materials.", "Q = It", "Rusting of iron is primarily…", 1, "Reduction only", "Oxidation", "Neutralization", "Sublimation")
@@ -93,4 +108,534 @@ internal val curriculum = listOf(
         lesson("Environmental and green chemistry", "Green chemistry prevents waste, reduces hazards and designs efficient, renewable processes.", "atom economy = useful atoms / all atoms", "The best green strategy is to…", 1, "Treat waste later", "Prevent waste", "Dilute pollutants", "Use more solvent"),
         lesson("Medicinal, industrial and everyday chemistry", "Chemical design connects molecular structure with medicines, materials, food, energy and manufacturing.", "structure → property → function", "A catalyst in industry primarily helps by…", 2, "Changing products", "Breaking conservation", "Lowering activation energy", "Raising equilibrium K")
     ))
+).map { it.withCurriculumClassification() } + expandedCurriculum }
+
+private fun CurriculumModule.withCurriculumClassification(): CurriculumModule = when (title) {
+    "Atomic Structure" -> copy(category = "Physical Chemistry", subcategory = "Atomic foundations")
+    "Periodic Table" -> copy(category = "Inorganic Chemistry", subcategory = "Periodic properties")
+    "Chemical Bonding" -> copy(category = "Physical Chemistry", subcategory = "Molecular structure")
+    "States of Matter" -> copy(category = "Physical Chemistry", subcategory = "States and phases")
+    "Organic Chemistry" -> copy(category = "Organic Chemistry", subcategory = "Core organic chemistry")
+    "Chemical Reactions" -> copy(category = "General Chemistry", subcategory = "Reaction chemistry")
+    "Equilibrium and Solutions" -> copy(category = "Physical Chemistry", subcategory = "Equilibria and solutions")
+    "Kinetics and Electrochemistry" -> copy(category = "Physical Chemistry", subcategory = "Kinetics and electrochemistry")
+    "Analytical and Applied Chemistry" -> copy(category = "Analytical Chemistry", subcategory = "Analysis and applications")
+    else -> this
+}
+
+private data class CurriculumSeed(
+    val title: String,
+    val level: String,
+    val category: String,
+    val subcategory: String,
+    val concepts: List<String>
 )
+
+private fun seed(
+    title: String,
+    level: String,
+    category: String,
+    subcategory: String,
+    vararg concepts: String
+) = CurriculumSeed(title, level, category, subcategory, concepts.toList())
+
+private fun generatedLesson(seed: CurriculumSeed, concept: String): CurriculumLesson {
+    val topic = seed.title
+    val summary = conceptSummary(concept, topic)
+    return CurriculumLesson(
+        title = concept,
+        concept = summary,
+        formula = keyRelationshipFor(concept),
+        question = "Which approach best demonstrates understanding of $concept?",
+        answers = listOf(
+            "Memorizing its name only",
+            "Connecting evidence, mechanism and application",
+            "Ignoring experimental limits",
+            "Using an unrelated model"
+        ),
+        correct = 1,
+        theory = expandedTheory(concept, summary, topic, seed.category, seed.level),
+        workedExample = workedExampleFor(concept, seed.category),
+        exampleSteps = exampleStepsFor(concept, seed.category),
+        commonMistake = commonMistakeFor(concept, seed.category),
+        realWorldApplication = applicationFor(concept, seed.category),
+        advancedConcepts = advancedConceptsFor(concept)
+    )
+}
+
+private fun conceptSummary(concept: String, topic: String): String {
+    val name = concept.lowercase()
+    return when {
+        listOf("mole", "molar", "stoichi", "limiting", "percentage composition").any { it in name } ->
+            "$concept connects measurable amounts to numbers of chemical particles, allowing balanced equations to become quantitative predictions."
+        listOf("acid", "base", "ph", "buffer", "neutralization").any { it in name } ->
+            "$concept explains proton transfer and the resulting composition of aqueous solutions, including indicator changes and quantitative pH behavior."
+        listOf("bond", "hybrid", "orbital", "vsepr", "molecular shape").any { it in name } ->
+            "$concept links valence-electron arrangement with molecular geometry, stability, polarity and chemical reactivity."
+        listOf("rate", "kinetic", "activation", "catal", "mechanism").any { it in name } ->
+            "$concept explains how quickly chemical change occurs by relating molecular collisions, energy barriers and reaction pathways."
+        listOf("spectr", "nmr", "raman", "mass spect", "chromat", "analysis").any { it in name } ->
+            "$concept converts a chemical or physical response into evidence about identity, structure, purity or concentration."
+        listOf("enzyme", "protein", "carbohydrate", "lipid", "metabolism", "biomolecule").any { it in name } ->
+            "$concept applies chemical structure, bonding and reaction energetics to molecules and transformations found in living systems."
+        listOf("drug", "pharmaco", "adme", "qsar", "docking", "tox").any { it in name } ->
+            "$concept connects molecular structure and physicochemical properties with biological activity, exposure, selectivity and safety."
+        listOf("metal", "ligand", "coordination", "block", "inorganic", "ore").any { it in name } ->
+            "$concept explains the structure, bonding, preparation and characteristic reactions of elements, ions and inorganic compounds."
+        listOf("organic", "alkane", "alkene", "aromatic", "carbonyl", "amine", "alcohol", "stereo").any { it in name } ->
+            "$concept uses electron movement and functional-group behavior to explain the structure, properties and reactions of carbon compounds."
+        else ->
+            "$concept is a core part of $topic. It connects particle-level structure and chemical interactions with observable evidence and practical applications."
+    }
+}
+
+private fun expandedTheory(
+    title: String,
+    summary: String,
+    topic: String = title,
+    category: String = "",
+    level: String = "Class 11–12"
+): String {
+    val name = title.lowercase()
+    val explanation = when {
+        listOf("mole", "molar", "stoichi", "limiting", "percentage composition").any { it in name } ->
+            "Chemists count atoms and molecules indirectly because individual particles are too small to handle. One mole contains 6.022 × 10²³ specified entities. Molar mass converts between mass and moles, while a balanced equation supplies the mole ratio between reactants and products. The limiting reactant is consumed first and therefore fixes the maximum theoretical yield."
+        listOf("acid", "base", "ph", "buffer", "neutralization").any { it in name } ->
+            "In the Brønsted–Lowry model, an acid donates H⁺ and a base accepts H⁺. In water these transfers establish equilibria, so strength and concentration are different ideas. pH is logarithmic: a change of one pH unit corresponds to a tenfold change in hydronium concentration. Buffers use a weak acid/base conjugate pair to consume small additions of acid or base."
+        listOf("bond", "hybrid", "vsepr", "molecular shape").any { it in name } ->
+            "Chemical bonds form because a new electron arrangement can lower the energy of the combined atoms. Ionic bonding is dominated by electrostatic attraction, covalent bonding by shared electron density, and metallic bonding by delocalized electrons. Electron domains arrange to reduce repulsion, so Lewis structures and VSEPR predictions connect directly to shape, polarity and intermolecular attraction."
+        listOf("orbital", "quantum", "electronic configuration", "atomic model").any { it in name } ->
+            "Electrons are described by wavefunctions and occupy quantized states rather than fixed classical paths. Orbitals represent probability distributions with characteristic energies, shapes and nodes. The Aufbau principle, Pauli exclusion principle and Hund’s rule organize electron configurations; those configurations explain periodic trends and valence behavior."
+        listOf("rate", "kinetic", "activation", "catal", "mechanism").any { it in name } ->
+            "A chemical equation gives overall change, while a mechanism describes the elementary steps. Reaction rate depends on the frequency of effective collisions and the fraction of molecules able to cross the activation barrier. Rate laws are established experimentally. A catalyst creates an alternative pathway with a lower barrier but does not change the balanced reaction or equilibrium composition."
+        listOf("spectr", "nmr", "raman", "mass spect").any { it in name } ->
+            "Spectroscopic methods probe quantized interactions between matter and energy. Peak position reports an energy difference or chemical environment, intensity relates to probability or amount, and splitting or fragmentation reveals connectivity. Reliable interpretation combines multiple signals with molecular formula, symmetry and chemical reasoning."
+        listOf("chromat", "separation", "purification").any { it in name } ->
+            "A mixture separates when its components interact differently with two phases or respond differently to a physical property. In chromatography, repeated partitioning between stationary and mobile phases produces different migration rates. Good separation requires appropriate selectivity, controlled conditions and a way to detect the separated substances."
+        listOf("enzyme", "protein", "carbohydrate", "lipid", "metabolism", "biomolecule").any { it in name } ->
+            "Biomolecular behavior follows ordinary chemical principles: covalent structure, non-covalent forces, acid–base chemistry and reaction kinetics. Three-dimensional structure creates binding and catalytic sites. Metabolic pathways couple favorable and unfavorable reactions, transfer electrons through cofactors and regulate chemical flux according to cellular demand."
+        listOf("drug", "pharmaco", "adme", "qsar", "docking", "tox").any { it in name } ->
+            "A useful drug must do more than bind a target. Its functional groups, ionization, lipophilicity, shape and flexibility influence potency, selectivity, solubility, permeability, metabolism and toxicity. Medicinal chemists change structure systematically, measure the resulting properties and use structure–activity relationships to balance efficacy with exposure and safety."
+        listOf("coordination", "ligand", "transition metal", "organometal").any { it in name } ->
+            "A coordination compound contains a central metal bound to electron-pair-donating ligands. Metal oxidation state, d-electron count, geometry and ligand-field splitting control color, magnetism and reactivity. Substitution, electron transfer and changes in oxidation state form the basis of many inorganic and catalytic mechanisms."
+        listOf("organic", "alkane", "alkene", "aromatic", "carbonyl", "amine", "alcohol", "stereo", "functional group").any { it in name } ->
+            "Organic reactivity is governed by electron-rich and electron-poor sites. Functional groups define characteristic bond polarities and reaction patterns; curved arrows track electron-pair movement. Structure, resonance, induction, steric effects and stereochemistry together determine which pathway and product are favored."
+        listOf("solid", "crystal", "material", "polymer", "nano").any { it in name } ->
+            "Bulk material properties arise from composition, bonding and structure across several length scales. Crystal symmetry and defects affect conductivity and strength, while polymer chain length and intermolecular forces affect flexibility and thermal behavior. Characterization connects microscopic organization with measured performance."
+        else ->
+            "Begin with the particles or chemical species involved, then identify the forces, bonds or electron transfers between them. A chemical model is useful when it explains observations and makes testable predictions. Always connect the symbolic representation—formula, equation, graph or structure—to measurable evidence, units and experimental conditions."
+    }
+    val disciplineContext = when (category) {
+        "Inorganic Chemistry" ->
+            "When studying $title, compare electron configuration, oxidation state, coordination environment and periodic position. These variables explain trends in color, magnetism, stability and reaction type."
+        "Organic Chemistry" ->
+            "For $title, draw the structure explicitly, mark electron-rich and electron-poor sites, and follow bond changes one elementary step at a time. Product prediction should include regioselectivity, stereochemistry and reaction conditions where relevant."
+        "Analytical Chemistry" ->
+            "For $title, separate the complete measurement process into sampling, calibration, signal generation, interference control and uncertainty. A numerical result is meaningful only when units, significant figures and method limitations are reported."
+        "Biochemistry" ->
+            "For $title, connect functional groups and non-covalent interactions with three-dimensional structure. Then follow atoms, electrons or energy through the biochemical transformation instead of memorizing a pathway as isolated names."
+        "Drug Discovery" ->
+            "For $title, evaluate potency together with selectivity, solubility, permeability, metabolic stability and safety. Improving one molecular property can worsen another, so evidence must be interpreted as a multi-parameter optimization problem."
+        "Materials Chemistry" ->
+            "For $title, connect composition and bonding to structure at atomic, microscopic and bulk scales. Processing changes structure, and structure determines the measured electrical, optical, mechanical or thermal property."
+        "Applied Chemistry", "Environmental Chemistry" ->
+            "For $title, use balanced chemical transformations and material flows to compare efficiency, hazards, waste and environmental impact. Practical conclusions should follow from chemical evidence rather than labels such as ‘natural’ or ‘green’ alone."
+        "Physical Chemistry" ->
+            "For $title, translate between a molecular model, a mathematical relationship and an experiment. State the assumptions behind the equation and check whether the predicted trend agrees with limiting cases and measured data."
+        else ->
+            "A complete explanation of $title should identify the substances or particles involved, describe the chemical interaction, predict an observation and state the evidence that would support the prediction."
+    }
+    val levelContext = when (level) {
+        "Class 6–8" ->
+            "At this level, begin with observable properties and safe everyday examples, then use a simple particle model to explain what cannot be seen directly."
+        "Class 9–10" ->
+            "Use particle diagrams, word equations and balanced formula equations together. Distinguish observation from inference and support every conclusion with a chemical change or measured property."
+        "Class 11–12" ->
+            "Use mole relationships, electronic structure, balanced equations and graphs quantitatively. Show units at every step and explain exceptions instead of treating trends as absolute rules."
+        "Undergraduate" ->
+            "Evaluate the model quantitatively, derive or justify the central relationship, connect it with experimental technique and identify the conditions under which the approximation fails."
+        "Postgraduate" ->
+            "Compare competing models, connect the concept with current experimental or computational methods, and evaluate uncertainty, mechanism and limitations before drawing a conclusion."
+        else -> ""
+    }
+    return "$summary\n\n$explanation\n\n$disciplineContext\n\n$levelContext"
+}
+
+private fun workedExampleFor(title: String, category: String = ""): String {
+    val name = title.lowercase()
+    return when {
+        listOf("mole", "molar", "stoichi").any { it in name } ->
+            "Example: 18.0 g of H₂O ÷ 18.0 g mol⁻¹ = 1.00 mol H₂O. This represents about 6.022 × 10²³ water molecules. In 2H₂ + O₂ → 2H₂O, producing 1.00 mol H₂O requires 1.00 mol H₂ and 0.50 mol O₂."
+        listOf("acid", "ph").any { it in name } ->
+            "Example: if [H₃O⁺] = 1.0 × 10⁻³ mol L⁻¹, pH = −log(1.0 × 10⁻³) = 3. The solution is acidic, and diluting it tenfold ideally raises the pH by about one unit."
+        listOf("bond", "vsepr", "molecular shape").any { it in name } ->
+            "Example: CH₄ has four bonding domains around carbon and no lone pairs. The domains point toward the corners of a tetrahedron, giving bond angles close to 109.5°. The symmetric molecule is non-polar overall."
+        listOf("rate", "kinetic").any { it in name } ->
+            "Example: for rate = k[A], doubling [A] doubles the initial rate. If doubling [A] instead makes the rate four times larger, the reaction is second order in A because 2² = 4."
+        listOf("electro", "cell", "battery").any { it in name } ->
+            "Example: in a Zn/Cu galvanic cell, Zn is oxidized at the anode and Cu²⁺ is reduced at the cathode. Electrons flow through the wire from Zn to Cu while the salt bridge maintains charge balance."
+        listOf("chromat").any { it in name } ->
+            "Example: a spot moves 3.0 cm while the solvent front moves 5.0 cm, so Rf = 3.0/5.0 = 0.60. A second compound with Rf = 0.25 interacts more strongly with the stationary phase under the same conditions."
+        listOf("spectr", "beer", "absorb").any { it in name } ->
+            "Example: Beer–Lambert law gives A = εbc. If ε = 100 L mol⁻¹ cm⁻¹, b = 1.0 cm and c = 0.0020 mol L⁻¹, then A = 0.20."
+        listOf("enzyme").any { it in name } ->
+            "Example: when substrate concentration is much lower than Km, enzyme rate is sensitive to added substrate. Near saturation, most active sites are occupied and the rate approaches Vmax."
+        listOf("drug", "adme", "pharmaco").any { it in name } ->
+            "Example: adding a polar group may improve aqueous solubility but reduce membrane permeability. A medicinal-chemistry decision compares both measurements and checks whether potency and metabolic stability are preserved."
+        listOf("oxid", "redox").any { it in name } ->
+            "Example: Zn + Cu²⁺ → Zn²⁺ + Cu. Zinc loses two electrons and is oxidized; copper(II) gains those electrons and is reduced. The electron count lost and gained is equal."
+        listOf("density").any { it in name } ->
+            "Example: a sample has mass 54 g and volume 20 cm³. Density = mass/volume = 2.7 g cm⁻³, consistent with aluminium under ordinary conditions."
+        category == "Inorganic Chemistry" ->
+            "Example: in [Fe(CN)₆]⁴⁻, six CN⁻ ligands contribute −6 overall. Because the complex charge is −4, iron is +2. The metal oxidation state and ligand field are then used to discuss electron count, magnetism and color."
+        category == "Organic Chemistry" ->
+            "Example: propene reacts with HBr by protonation of the double bond followed by bromide attack. Under ordinary ionic conditions, the pathway through the more stable secondary carbocation gives 2-bromopropane as the major product."
+        category == "Analytical Chemistry" ->
+            "Example: standards of 1, 2 and 3 mg L⁻¹ give signals of 0.20, 0.40 and 0.60. A sample signal of 0.50 corresponds to 2.5 mg L⁻¹ from the calibration line, before applying any dilution factor."
+        category == "Biochemistry" ->
+            "Example: an enzyme lowers the activation barrier for substrate conversion but does not change the reaction equilibrium. Increasing substrate raises the initial rate until active sites approach saturation."
+        category == "Drug Discovery" ->
+            "Example: analogue A is potent but poorly soluble; analogue B adds a solubilizing group and retains target activity. Chemists next compare permeability, metabolic stability and off-target activity before selecting the better lead."
+        category == "Materials Chemistry" ->
+            "Example: adding a small controlled amount of phosphorus to silicon introduces extra charge carriers. The atomic-scale substitution changes electrical conductivity and enables an n-type semiconductor."
+        category == "Applied Chemistry" || category == "Environmental Chemistry" ->
+            "Example: compare two synthesis routes using product yield, atom economy, solvent hazard and energy demand. A high-yield route may still create more waste if most reactant atoms leave as by-products."
+        else ->
+            "Example: identify the chemical species, write the balanced relationship, predict the measurable change, and compare the prediction with evidence such as color, pH, mass, spectrum, reaction rate or product yield."
+    }
+}
+
+private fun exampleStepsFor(title: String, category: String = ""): List<String> {
+    val name = title.lowercase()
+    return when {
+        listOf("mole", "molar", "stoichi", "limiting").any { it in name } -> listOf(
+            "Write and balance the chemical equation before using any numerical data.",
+            "Convert the given mass, volume or particle count into moles with units.",
+            "Apply the balanced-equation mole ratio and identify the limiting reactant if more than one reactant is given.",
+            "Convert the result into the requested unit and check significant figures."
+        )
+        listOf("acid", "ph", "buffer", "titration").any { it in name } -> listOf(
+            "Identify the acid–base species and decide whether they are strong, weak or part of a buffer pair.",
+            "Write the proton-transfer or equilibrium equation and calculate the relevant concentration.",
+            "Use pH = −log[H₃O⁺] or the appropriate equilibrium relationship.",
+            "Check that the calculated pH and chemical interpretation are consistent."
+        )
+        listOf("bond", "vsepr", "hybrid", "molecular shape").any { it in name } -> listOf(
+            "Count total valence electrons and draw a valid Lewis structure.",
+            "Count bonding domains and lone-pair domains around the central atom.",
+            "Assign electron-domain geometry, molecular shape and approximate bond angles.",
+            "Use bond polarity and symmetry to decide whether the whole molecule is polar."
+        )
+        listOf("rate", "kinetic", "activation", "catal").any { it in name } -> listOf(
+            "Identify the measured concentration change and the time interval.",
+            "Determine the experimental rate law or apply the stated reaction order.",
+            "Compare how concentration, temperature or a catalyst changes effective collisions and the activation pathway.",
+            "Report the rate with correct units and distinguish rate from equilibrium yield."
+        )
+        listOf("electro", "cell", "battery", "corrosion").any { it in name } -> listOf(
+            "Write the oxidation and reduction half-reactions separately.",
+            "Balance atoms and charge, then match the number of transferred electrons.",
+            "Identify anode, cathode and electron-flow direction.",
+            "Calculate cell potential or deposited amount using the stated electrochemical relationship."
+        )
+        listOf("spectr", "nmr", "raman", "mass spect", "absorb").any { it in name } -> listOf(
+            "Record peak position, intensity, multiplicity or fragmentation information.",
+            "Assign each important signal to a plausible structural feature.",
+            "Check the assignment against molecular formula, symmetry and chemical environment.",
+            "Combine evidence from more than one signal before proposing the final structure."
+        )
+        listOf("chromat", "separation", "purification").any { it in name } -> listOf(
+            "Identify the mixture components and the property that can distinguish them.",
+            "Select stationary/mobile phases or a physical separation condition.",
+            "Calculate retention, Rf, recovery or purity when data are available.",
+            "Confirm identity and purity with a second observation or analytical method."
+        )
+        listOf("enzyme", "protein", "metabolism", "biomolecule").any { it in name } -> listOf(
+            "Identify the reacting functional groups, substrate and product.",
+            "Locate the catalyst, cofactor or energy-coupling step.",
+            "Follow atoms or electrons through the transformation.",
+            "Explain how structure, concentration or regulation changes the observed rate."
+        )
+        listOf("drug", "adme", "pharmaco", "qsar", "docking", "tox").any { it in name } -> listOf(
+            "State the target property and the experimental evidence used to measure it.",
+            "Compare structural changes between compounds and build a structure–activity relationship.",
+            "Check potency together with solubility, permeability, metabolism and selectivity.",
+            "Choose the next compound using the full property profile, not potency alone."
+        )
+        category == "Inorganic Chemistry" -> listOf(
+            "Assign oxidation states and determine the metal or main-group electron count.",
+            "Identify ligands, coordination number, geometry or periodic relationship.",
+            "Use bonding and electronic structure to predict color, magnetism or reactivity.",
+            "Check the prediction against a known reaction, spectrum or chemical test."
+        )
+        category == "Organic Chemistry" -> listOf(
+            "Draw the substrate and identify its functional groups.",
+            "Mark nucleophilic, electrophilic and leaving-group sites.",
+            "Use curved arrows to follow electron-pair movement and intermediates.",
+            "Check regiochemistry, stereochemistry, charge and atom conservation in the product."
+        )
+        category == "Analytical Chemistry" -> listOf(
+            "Define the analyte, sample matrix and required concentration range.",
+            "Select a calibration method and appropriate standards or blank.",
+            "Convert the measured signal into concentration and apply dilution factors.",
+            "Report uncertainty, significant figures and possible interferences."
+        )
+        else -> listOf(
+            "Identify the substances, particles and measurable quantities involved.",
+            "Choose the chemical model, balanced equation or relationship that applies.",
+            "Work through the prediction with units and explicit reasoning.",
+            "Compare the result with experimental evidence and state any assumptions."
+        )
+    }
+}
+
+private fun commonMistakeFor(title: String, category: String = ""): String {
+    val name = title.lowercase()
+    return when {
+        listOf("mole", "molar", "stoichi").any { it in name } ->
+            "A common mistake is using masses directly in an equation ratio. Balanced coefficients represent mole ratios, so convert every quantity to moles first."
+        listOf("acid", "ph", "buffer").any { it in name } ->
+            "Do not confuse acid strength with concentration. Strength describes extent of ionization; concentration describes how much acid is present per volume."
+        listOf("bond", "vsepr", "molecular shape").any { it in name } ->
+            "Do not name the electron-domain geometry when the question asks for molecular shape. Lone pairs affect the shape even though they are not shown as atoms."
+        listOf("equilibrium", "le chatelier").any { it in name } ->
+            "Equilibrium does not mean equal amounts or stopped reactions. It means the forward and reverse rates are equal under unchanged conditions."
+        listOf("rate", "kinetic", "catal").any { it in name } ->
+            "A catalyst increases both forward and reverse rates. It does not change the equilibrium constant or make an impossible product thermodynamically favored."
+        listOf("electro", "cell", "battery").any { it in name } ->
+            "Do not identify anode and cathode only by sign. Oxidation is always at the anode and reduction is always at the cathode."
+        listOf("spectr", "nmr", "mass spect").any { it in name } ->
+            "Do not assign a structure from one peak alone. A valid structure must account for every important signal, the molecular formula and chemical plausibility."
+        listOf("drug", "adme", "pharmaco", "docking").any { it in name } ->
+            "A high docking score or strong biochemical potency does not by itself make a good drug. Exposure, selectivity, metabolism and toxicity must also be measured."
+        category == "Organic Chemistry" ->
+            "Do not memorize the product without tracking electrons. Conditions, intermediate stability and stereochemistry determine which pathway operates."
+        category == "Analytical Chemistry" ->
+            "Precision is not the same as accuracy. Closely repeated values can still be biased if calibration, sampling or interference is wrong."
+        else ->
+            "Avoid memorizing the final statement without connecting it to particles, bonds, a balanced equation and observable evidence."
+    }
+}
+
+private fun applicationFor(title: String, category: String = ""): String {
+    val name = title.lowercase()
+    return when {
+        listOf("acid", "ph", "buffer").any { it in name } ->
+            "pH and buffer chemistry control medicines, blood chemistry, food preservation, soil treatment, fermentation and industrial water systems."
+        listOf("electro", "battery", "corrosion").any { it in name } ->
+            "Electrochemical principles guide battery design, metal refining, electroplating, corrosion prevention, sensors and green-hydrogen technologies."
+        listOf("spectr", "nmr", "mass spect", "chromat").any { it in name } ->
+            "These methods identify medicines, pollutants, forensic samples and reaction products while measuring purity and concentration."
+        listOf("polymer", "plastic").any { it in name } ->
+            "Polymer chemistry controls packaging, fibres, coatings, medical devices, electronics and the design of recyclable or degradable materials."
+        listOf("enzyme", "protein", "metabolism").any { it in name } ->
+            "This chemistry supports clinical diagnostics, biotechnology, fermentation, enzyme engineering and understanding metabolic disease."
+        listOf("drug", "adme", "pharmaco", "qsar", "docking", "tox").any { it in name } ->
+            "Drug-discovery teams use this concept to select safer molecules, predict human exposure and decide which compounds should advance to further testing."
+        listOf("fertilizer", "soil", "agricultural").any { it in name } ->
+            "Agricultural chemists use this knowledge to measure nutrients, improve fertilizer efficiency and reduce contamination of soil and water."
+        category == "Inorganic Chemistry" ->
+            "Inorganic chemistry supports catalysts, pigments, ceramics, electronic materials, metal extraction and metal-based diagnostics or medicines."
+        category == "Organic Chemistry" ->
+            "Organic reaction design is used to prepare pharmaceuticals, agrochemicals, dyes, polymers, fragrances and functional materials."
+        category == "Analytical Chemistry" ->
+            "Analytical laboratories use this concept for quality control, environmental monitoring, clinical testing and confirmation of product identity."
+        category == "Materials Chemistry" ->
+            "Materials chemists use this relationship to tune batteries, solar cells, semiconductors, coatings, structural composites and sensors."
+        else ->
+            "Chemists apply this concept when selecting materials, controlling reactions, interpreting measurements and designing safer or more efficient processes."
+    }
+}
+
+private fun keyRelationshipFor(title: String): String {
+    val name = title.lowercase()
+    return when {
+        "density" in name -> "density = mass / volume"
+        listOf("mole", "molar").any { it in name } -> "moles = mass / molar mass"
+        "ph" in name -> "pH = −log[H₃O⁺]"
+        "rate" in name -> "rate = change in concentration / time"
+        "beer" in name || "absorb" in name -> "A = εbc"
+        "cell potential" in name -> "E°cell = E°cathode − E°anode"
+        else -> "structure → bonding → properties → reaction"
+    }
+}
+
+private fun advancedConceptsFor(title: String): List<String> {
+    val name = title.lowercase()
+    return when {
+        listOf("atomic", "orbital", "quantum", "electronic").any { it in name } ->
+            listOf("Wavefunctions, nodes and orbital probability", "Shielding and effective nuclear charge", "Photoelectron spectroscopy")
+        listOf("bond", "vsepr", "hybrid").any { it in name } ->
+            listOf("Molecular orbital theory", "Bond order and magnetic behavior", "Walsh diagrams and hypervalency")
+        listOf("acid", "base", "ph", "buffer").any { it in name } ->
+            listOf("Polyprotic equilibria", "Activity and non-ideal solutions", "Buffer capacity and titration modelling")
+        listOf("organic", "alkane", "alkene", "aromatic", "carbonyl", "amine", "alcohol", "stereo").any { it in name } ->
+            listOf("Reaction-energy diagrams", "Stereoelectronic effects", "Retrosynthesis and chemoselectivity")
+        listOf("coordination", "ligand", "transition", "organometal").any { it in name } ->
+            listOf("Ligand-field stabilization energy", "Electronic spectra and selection rules", "Catalytic cycles and electron counting")
+        listOf("spectr", "nmr", "mass spect", "chromat", "analysis").any { it in name } ->
+            listOf("Instrument calibration and detection limits", "Two-dimensional and hyphenated techniques", "Chemometrics and uncertainty")
+        listOf("enzyme", "protein", "metabolism", "biomolecule").any { it in name } ->
+            listOf("Transition-state stabilization", "Allosteric regulation", "Isotope tracing and metabolic flux")
+        listOf("drug", "adme", "pharmaco", "qsar", "docking", "tox").any { it in name } ->
+            listOf("Free-energy perturbation", "Bioisosteres and scaffold hopping", "PK/PD and exposure–response modelling")
+        listOf("solid", "crystal", "material", "polymer", "nano").any { it in name } ->
+            listOf("Reciprocal space and diffraction", "Band structure and charge transport", "Structure–property optimization")
+        else ->
+            listOf("Molecular-level mechanism", "Experimental evidence and limitations", "Advanced chemical applications")
+    }
+}
+
+private val expandedCurriculum = listOf(
+    seed("Matter in Everyday Life", "Class 6–8", "Foundations", "Matter and measurement",
+        "Materials and their properties", "Solids, liquids and gases", "Physical and chemical changes", "Elements, compounds and mixtures", "Separation in daily life"),
+    seed("Measurement and Laboratory Skills", "Class 6–8", "Foundations", "Practical chemistry",
+        "SI units and prefixes", "Mass, volume and density", "Temperature and thermometers", "Safe handling and hazard symbols", "Observation and scientific records"),
+    seed("Air, Water and Environment", "Class 6–8", "Environmental Chemistry", "Earth systems",
+        "Composition of air", "Water cycle and purification", "Combustion and air pollution", "Greenhouse effect", "Resources and sustainability"),
+    seed("Acids, Bases and Salts: Foundations", "Class 6–8", "Foundations", "Acids and bases",
+        "Natural indicators", "Acidic and basic substances", "Neutralization", "Common salts", "Everyday applications"),
+    seed("Metals, Non-metals and Carbon", "Class 6–8", "Inorganic Chemistry", "Descriptive chemistry",
+        "Physical properties of metals", "Reactivity of metals", "Non-metals and their uses", "Corrosion and prevention", "Carbon forms and fuels"),
+
+    seed("Particle Theory and Atomic Models", "Class 9–10", "Physical Chemistry", "Atomic foundations",
+        "Laws of chemical combination", "Dalton atomic theory", "Atoms and molecules", "Mole concept introduction", "Atomic models and valency"),
+    seed("Chemical Formulae and Stoichiometry", "Class 9–10", "General Chemistry", "Quantitative chemistry",
+        "Writing chemical formulae", "Relative atomic and molecular mass", "Moles and molar mass", "Percentage composition", "Limiting reactant introduction"),
+    seed("Reactivity and Chemical Change", "Class 9–10", "Inorganic Chemistry", "Reaction chemistry",
+        "Activity series", "Displacement reactions", "Oxidation and reduction", "Corrosion and rancidity", "Energy in reactions"),
+    seed("Metals and Metallurgy", "Class 9–10", "Inorganic Chemistry", "Extraction and materials",
+        "Occurrence of metals", "Ore concentration", "Reduction and refining", "Alloys", "Recycling metals"),
+    seed("Carbon Compounds", "Class 9–10", "Organic Chemistry", "Introductory organic",
+        "Covalent bonding in carbon", "Homologous series", "Basic nomenclature", "Ethanol and ethanoic acid", "Soaps and detergents"),
+
+    seed("Advanced Mole Concept", "Class 11–12", "Physical Chemistry", "Stoichiometry",
+        "Empirical and molecular formulae", "Limiting reagent", "Concentration units", "Equivalent mass", "Redox titration calculations"),
+    seed("Advanced Atomic Structure", "Class 11–12", "Physical Chemistry", "Quantum foundations",
+        "Photoelectric effect", "de Broglie relation", "Heisenberg uncertainty", "Schrödinger model", "Orbital nodes and shapes"),
+    seed("Advanced Chemical Bonding", "Class 11–12", "Physical Chemistry", "Molecular structure",
+        "Hybridization", "Molecular orbital theory", "Bond order and magnetism", "Hydrogen bonding", "Fajans rules"),
+    seed("s-Block Chemistry", "Class 11–12", "Inorganic Chemistry", "Main-group chemistry",
+        "Hydrogen and hydrides", "Alkali metals", "Alkaline earth metals", "Diagonal relationships", "Important compounds"),
+    seed("p-Block Chemistry", "Class 11–12", "Inorganic Chemistry", "Main-group chemistry",
+        "Groups 13 and 14", "Groups 15 and 16", "Halogens", "Noble gases", "Anomalous behavior and trends"),
+    seed("d- and f-Block Chemistry", "Class 11–12", "Inorganic Chemistry", "Transition elements",
+        "Electronic configurations", "Oxidation states and color", "Magnetic properties", "Lanthanoid contraction", "Actinoids"),
+    seed("Coordination Compounds", "Class 11–12", "Inorganic Chemistry", "Coordination chemistry",
+        "Werner theory", "Ligands and nomenclature", "Isomerism", "Crystal field splitting", "Stability and applications"),
+    seed("Solid State Chemistry", "Class 11–12", "Physical Chemistry", "Solids and materials",
+        "Unit cells", "Packing efficiency", "Crystal defects", "Electrical properties", "Magnetic properties"),
+    seed("Surface Chemistry", "Class 11–12", "Physical Chemistry", "Interfaces",
+        "Adsorption", "Catalysis", "Colloids", "Emulsions", "Surface area and applications"),
+    seed("Principles of Organic Chemistry", "Class 11–12", "Organic Chemistry", "Structure and mechanism",
+        "Electronic effects", "Reaction intermediates", "Acidity and basicity", "Purification methods", "Qualitative organic analysis"),
+    seed("Hydrocarbons and Halo Compounds", "Class 11–12", "Organic Chemistry", "Organic families",
+        "Alkanes and cycloalkanes", "Alkenes and alkynes", "Aromaticity", "Haloalkanes", "Haloarenes"),
+    seed("Oxygen and Nitrogen Compounds", "Class 11–12", "Organic Chemistry", "Functional groups",
+        "Alcohols and phenols", "Ethers", "Aldehydes and ketones", "Carboxylic acids", "Amines and diazonium salts"),
+    seed("Biomolecules and Polymers", "Class 11–12", "Biochemistry", "Biological molecules",
+        "Carbohydrates", "Amino acids and proteins", "Enzymes", "Nucleic acids", "Natural and synthetic polymers"),
+    seed("Chemistry in Society", "Class 11–12", "Applied Chemistry", "Health and industry",
+        "Medicines and drug classes", "Food chemistry", "Cleansing agents", "Nanomaterials", "Green chemistry principles"),
+
+    seed("Chemical Kinetics and Dynamics", "Undergraduate", "Physical Chemistry", "Reaction dynamics",
+        "Integrated rate laws", "Complex reactions", "Steady-state approximation", "Transition-state theory", "Photochemical kinetics"),
+    seed("Quantum Chemistry", "Undergraduate", "Physical Chemistry", "Quantum mechanics",
+        "Operators and wavefunctions", "Particle in a box", "Rigid rotor", "Harmonic oscillator", "Hydrogen atom"),
+    seed("Molecular Spectroscopy", "Undergraduate", "Analytical Chemistry", "Spectroscopy",
+        "Rotational spectroscopy", "Infrared and Raman spectroscopy", "UV-visible spectroscopy", "NMR spectroscopy", "Mass spectrometry"),
+    seed("Advanced Electrochemistry", "Undergraduate", "Physical Chemistry", "Electrochemistry",
+        "Ion activities", "Debye–Hückel theory", "Electrode kinetics", "Polarography and voltammetry", "Fuel cells and batteries"),
+    seed("Main-Group Inorganic Chemistry", "Undergraduate", "Inorganic Chemistry", "Main-group chemistry",
+        "Electron-deficient compounds", "Boranes and carboranes", "Silicates and silicones", "Phosphazenes", "Noble-gas compounds"),
+    seed("Transition-Metal Chemistry", "Undergraduate", "Inorganic Chemistry", "Coordination chemistry",
+        "Ligand field theory", "Electronic spectra", "Magnetochemistry", "Substitution mechanisms", "Electron-transfer reactions"),
+    seed("Organometallic Chemistry", "Undergraduate", "Inorganic Chemistry", "Organometallics",
+        "18-electron rule", "Metal carbonyls", "Metal–alkyl bonding", "Oxidative addition and reductive elimination", "Homogeneous catalysis"),
+    seed("Bioinorganic Chemistry", "Undergraduate", "Inorganic Chemistry", "Metals in biology",
+        "Metalloproteins", "Oxygen transport", "Electron-transfer proteins", "Metalloenzymes", "Metal toxicity and therapy"),
+    seed("Advanced Organic Mechanisms", "Undergraduate", "Organic Chemistry", "Reaction mechanisms",
+        "Substitution and elimination", "Electrophilic and nucleophilic addition", "Aromatic substitution", "Rearrangements", "Pericyclic reactions"),
+    seed("Stereochemistry and Conformation", "Undergraduate", "Organic Chemistry", "Stereochemistry",
+        "Chirality and symmetry", "R/S and E/Z notation", "Conformational analysis", "Stereoselective reactions", "Chiral resolution"),
+    seed("Organic Synthesis", "Undergraduate", "Organic Chemistry", "Synthesis",
+        "Retrosynthetic analysis", "Protecting groups", "Carbon–carbon bond formation", "Oxidation and reduction reagents", "Multistep synthesis"),
+    seed("Heterocyclic and Natural Products Chemistry", "Undergraduate", "Organic Chemistry", "Specialized organic",
+        "Five-membered heterocycles", "Six-membered heterocycles", "Alkaloids", "Terpenes and steroids", "Biosynthetic origins"),
+    seed("Biophysical and Cellular Biochemistry", "Undergraduate", "Biochemistry", "Biomolecular structure",
+        "Water and buffers in cells", "Protein folding", "Membrane structure", "Molecular recognition", "Cellular energetics"),
+    seed("Metabolism", "Undergraduate", "Biochemistry", "Metabolic pathways",
+        "Glycolysis and gluconeogenesis", "Citric acid cycle", "Oxidative phosphorylation", "Lipid metabolism", "Amino-acid metabolism"),
+    seed("Enzymology", "Undergraduate", "Biochemistry", "Enzyme science",
+        "Michaelis–Menten kinetics", "Enzyme inhibition", "Allostery", "Catalytic mechanisms", "Enzyme assays"),
+    seed("Instrumental Analysis", "Undergraduate", "Analytical Chemistry", "Instrumentation",
+        "Sampling and calibration", "Chromatography", "Electroanalytical methods", "Thermal analysis", "Hyphenated techniques"),
+    seed("Environmental and Industrial Chemistry", "Undergraduate", "Applied Chemistry", "Processes and sustainability",
+        "Atmospheric chemistry", "Water and wastewater treatment", "Industrial unit operations", "Petrochemicals", "Life-cycle assessment"),
+
+    seed("Computational Chemistry", "Postgraduate", "Computational Chemistry", "Molecular modelling",
+        "Hartree–Fock theory", "Density functional theory", "Basis sets", "Molecular dynamics", "Docking and free-energy methods"),
+    seed("Advanced Spectroscopic Structure Elucidation", "Postgraduate", "Analytical Chemistry", "Structure determination",
+        "Multidimensional NMR", "Advanced mass fragmentation", "Time-resolved spectroscopy", "EPR spectroscopy", "X-ray crystallography"),
+    seed("Supramolecular and Materials Chemistry", "Postgraduate", "Materials Chemistry", "Functional materials",
+        "Host–guest chemistry", "Self-assembly", "Polymers and composites", "Nanochemistry", "Electronic and energy materials"),
+    seed("Advanced Inorganic Reaction Mechanisms", "Postgraduate", "Inorganic Chemistry", "Mechanisms and catalysis",
+        "Ligand substitution kinetics", "Inner- and outer-sphere transfer", "Activation of small molecules", "Metal clusters", "Catalytic cycles"),
+    seed("Advanced Organic Synthesis", "Postgraduate", "Organic Chemistry", "Modern synthesis",
+        "Asymmetric synthesis", "Cross-coupling reactions", "C–H activation", "Photoredox chemistry", "Flow and automated synthesis"),
+    seed("Chemical Biology", "Postgraduate", "Biochemistry", "Chemical biology",
+        "Bioconjugation", "Chemical probes", "Proteomics and metabolomics", "Genome editing chemistry", "Synthetic biology"),
+    seed("Medicinal Chemistry", "Postgraduate", "Drug Discovery", "Medicinal chemistry",
+        "Drug targets and mechanisms", "Structure–activity relationships", "Physicochemical properties", "Bioisosteres and scaffold hopping", "Lead optimization"),
+    seed("Drug Discovery Pipeline", "Postgraduate", "Drug Discovery", "Discovery workflow",
+        "Target identification and validation", "Assay development", "Hit discovery and screening", "Hit-to-lead optimization", "Candidate selection"),
+    seed("Pharmacokinetics and Drug Metabolism", "Postgraduate", "Drug Discovery", "ADME and safety",
+        "Absorption and distribution", "Cytochrome P450 metabolism", "Clearance and half-life", "Toxicology and safety pharmacology", "PK/PD modelling"),
+    seed("Computer-Aided Drug Design", "Postgraduate", "Drug Discovery", "Computational design",
+        "Molecular descriptors", "QSAR", "Pharmacophore modelling", "Molecular docking", "AI and generative molecular design"),
+    seed("Pharmaceutical Chemistry and Formulation", "Postgraduate", "Drug Discovery", "Development",
+        "Preformulation", "Dosage forms", "Drug delivery systems", "Stability and degradation", "Quality by design"),
+
+    seed("Fibres, Plastics, Fuels and Combustion", "Class 6–8", "Applied Chemistry", "Materials and fuels",
+        "Natural and synthetic fibres", "Thermoplastics and thermosets", "Coal and petroleum fractions", "Combustion and flame", "Fuel efficiency and pollution"),
+    seed("Periodic Classification and Electrolysis", "Class 9–10", "General Chemistry", "Classification and electrochemistry",
+        "Modern periodic law", "Periodic trends at secondary level", "Chemical effects of electric current", "Electrolysis and electrode products", "Electroplating"),
+    seed("School Practical Chemistry", "Class 9–10", "Analytical Chemistry", "Practical chemistry",
+        "Preparing and diluting solutions", "Testing gases", "Identifying acids and bases", "Precipitation observations", "Recording results and uncertainty"),
+    seed("Senior Secondary Practical Chemistry", "Class 11–12", "Analytical Chemistry", "Practical chemistry",
+        "Volumetric analysis", "Systematic salt analysis", "Organic functional-group tests", "Inorganic and organic preparations", "Chemical kinetics and electrochemistry experiments"),
+    seed("Nuclear and Radiochemistry", "Undergraduate", "Inorganic Chemistry", "Nuclear chemistry",
+        "Nuclear stability and decay", "Decay kinetics and half-life", "Nuclear reactions", "Radiochemical methods", "Applications and radiation safety"),
+    seed("Photochemistry", "Undergraduate", "Physical Chemistry", "Excited-state chemistry",
+        "Light absorption and excited states", "Jablonski diagrams", "Quantum yield", "Photochemical reactions", "Photosensitization and applications"),
+    seed("Polymer Chemistry", "Undergraduate", "Organic Chemistry", "Macromolecular chemistry",
+        "Chain-growth polymerization", "Step-growth polymerization", "Molecular-weight distributions", "Polymer stereochemistry", "Thermal and mechanical characterization"),
+    seed("Symmetry and Group Theory in Chemistry", "Postgraduate", "Inorganic Chemistry", "Molecular symmetry",
+        "Symmetry elements and operations", "Point groups", "Character tables", "Vibrational-mode analysis", "Orbital symmetry applications"),
+    seed("Advanced Acid–Base and Solvent Chemistry", "Postgraduate", "Inorganic Chemistry", "Solution chemistry",
+        "Lewis and HSAB concepts", "Non-aqueous solvents", "Superacids and superbases", "Solvent leveling and differentiating effects", "Acid–base catalysis"),
+    seed("Separation Science and Chemometrics", "Postgraduate", "Analytical Chemistry", "Advanced analysis",
+        "Advanced liquid chromatography", "Gas chromatography", "Electrophoretic separations", "Method validation", "Multivariate calibration"),
+    seed("Chemical Metrology and Quality Assurance", "Postgraduate", "Analytical Chemistry", "Measurement science",
+        "Traceability and reference materials", "Measurement uncertainty", "Detection and quantification limits", "Validation and robustness", "Laboratory quality systems"),
+    seed("Energy, Petrochemical and Agricultural Chemistry", "Undergraduate", "Applied Chemistry", "Industrial applications",
+        "Petroleum refining chemistry", "Alternative fuels", "Fertilizer chemistry", "Pesticide chemistry", "Soil and nutrient analysis")
+).mapIndexed { moduleIndex, item ->
+    val palette = listOf(Cyan, Purple, Green, Orange, Color(0xFF4D8BFF), Color(0xFFC456FF))
+    CurriculumModule(
+        title = item.title,
+        icon = when (item.category) {
+            "Biochemistry" -> "BIO"
+            "Drug Discovery" -> "Rx"
+            "Inorganic Chemistry" -> "M"
+            "Organic Chemistry" -> "C"
+            else -> "•"
+        },
+        color = palette[moduleIndex % palette.size],
+        description = "${item.subcategory} for ${item.level}, with concepts, visual practice and knowledge checks.",
+        lessons = item.concepts.map { concept -> generatedLesson(item, concept) },
+        level = item.level,
+        category = item.category,
+        subcategory = item.subcategory
+    )
+}
