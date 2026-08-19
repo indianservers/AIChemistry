@@ -1,6 +1,9 @@
 package com.indianservers.aichemistryexplorer
 
 import android.graphics.Paint
+import android.speech.tts.TextToSpeech
+import android.text.Html
+import android.widget.TextView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,6 +22,7 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +50,9 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text as MaterialText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -54,6 +61,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -65,11 +73,15 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.util.Locale
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -82,6 +94,13 @@ internal fun CurriculumModuleScreen(
     onLesson: (String) -> Unit
 ) {
     val module = curriculum.firstOrNull { it.title == moduleTitle } ?: curriculum.first()
+    val context = LocalContext.current
+    val lessonRepository = remember(context) {
+        (context.applicationContext as ChemistryExplorerApplication).lessonPageRepository
+    }
+    LaunchedEffect(module.title) {
+        lessonRepository.replaceClassSixToTenModule(module)
+    }
     val completed = module.lessons.count { "${module.title}/${it.title}" in completedLessons }
     var modulePage by remember(module.title) { mutableIntStateOf(0) }
     val pageNames = listOf("Overview", "Lessons", "Formulas", "Progress", "FAQs")
@@ -290,40 +309,65 @@ internal fun CurriculumLessonScreen(
 ) {
     val module = curriculum.firstOrNull { it.title == moduleTitle } ?: curriculum.first()
     val lesson = module.lessons.firstOrNull { it.title == lessonTitle } ?: module.lessons.first()
+    val context = LocalContext.current
+    val repository = remember(context) {
+        (context.applicationContext as ChemistryExplorerApplication).lessonPageRepository
+    }
+    val sqliteLessonId = remember(module.title, lesson.title) { lessonPageId(module.title, lesson.title) }
+    val sqlitePages by repository.observeLessonPages(sqliteLessonId).collectAsState(initial = emptyList())
+    LaunchedEffect(sqliteLessonId) {
+        repository.replaceSelectedLesson(module, lesson)
+    }
     var page by remember(moduleTitle, lessonTitle) { mutableIntStateOf(0) }
     val checks = remember(moduleTitle, lessonTitle) { knowledgeChecksFor(module, lesson) }
     var challengeIndex by remember(moduleTitle, lessonTitle) { mutableIntStateOf(0) }
     var challengeAnswers by remember(moduleTitle, lessonTitle) { mutableStateOf<Map<Int, Int>>(emptyMap()) }
+    var challengeConfidence by remember(moduleTitle, lessonTitle) { mutableStateOf<Map<Int, String>>(emptyMap()) }
+    val dbPages = remember(sqlitePages) { sqlitePages.takeIf { it.size == 5 } }
+    val pageLabels = dbPages?.map { it.pageTitle } ?: listOf("Concept", "Visual", "Example", "Lab", "Challenge")
     Column(Modifier.fillMaxSize()) {
-        ScreenTitle(lesson.title, "${module.title} · Page ${page + 1}/4", onBack)
-        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-            (0..3).forEach { index ->
-                Box(
-                    Modifier.weight(1f).padding(horizontal = 3.dp).height(5.dp)
-                        .background(if (index <= page) module.color else Border, CircleShape)
-                )
-            }
-        }
+        ScreenTitle(lesson.title, "${module.title} · Page ${page + 1}/5", onBack)
+        Breadcrumb("Curriculum › ${module.title} › ${lesson.title}", Modifier.padding(horizontal = 20.dp))
+        LessonProgressStrip(page, 5, module.color, pageLabels)
         AnimatedContent(page, modifier = Modifier.weight(1f), label = "curriculum-page") { current ->
-            when (current) {
+            val savedPages = dbPages
+            if (savedPages != null) {
+                DbLessonHtmlPage(
+                    module = module,
+                    lesson = lesson,
+                    page = savedPages[current],
+                    isLast = current == savedPages.lastIndex,
+                    onComplete = onComplete,
+                    onQuiz = onQuiz
+                )
+            } else {
+                when (current) {
                 0 -> LessonConceptPage(module, lesson)
                 1 -> InteractiveVisualPage(module, lesson)
-                2 -> LessonChallengePage(
+                2 -> WorkedExampleLessonPage(module, lesson)
+                3 -> LessonLabLinkPage(module, lesson)
+                else -> LessonChallengeWithRevisionPage(
                     module = module,
+                    lesson = lesson,
                     checks = checks,
                     questionIndex = challengeIndex,
                     selected = challengeAnswers[challengeIndex] ?: -1,
+                    confidence = challengeConfidence[challengeIndex].orEmpty(),
                     choose = { choice -> challengeAnswers = challengeAnswers + (challengeIndex to choice) },
+                    setConfidence = { value -> challengeConfidence = challengeConfidence + (challengeIndex to value) },
                     next = { challengeIndex = (challengeIndex + 1).coerceAtMost(checks.lastIndex) },
-                    previous = { challengeIndex = (challengeIndex - 1).coerceAtLeast(0) }
+                    previous = { challengeIndex = (challengeIndex - 1).coerceAtLeast(0) },
+                    score = checks.indices.count { challengeAnswers[it] == checks[it].correct },
+                    answered = challengeAnswers.size,
+                    answers = challengeAnswers,
+                    confidenceMap = challengeConfidence,
+                    onComplete = onComplete,
+                    onQuiz = onQuiz
                 )
-                else -> {
-                    val score = checks.indices.count { challengeAnswers[it] == checks[it].correct }
-                    LessonSummaryPage(module, lesson, score, checks.size, onComplete, onQuiz)
-                }
             }
         }
-        if (page < 3) {
+        }
+        if (page < 4) {
             Row(
                 Modifier.fillMaxWidth().background(Color(0xFF030A13)).padding(18.dp, 11.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -336,17 +380,94 @@ internal fun CurriculumLessonScreen(
                 }
                 Button(
                     onClick = { page++ },
-                    enabled = page != 2 || challengeAnswers.size == checks.size,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(module.color, disabledContainerColor = Border), shape = RoundedCornerShape(11.dp)
                 ) {
                     Text(
-                        if (page == 2) {
-                            if (challengeAnswers.size == checks.size) "View score" else "${challengeAnswers.size}/${checks.size} answered"
-                        } else "Next page",
+                        "Next page",
                         color = Night, fontWeight = FontWeight.Bold
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DbLessonHtmlPage(
+    module: CurriculumModule,
+    lesson: CurriculumLesson,
+    page: LessonPageEntity,
+    isLast: Boolean,
+    onComplete: () -> Unit,
+    onQuiz: () -> Unit
+) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
+        Tag("SQLITE LESSON PAGE", module.color)
+        GlowCard(Modifier.fillMaxWidth().padding(top = 10.dp), module.color) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(70.dp), contentAlignment = Alignment.Center) {
+                    AtomGraphic(66.dp, module.color)
+                    Text("${page.pageNo}", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+                Spacer(Modifier.width(14.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(page.pageTitle, color = White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        "${lesson.title} - saved in lesson_pages",
+                        color = Muted,
+                        fontSize = 10.sp,
+                        lineHeight = 15.sp,
+                        modifier = Modifier.padding(top = 5.dp)
+                    )
+                }
+            }
+        }
+        Card(
+            Modifier.fillMaxWidth().padding(top = 14.dp),
+            colors = CardDefaults.cardColors(Panel),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Border),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            AndroidView(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                factory = { viewContext ->
+                    TextView(viewContext).apply {
+                        setTextColor(White.toArgb())
+                        textSize = 16f
+                        setLineSpacing(8f, 1f)
+                        includeFontPadding = true
+                    }
+                },
+                update = { textView ->
+                    textView.text = Html.fromHtml(page.pageContent, Html.FROM_HTML_MODE_COMPACT)
+                }
+            )
+        }
+        GlowCard(Modifier.fillMaxWidth().padding(top = 12.dp), Cyan) {
+            Text("QUALITY CHECK", color = Cyan, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "Simple English, daily-life examples, practical observations, no unnecessary advanced theory.",
+                color = White,
+                fontSize = 11.sp,
+                lineHeight = 17.sp,
+                modifier = Modifier.padding(top = 7.dp)
+            )
+        }
+        if (isLast) {
+            Row(Modifier.fillMaxWidth().padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Button(
+                    onClick = onComplete,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(Green),
+                    shape = RoundedCornerShape(11.dp)
+                ) { Text("Complete", color = Night, fontWeight = FontWeight.Bold) }
+                Button(
+                    onClick = onQuiz,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(module.color),
+                    shape = RoundedCornerShape(11.dp)
+                ) { Text("Quiz", color = Night, fontWeight = FontWeight.Bold) }
             }
         }
     }
@@ -359,10 +480,12 @@ private fun LessonConceptPage(module: CurriculumModule, lesson: CurriculumLesson
     val expansion = remember(module.level, module.title, lesson.title) { learningExpansionFor(module, lesson) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
         Tag("THEORY + EXAMPLE", module.color)
+        LessonVoiceControls(module, lesson)
         ChemistryLessonVisual(module.color, module.icon, .48f)
         Text(lesson.title, color = White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         Text("THEORY", color = module.color, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp))
         Text(lesson.theory, color = White, fontSize = 13.sp, lineHeight = 21.sp, modifier = Modifier.padding(top = 7.dp, bottom = 16.dp))
+        TapToDefineGlossary(module, lesson)
         GlowCard(Modifier.fillMaxWidth().padding(bottom = 12.dp), Cyan) {
             Text("MICRO-CONCEPT MAP · ${expansion.microConcepts.size}", color = Cyan, fontSize = 9.sp, fontWeight = FontWeight.Bold)
             expansion.microConcepts.forEachIndexed { index, micro ->
@@ -374,6 +497,8 @@ private fun LessonConceptPage(module: CurriculumModule, lesson: CurriculumLesson
         GlowCard(Modifier.fillMaxWidth().clickable { formulaOpen = !formulaOpen }, module.color) {
             Text("KEY RELATIONSHIP", color = Muted, fontSize = 9.sp)
             Text(lesson.formula, color = module.color, fontSize = 19.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 7.dp))
+            FormulaVariables(lesson.formula, module.color)
+            FormulaVariableCards(lesson.formula, module.color)
             Text(if (formulaOpen) formulaMeaning(module.title) else "Tap to explain variables and meaning", color = if (formulaOpen) White else Muted, fontSize = 10.sp, modifier = Modifier.padding(top = 7.dp))
         }
         GlowCard(Modifier.fillMaxWidth().padding(top = 12.dp), Green) {
@@ -440,6 +565,235 @@ private fun LessonConceptPage(module: CurriculumModule, lesson: CurriculumLesson
             MiniFact("VISUAL", "Interactive", Green, Modifier.weight(1f))
             MiniFact("DEPTH", "Core +", Orange, Modifier.weight(1f))
         }
+    }
+}
+
+@Composable
+private fun LessonVoiceControls(module: CurriculumModule, lesson: CurriculumLesson) {
+    val context = LocalContext.current
+    var tts by remember { mutableStateOf<TextToSpeech?>(null) }
+    var speaking by remember(module.title, lesson.title) { mutableStateOf(false) }
+    DisposableEffect(Unit) {
+        val engine = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) tts?.language = Locale.getDefault()
+        }
+        tts = engine
+        onDispose { engine.shutdown() }
+    }
+    Row(Modifier.fillMaxWidth().padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        LessonActionPill(if (speaking) "Stop voice" else "Read aloud", module.color, Modifier.weight(1f)) {
+            if (speaking) {
+                tts?.stop()
+                speaking = false
+            } else {
+                speaking = true
+                tts?.speak(lessonVoiceScript(module, lesson), TextToSpeech.QUEUE_FLUSH, null, lesson.title)
+            }
+        }
+        LessonActionPill("Revision summary", Cyan, Modifier.weight(1f)) {
+            tts?.speak(revisionSummary(module, lesson), TextToSpeech.QUEUE_FLUSH, null, "${lesson.title}-summary")
+            speaking = true
+        }
+    }
+}
+
+@Composable
+private fun LessonActionPill(label: String, color: Color, modifier: Modifier, onClick: () -> Unit) {
+    Text(
+        label,
+        color = color,
+        fontSize = 10.sp,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        modifier = modifier.clip(RoundedCornerShape(10.dp))
+            .background(color.copy(alpha = .10f))
+            .border(1.dp, color.copy(alpha = .34f), RoundedCornerShape(10.dp))
+            .clickable { onClick() }
+            .padding(vertical = 9.dp)
+    )
+}
+
+@Composable
+private fun TapToDefineGlossary(module: CurriculumModule, lesson: CurriculumLesson) {
+    var selected by remember(module.title, lesson.title) { mutableStateOf<String?>(null) }
+    val terms = remember(module.title, lesson.title) { glossaryTermsFor(module, lesson) }
+    GlowCard(Modifier.fillMaxWidth().padding(bottom = 12.dp), Purple) {
+        Text("TAP TO DEFINE", color = Purple, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            terms.forEach { term ->
+                Text(
+                    term,
+                    color = if (selected == term) Night else White,
+                    fontSize = 10.sp,
+                    maxLines = 1,
+                    modifier = Modifier.clip(CircleShape)
+                        .background(if (selected == term) Purple else Panel2)
+                        .border(1.dp, Purple.copy(alpha = .42f), CircleShape)
+                        .clickable { selected = if (selected == term) null else term }
+                        .padding(horizontal = 10.dp, vertical = 7.dp)
+                )
+            }
+        }
+        selected?.let {
+            Text(glossaryDefinition(it, module, lesson), color = White, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 10.dp))
+        }
+    }
+}
+
+@Composable
+private fun FormulaVariableCards(formula: String, accent: Color) {
+    val variables = formulaVariablesFor(formula)
+    if (variables.isEmpty()) return
+    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 9.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+        variables.forEach { variable ->
+            Column(
+                Modifier.width(106.dp)
+                    .clip(RoundedCornerShape(9.dp))
+                    .background(accent.copy(alpha = .08f))
+                    .border(1.dp, accent.copy(alpha = .30f), RoundedCornerShape(9.dp))
+                    .padding(9.dp)
+            ) {
+                Text(variable.symbol, color = accent, fontSize = 16.sp, fontWeight = FontWeight.Black)
+                Text(variable.unit, color = White, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(variable.example, color = Muted, fontSize = 8.sp, lineHeight = 11.sp, maxLines = 2)
+            }
+        }
+    }
+}
+
+private data class FormulaVariable(val symbol: String, val unit: String, val example: String)
+
+@Composable
+private fun WorkedExampleLessonPage(module: CurriculumModule, lesson: CurriculumLesson) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
+        Tag("WORKED EXAMPLE", Green)
+        Text(lesson.title, color = White, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 12.dp))
+        GlowCard(Modifier.fillMaxWidth().padding(top = 14.dp), Green) {
+            Text("MODEL ANSWER", color = Green, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text(lesson.workedExample, color = White, fontSize = 13.sp, lineHeight = 20.sp, modifier = Modifier.padding(top = 8.dp))
+        }
+        Text("REVEALABLE REASONING", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 18.dp, bottom = 6.dp))
+        lesson.exampleSteps.forEachIndexed { index, step ->
+            var open by remember(module.title, lesson.title, index) { mutableStateOf(index == 0) }
+            GlowCard(Modifier.fillMaxWidth().padding(bottom = 9.dp).clickable { open = !open }, if (open) Green else Border) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(28.dp).background(Green.copy(alpha = .14f), CircleShape), contentAlignment = Alignment.Center) {
+                        Text("${index + 1}", color = Green, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Text("Step ${index + 1}", color = White, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f).padding(start = 10.dp))
+                    Text(if (open) "-" else "+", color = Green, fontSize = 18.sp)
+                }
+                if (open) Text(step, color = Muted, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun LessonLabLinkPage(module: CurriculumModule, lesson: CurriculumLesson) {
+    val expansion = remember(module.level, module.title, lesson.title) { learningExpansionFor(module, lesson) }
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
+        Tag("LAB LINK", Cyan)
+        Text("Connect the idea to evidence", color = White, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 12.dp))
+        Text("This mini lab turns the lesson into a measurable investigation before the final challenge.", color = Muted, fontSize = 12.sp, lineHeight = 18.sp, modifier = Modifier.padding(top = 6.dp, bottom = 12.dp))
+        AuthenticLaboratoryPanel(expansion.virtualLab, module.color, .58f)
+        GlowCard(Modifier.fillMaxWidth().padding(top = 12.dp), Orange) {
+            Text("LAB QUESTION", color = Orange, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text("Which observation would prove the model is working, and which control would expose a false positive?", color = White, fontSize = 12.sp, lineHeight = 18.sp, modifier = Modifier.padding(top = 7.dp))
+        }
+    }
+}
+
+@Composable
+private fun LessonChallengeWithRevisionPage(
+    module: CurriculumModule,
+    lesson: CurriculumLesson,
+    checks: List<KnowledgeCheck>,
+    questionIndex: Int,
+    selected: Int,
+    confidence: String,
+    choose: (Int) -> Unit,
+    setConfidence: (String) -> Unit,
+    next: () -> Unit,
+    previous: () -> Unit,
+    score: Int,
+    answered: Int,
+    answers: Map<Int, Int>,
+    confidenceMap: Map<Int, String>,
+    onComplete: () -> Unit,
+    onQuiz: () -> Unit
+) {
+    if (answered == checks.size) {
+        LessonSummaryPage(module, lesson, checks, answers, confidenceMap, onComplete, onQuiz)
+    } else {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        EnhancedLessonChallengePage(module, checks, questionIndex, selected, confidence, choose, setConfidence, next, previous)
+        if (answered == checks.size) {
+            LessonSummaryPage(module, lesson, checks, answers, confidenceMap, onComplete, onQuiz)
+        } else {
+            GlowCard(Modifier.fillMaxWidth().padding(18.dp), Cyan) {
+                Text("REVISION SUMMARY", color = Cyan, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Text(revisionSummary(module, lesson), color = White, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 7.dp))
+                Text("${answered}/${checks.size} checks answered · $score correct so far", color = Muted, fontSize = 10.sp, modifier = Modifier.padding(top = 8.dp))
+            }
+        }
+    }
+    }
+}
+
+private fun lessonVoiceScript(module: CurriculumModule, lesson: CurriculumLesson): String =
+    "${lesson.title}. ${lesson.concept}. Key relationship: ${lesson.formula}. Common mistake: ${lesson.commonMistake}. Why this matters: ${lesson.realWorldApplication}."
+
+private fun revisionSummary(module: CurriculumModule, lesson: CurriculumLesson): String =
+    "In ${module.title}, remember ${lesson.concept} Use ${lesson.formula} with consistent units. Avoid this mistake: ${lesson.commonMistake}"
+
+private fun glossaryTermsFor(module: CurriculumModule, lesson: CurriculumLesson): List<String> {
+    val candidates = (lesson.title.split(' ', '-', ':') + lesson.concept.split(' ', ',', '.', ';') + module.category.split(' '))
+        .map { it.trim().trim('(', ')') }
+        .filter { it.length > 4 && it.none { ch -> ch.isDigit() } }
+    return candidates.distinctBy { it.lowercase() }.take(8).ifEmpty { listOf("model", "evidence", "variable") }
+}
+
+private fun glossaryDefinition(term: String, module: CurriculumModule, lesson: CurriculumLesson): String {
+    val lower = term.lowercase()
+    return when {
+        "electron" in lower -> "Electrons are negatively charged particles that control bonding, ions and many chemical properties."
+        "energy" in lower -> "Energy tracks the capacity for change; chemistry often follows transfers between particles, fields and surroundings."
+        "equilibrium" in lower -> "Equilibrium means forward and reverse processes continue at equal rates, so measured composition stays steady."
+        "concentration" in lower -> "Concentration describes amount of solute per amount of solution, often in mol L-1."
+        "oxidation" in lower -> "Oxidation is electron loss or an increase in oxidation state."
+        "covalent" in lower -> "A covalent bond forms when atoms share electron pairs."
+        else -> "$term is used here as part of ${module.category.lowercase()}. In this lesson, connect it to: ${lesson.concept}"
+    }
+}
+
+private fun formulaVariablesFor(formula: String): List<FormulaVariable> {
+    val text = formula.lowercase()
+    return when {
+        "pv" in text || "nrt" in text -> listOf(
+            FormulaVariable("P", "pressure", "101 kPa"),
+            FormulaVariable("V", "volume", "2.0 L"),
+            FormulaVariable("n", "amount", "0.50 mol"),
+            FormulaVariable("T", "kelvin", "298 K")
+        )
+        "ph" in text || "log" in text -> listOf(
+            FormulaVariable("pH", "unitless", "pH 3 acid"),
+            FormulaVariable("[H+]", "mol L-1", "1e-3 M"),
+            FormulaVariable("log", "base 10", "inverse scale")
+        )
+        "q" in text || "mc" in text -> listOf(
+            FormulaVariable("q", "joule", "heat change"),
+            FormulaVariable("m", "gram", "sample mass"),
+            FormulaVariable("c", "J g-1 K-1", "specific heat"),
+            FormulaVariable("dT", "kelvin", "temperature change")
+        )
+        "rate" in text || "k[" in text -> listOf(
+            FormulaVariable("rate", "mol L-1 s-1", "reaction speed"),
+            FormulaVariable("k", "rate constant", "depends on T"),
+            FormulaVariable("[A]", "mol L-1", "reactant level")
+        )
+        else -> formula.filter { it.isLetter() }.map { it.toString() }.distinct().take(4)
+            .map { FormulaVariable(it, "variable", "track units") }
     }
 }
 
@@ -1694,6 +2048,204 @@ private fun Procedural3DVisualization(
 }
 
 @Composable
+private fun EnhancedLessonChallengePage(
+    module: CurriculumModule,
+    checks: List<KnowledgeCheck>,
+    questionIndex: Int,
+    selected: Int,
+    confidence: String,
+    choose: (Int) -> Unit,
+    setConfidence: (String) -> Unit,
+    next: () -> Unit,
+    previous: () -> Unit
+) {
+    val check = checks[questionIndex]
+    var showHint by remember(questionIndex) { mutableStateOf(false) }
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
+        Tag("KNOWLEDGE CHECK · ${questionIndex + 1}/${checks.size}", Orange)
+        LinearProgressIndicator(
+            progress = { (questionIndex + 1) / checks.size.toFloat() },
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            color = module.color,
+            trackColor = Border
+        )
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(top = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            LessonMcqPill(check.difficulty, module.color)
+            LessonMcqPill(check.skill, Cyan)
+            LessonMcqPill("Review: ${check.reviewPage}", Green)
+            LessonMcqPill("${checks.size - questionIndex - 1} left", Muted)
+        }
+        Text(check.question, color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold, lineHeight = 28.sp, modifier = Modifier.padding(vertical = 18.dp))
+        Text(
+            if (showHint) check.hint else "Show hint",
+            color = if (showHint) White else Cyan,
+            fontSize = 11.sp,
+            lineHeight = 16.sp,
+            modifier = Modifier.fillMaxWidth()
+                .background(if (showHint) module.color.copy(alpha = .10f) else Panel, RoundedCornerShape(10.dp))
+                .border(1.dp, if (showHint) module.color.copy(alpha = .40f) else Border, RoundedCornerShape(10.dp))
+                .clickable { showHint = !showHint }
+                .padding(10.dp)
+        )
+        ConfidenceSelector(confidence, setConfidence, Modifier.padding(top = 10.dp))
+        check.options.forEachIndexed { index, option ->
+            val correct = selected >= 0 && index == check.correct
+            val wrong = selected == index && index != check.correct
+            val accent = if (correct) Green else if (wrong) Color(0xFFFF6378) else Border
+            Row(
+                Modifier.fillMaxWidth().padding(top = 9.dp)
+                    .background(accent.copy(.1f), RoundedCornerShape(12.dp))
+                    .border(1.dp, accent, RoundedCornerShape(12.dp))
+                    .clickable(enabled = selected < 0) { choose(index) }
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(Modifier.size(28.dp).background(accent.copy(.12f), CircleShape), contentAlignment = Alignment.Center) {
+                    Text(('A' + index).toString(), color = if (selected < 0) Muted else accent, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                }
+                Text(option, color = White, modifier = Modifier.weight(1f).padding(horizontal = 12.dp))
+                if (correct) Text("✓", color = Green, fontWeight = FontWeight.Bold)
+                if (wrong) Text("!", color = Color(0xFFFF6378), fontWeight = FontWeight.Bold)
+            }
+        }
+        if (selected >= 0) {
+            GlowCard(Modifier.fillMaxWidth().padding(top = 10.dp), if (selected == check.correct) Green else Orange) {
+                Text(if (selected == check.correct) "CORRECT" else "REVIEW THIS REASONING", color = if (selected == check.correct) Green else Orange, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Text(check.explanation, color = White, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 6.dp))
+                if (selected != check.correct) {
+                    Text("Chosen: ${check.options[selected]}", color = Muted, fontSize = 10.sp, modifier = Modifier.padding(top = 8.dp))
+                    Text("Correct: ${check.options[check.correct]}", color = Green, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp))
+                    Text(remediationForCheck(check), color = Orange, fontSize = 10.sp, lineHeight = 15.sp, modifier = Modifier.padding(top = 6.dp))
+                } else if (confidence == "Low") {
+                    Text("Good answer, but low confidence: revisit ${check.reviewPage}, then explain it once in your own words.", color = Cyan, fontSize = 10.sp, modifier = Modifier.padding(top = 6.dp))
+                }
+            }
+            Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (questionIndex > 0) {
+                    Button(onClick = previous, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(Panel)) {
+                        Text("Previous", color = White)
+                    }
+                }
+                if (questionIndex < checks.lastIndex) {
+                    Button(onClick = next, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(module.color)) {
+                        Text("Next question", color = Night, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LessonMcqPill(text: String, color: Color) {
+    Text(
+        text,
+        color = color,
+        fontSize = 8.sp,
+        fontWeight = FontWeight.Bold,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.background(color.copy(alpha = .09f), CircleShape)
+            .border(1.dp, color.copy(alpha = .28f), CircleShape)
+            .padding(horizontal = 8.dp, vertical = 5.dp)
+    )
+}
+
+@Composable
+private fun ConfidenceSelector(selected: String, select: (String) -> Unit, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+        listOf("Low", "Medium", "High").forEach { item ->
+            val active = selected == item
+            Text(
+                item,
+                color = if (active) Night else Muted,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f)
+                    .background(if (active) Cyan else Panel, RoundedCornerShape(10.dp))
+                    .border(1.dp, if (active) Cyan else Border, RoundedCornerShape(10.dp))
+                    .clickable { select(item) }
+                    .padding(vertical = 8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun LessonSummaryPage(
+    module: CurriculumModule,
+    lesson: CurriculumLesson,
+    checks: List<KnowledgeCheck>,
+    answers: Map<Int, Int>,
+    confidence: Map<Int, String>,
+    onComplete: () -> Unit,
+    onQuiz: () -> Unit
+) {
+    val score = checks.indices.count { answers[it] == checks[it].correct }
+    val weakSkills = checks.mapIndexedNotNull { index, check ->
+        val wrong = answers[index] != check.correct
+        val lowConfidence = confidence[index] == "Low"
+        "${check.skill} (${check.reviewPage})".takeIf { wrong || lowConfidence }
+    }.distinct()
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            Modifier.size(112.dp).background(Brush.radialGradient(listOf(Green.copy(.3f), Color.Transparent)), CircleShape),
+            contentAlignment = Alignment.Center
+        ) { Text(if (score >= checks.size * .8f) "✓" else "★", color = Green, fontSize = 54.sp) }
+        Text("Lesson MCQs complete", color = White, fontSize = 25.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        Text("$score/${checks.size} correct · ${score * 10 + confidence.values.count { it == "High" } * 2} XP earned", color = Orange, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 5.dp))
+        GlowCard(Modifier.fillMaxWidth().padding(top = 18.dp), module.color) {
+            Text("MASTERY SNAPSHOT", color = module.color, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text(lesson.concept, color = White, fontSize = 12.sp, lineHeight = 18.sp, modifier = Modifier.padding(top = 7.dp))
+            Text("Key relationship: ${lesson.formula}", color = Cyan, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
+        }
+        GlowCard(Modifier.fillMaxWidth().padding(top = 12.dp), if (weakSkills.isEmpty()) Green else Orange) {
+            Text(if (weakSkills.isEmpty()) "READY FOR NEXT LESSON" else "REVIEW NEXT", color = if (weakSkills.isEmpty()) Green else Orange, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text(
+                if (weakSkills.isEmpty()) "Your answers and confidence are strong enough to move on."
+                else "Focus on ${weakSkills.take(4).joinToString(", ")} before the full practice quiz.",
+                color = White,
+                fontSize = 12.sp,
+                lineHeight = 18.sp,
+                modifier = Modifier.padding(top = 7.dp)
+            )
+        }
+        Button(
+            onClick = onComplete, modifier = Modifier.fillMaxWidth().padding(top = 18.dp),
+            colors = ButtonDefaults.buttonColors(module.color), shape = RoundedCornerShape(11.dp)
+        ) { Text("Complete & return to module", color = Night, fontWeight = FontWeight.Bold) }
+        Button(
+            onClick = onQuiz, modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            colors = ButtonDefaults.buttonColors(Panel), shape = RoundedCornerShape(11.dp)
+        ) { Text("Open full practice quiz", color = Cyan) }
+    }
+}
+
+private fun remediationForCheck(check: KnowledgeCheck): String {
+    val action = when (check.skill) {
+        "Discover purpose", "Daily-life link" -> "revisit the opening example and say why the topic matters."
+        "Simple definition", "Vocabulary", "Memory trick" -> "reread the simple meaning, key words and memory trick."
+        "Home observation", "School observation", "Mini activity" -> "repeat the observation step and write what you see before explaining."
+        "Prediction", "Reasoning", "Misconception" -> "compare your prediction with the reason and common mistake."
+        "Revision fact", "Exam answer", "Takeaway", "Weak-topic repair" -> "rewrite the exam-ready answer in one short sentence."
+        "Formula recall" -> "rewrite the formula, define each symbol, then test the units."
+        "Problem setup" -> "identify given data, unknown, assumptions and the first valid relationship."
+        "Misconception check" -> "compare the false shortcut with the lesson's common mistake callout."
+        "Application" -> "connect the concept to a measurable real-world use, not a memorised phrase."
+        "Extension" -> "revisit the advanced connection after the core explanation is stable."
+        else -> "reread the concept, hint and explanation, then explain why the other options fail."
+    }
+    return "Remediation: open ${check.reviewPage} and $action"
+}
+
+@Composable
 private fun LessonChallengePage(
     module: CurriculumModule,
     checks: List<KnowledgeCheck>,
@@ -1792,8 +2344,10 @@ private fun LessonSummaryPage(
 
 @Composable
 private fun ChemistryLessonVisual(color: Color, icon: String, intensity: Float) {
+    val reduceMotion = LocalReducedMotion.current
     val transition = rememberInfiniteTransition(label = "lesson-motion")
-    val phase by transition.animateFloat(0f, 6.28f, infiniteRepeatable(tween(3000), RepeatMode.Restart), label = "phase")
+    val animatedPhase by transition.animateFloat(0f, 6.28f, infiniteRepeatable(tween(3000), RepeatMode.Restart), label = "phase")
+    val phase = if (reduceMotion) .85f else animatedPhase
     Box(Modifier.fillMaxWidth().height(190.dp), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             drawCircle(Brush.radialGradient(listOf(color.copy(.22f), Color.Transparent), center, size.minDimension * .55f), size.minDimension * .48f)
@@ -1853,3 +2407,4 @@ private fun formulaMeaning(module: String): String = when (module) {
     "Kinetics and Electrochemistry" -> "k is the rate constant, E potential, I current, t time and concentration powers are reaction orders."
     else -> "Signal, concentration and calibration constants connect an instrumental response to the amount of analyte."
 }
+

@@ -14,4 +14,8 @@ class ChemistryExplorerApplication : Application(), ContentPackServiceOwner {
     internal val chemistryMcqRepository: ContentPackRepository by lazy {
         ContentPackRepository(this, ChemistryMcqContent.config, contentPackServices)
     }
+
+    internal val lessonPageRepository: LessonPageRepository by lazy {
+        LessonPageRepository(this)
+    }
 }

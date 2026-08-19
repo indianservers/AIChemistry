@@ -185,10 +185,10 @@ internal val levelTwoConceptContent: Map<String, LevelOneConceptContent> = mapOf
     ),
 
     "Avogadro number" to levelTwo(
-        "Avogadro's number is the number of specified particles in one mole: exactly 6.02214076 x 10^23 mol-1.",
+        "Avogadro's number is the number of specified particles in one mole: exactly 6.02214076 × 10²³ mol⁻¹.",
         "It links the microscopic count of atoms, molecules or ions to laboratory-scale amounts.",
-        "Example: 0.50 mol of oxygen molecules contains 0.50 x 6.022 x 10^23 = 3.011 x 10^23 O2 molecules.",
-        "number of particles = moles x Avogadro constant",
+        "Example: 0.50 mol of oxygen molecules contains 0.50 × 6.022 × 10²³ = 3.011 × 10²³ O₂ molecules.",
+        "number of particles = moles × Avogadro constant",
         "Always state the entity being counted; one mole of O atoms differs from one mole of O2 molecules.",
         "The constant connects measured masses with particle counts in reactions and materials.",
         "Moles", "Particles", "Molar mass"

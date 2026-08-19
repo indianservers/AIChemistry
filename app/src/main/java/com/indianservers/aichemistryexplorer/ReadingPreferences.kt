@@ -27,3 +27,4 @@ internal val readingPalettes = listOf(
 internal val LocalReadingPalette = staticCompositionLocalOf { readingPalettes.first() }
 internal val LocalHomeAction = staticCompositionLocalOf<(() -> Unit)?> { null }
 internal val LocalBackAction = staticCompositionLocalOf<(() -> Unit)?> { null }
+internal val LocalReducedMotion = staticCompositionLocalOf { false }

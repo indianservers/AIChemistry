@@ -739,7 +739,7 @@ private fun equilibriumProtocol(title: String) = RequestedProtocol(
         "Calculate equilibrium quantities and determine whether mass balance and controls close."
     ),
     "equilibrium mass-balance closure", 99.0, "%",
-    "Use calibrated equilibrium concentrations in the correct K expression and check conserved-component mass balance before interpreting Le Châtelier behavior."
+    "Use calibrated equilibrium concentrations in the correct K expression and check conserved-component mass balance before interpreting Le Chatelier behavior."
 )
 
 private fun electrochemistryProtocol(title: String) = RequestedProtocol(

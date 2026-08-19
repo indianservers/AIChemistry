@@ -93,13 +93,7 @@ internal fun DynamicMcqLibraryPage() {
             }
         }
         if (loading) {
-            item {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp),
-                    color = Cyan,
-                    trackColor = Border
-                )
-            }
+            item { LoadingRows("LOADING PACK CATALOG", Cyan) }
         }
         error?.let { message ->
             item {
@@ -203,7 +197,18 @@ private fun CatalogPackCard(
 private fun DownloadedQuiz(questions: List<StoredQuestion>, close: () -> Unit) {
     var index by remember { mutableIntStateOf(0) }
     var selected by remember(index) { mutableStateOf<String?>(null) }
-    val stored = questions[index]
+    var weakTopicMode by remember { mutableStateOf(false) }
+    var answers by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
+    val weakConcepts = answers.mapNotNull { (questionId, answerId) ->
+        val missed = questions.firstOrNull { it.question.id == questionId }
+        missed?.takeIf { answerId != it.question.correctOptionId }?.question?.concept
+    }.distinct()
+    val orderedQuestions = if (weakTopicMode && weakConcepts.isNotEmpty()) {
+        questions.sortedByDescending { it.question.concept in weakConcepts || it.question.category in weakConcepts }
+    } else {
+        questions
+    }
+    val stored = orderedQuestions[index]
     val question = stored.question
     val options = stored.options.sortedBy { it.displayOrder }
     Column(Modifier.fillMaxSize().padding(18.dp)) {
@@ -211,22 +216,33 @@ private fun DownloadedQuiz(questions: List<StoredQuestion>, close: () -> Unit) {
             Text("‹", color = White, fontSize = 36.sp, modifier = Modifier.clickable { close() }.padding(end = 12.dp))
             Column(Modifier.weight(1f)) {
                 Text(question.concept, color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Text("${index + 1}/${questions.size} · ${question.difficulty}", color = Muted, fontSize = 10.sp)
+                Text("${index + 1}/${orderedQuestions.size} · ${question.difficulty}", color = Muted, fontSize = 10.sp)
             }
             AtomGraphic(48.dp, Purple)
         }
         LinearProgressIndicator(
-            progress = { (index + 1f) / questions.size },
+            progress = { (index + 1f) / orderedQuestions.size },
             modifier = Modifier.fillMaxWidth().padding(vertical = 13.dp).height(6.dp),
             color = Purple,
             trackColor = Border
+        )
+        WeakTopicQuizPanel(
+            enabled = weakTopicMode,
+            weakConcepts = weakConcepts,
+            answered = answers.size,
+            total = questions.size,
+            toggle = {
+                weakTopicMode = !weakTopicMode
+                index = 0
+                selected = null
+            }
         )
         GlowCard(Modifier.fillMaxWidth(), Purple) {
             Text(question.category.uppercase(), color = Purple, fontSize = 9.sp, fontWeight = FontWeight.Bold)
             Text(question.question, color = White, fontSize = 19.sp, lineHeight = 27.sp, modifier = Modifier.padding(top = 8.dp))
             question.formula?.let { Text(it, color = Cyan, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 9.dp)) }
         }
-        options.forEach { option ->
+        options.forEachIndexed { optionIndex, option ->
             val answered = selected != null
             val correct = answered && option.optionId == question.correctOptionId
             val wrong = selected == option.optionId && !correct
@@ -235,12 +251,15 @@ private fun DownloadedQuiz(questions: List<StoredQuestion>, close: () -> Unit) {
                 Modifier.fillMaxWidth().padding(top = 9.dp)
                     .background(accent.copy(.10f), RoundedCornerShape(11.dp))
                     .border(1.dp, accent, RoundedCornerShape(11.dp))
-                    .clickable(enabled = !answered) { selected = option.optionId }
+                    .clickable(enabled = !answered) {
+                        selected = option.optionId
+                        answers = answers + (question.id to option.optionId)
+                    }
                     .padding(13.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(Modifier.size(28.dp).background(accent.copy(.15f), CircleShape), contentAlignment = Alignment.Center) {
-                    Text(option.optionId.uppercase(), color = if (answered) accent else Muted, fontWeight = FontWeight.Bold)
+                    Text(answerLetter(optionIndex), color = if (answered) accent else Muted, fontWeight = FontWeight.Bold)
                 }
                 Text(option.text, color = White, modifier = Modifier.weight(1f).padding(start = 11.dp))
             }
@@ -249,14 +268,49 @@ private fun DownloadedQuiz(questions: List<StoredQuestion>, close: () -> Unit) {
             GlowCard(Modifier.fillMaxWidth().padding(top = 11.dp), if (it == question.correctOptionId) Green else Orange) {
                 Text(if (it == question.correctOptionId) "CORRECT" else "EXPLANATION", color = if (it == question.correctOptionId) Green else Orange, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                 Text(question.explanation, color = White, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 6.dp))
+                if (it != question.correctOptionId) {
+                    Text("Review note: compare your selected option with the correct concept before moving on.", color = Orange, fontSize = 10.sp, lineHeight = 15.sp, modifier = Modifier.padding(top = 6.dp))
+                }
             }
             Button(
-                onClick = { if (index < questions.lastIndex) index++ else close() },
+                onClick = { if (index < orderedQuestions.lastIndex) index++ else close() },
                 modifier = Modifier.fillMaxWidth().padding(top = 11.dp),
                 colors = ButtonDefaults.buttonColors(Purple)
-            ) { Text(if (index < questions.lastIndex) "Next question" else "Finish") }
+            ) { Text(if (index < orderedQuestions.lastIndex) "Next question" else "Finish") }
         }
         Spacer(Modifier.height(12.dp))
+    }
+}
+
+@Composable
+private fun WeakTopicQuizPanel(
+    enabled: Boolean,
+    weakConcepts: List<String>,
+    answered: Int,
+    total: Int,
+    toggle: () -> Unit
+) {
+    val accent = if (enabled) Orange else Cyan
+    GlowCard(Modifier.fillMaxWidth().padding(bottom = 11.dp), accent) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("WEAK-TOPIC QUIZ MODE", color = accent, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    if (weakConcepts.isEmpty()) "Answer a few questions; missed concepts will become the next focus."
+                    else "Focus: ${weakConcepts.take(3).joinToString(", ")}",
+                    color = White,
+                    fontSize = 11.sp,
+                    modifier = Modifier.padding(top = 5.dp)
+                )
+                Text("$answered/$total answered", color = Muted, fontSize = 9.sp, modifier = Modifier.padding(top = 4.dp))
+            }
+            Button(
+                onClick = toggle,
+                enabled = weakConcepts.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(accent),
+                shape = RoundedCornerShape(9.dp)
+            ) { Text(if (enabled) "Normal" else "Focus", color = Night, fontSize = 10.sp, fontWeight = FontWeight.Bold) }
+        }
     }
 }
 

@@ -34,6 +34,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text as MaterialText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -71,14 +72,15 @@ private val labExperiments = listOf(
 internal fun MultiPageLabScreen(onMessage: (String) -> Unit) {
     var page by remember { mutableIntStateOf(0) }
     var activeExperiment by remember { mutableIntStateOf(0) }
+    var safetyCleared by remember { mutableStateOf(false) }
     val pages = listOf("Experiments", "Workspace", "Safety", "Results")
     Column(Modifier.fillMaxSize()) {
         ScreenTitle("Virtual Lab", "${pages[page]} · interactive chemistry")
         ModuleTabs(pages, page, Cyan) { page = it }
         when (page) {
             0 -> LabExperimentsPage { index -> activeExperiment = index; page = 1 }
-            1 -> LabWorkspacePage(labExperiments[activeExperiment], onMessage)
-            2 -> LabSafetyPage()
+            1 -> LabWorkspacePage(labExperiments[activeExperiment], safetyCleared, onMessage)
+            2 -> LabSafetyPage { safetyCleared = it }
             else -> LabResultsPage()
         }
     }
@@ -124,7 +126,7 @@ private fun LabExperimentsPage(open: (Int) -> Unit) {
 }
 
 @Composable
-private fun LabWorkspacePage(experiment: LabExperiment, onMessage: (String) -> Unit) {
+private fun LabWorkspacePage(experiment: LabExperiment, safetyCleared: Boolean, onMessage: (String) -> Unit) {
     var inputA by remember(experiment.title) { mutableFloatStateOf(.42f) }
     var inputB by remember(experiment.title) { mutableFloatStateOf(.58f) }
     var running by remember(experiment.title) { mutableStateOf(false) }
@@ -141,6 +143,10 @@ private fun LabWorkspacePage(experiment: LabExperiment, onMessage: (String) -> U
                     Text(experiment.subtitle, color = Muted, fontSize = 10.sp)
                 }
             }
+        }
+        GlowCard(Modifier.fillMaxWidth().padding(top = 12.dp), if (safetyCleared) Green else Orange) {
+            Text("SAFETY GATE", color = if (safetyCleared) Green else Orange, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text(if (safetyCleared) "Checklist cleared for this session." else "Complete the safety page before treating results as valid.", color = White, fontSize = 11.sp, modifier = Modifier.padding(top = 5.dp))
         }
         LabControl("Primary concentration", inputA, "${(inputA * 2).format(2)} M") { inputA = it }
         LabControl("Temperature / volume", inputB, "${(280 + inputB * 70).toInt()} units") { inputB = it }
@@ -162,6 +168,11 @@ private fun LabWorkspacePage(experiment: LabExperiment, onMessage: (String) -> U
             colors = ButtonDefaults.buttonColors(if (running) Purple else experiment.color),
             shape = RoundedCornerShape(12.dp)
         ) { Text(if (running) "Pause experiment" else "Start experiment", color = Night, fontWeight = FontWeight.Bold) }
+        ResetTextButton("Reset controls") {
+            inputA = .42f
+            inputB = .58f
+            running = false
+        }
     }
 }
 
@@ -193,7 +204,7 @@ private fun ReactionDisplay(color: Color, first: Float, second: Float, active: B
 }
 
 @Composable
-private fun LabSafetyPage() {
+private fun LabSafetyPage(onCleared: (Boolean) -> Unit) {
     val rules = listOf(
         "Wear safety goggles and a laboratory coat",
         "Inspect glassware before beginning",
@@ -203,6 +214,7 @@ private fun LabSafetyPage() {
         "Record observations before leaving"
     )
     var checked by remember { mutableStateOf(setOf<Int>()) }
+    LaunchedEffect(checked) { onCleared(checked.size == rules.size) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp)) {
         GlowCard(Modifier.fillMaxWidth(), Green) {
             Text("LAB SAFETY CHECK", color = Green, fontWeight = FontWeight.Bold)
@@ -265,14 +277,15 @@ private fun LabResultsPage() {
 @Composable
 internal fun MultiPageQuizScreen() {
     var page by remember { mutableIntStateOf(0) }
-    val pages = listOf("Play", "Review", "History", "League")
+    val pages = listOf("Quiz", "Packs", "Review", "History", "League")
     Column(Modifier.fillMaxSize()) {
-        ScreenTitle("Quiz Zone", "${pages[page]} · downloadable chemistry packs")
+        ScreenTitle("Quiz Zone", "${pages[page]} · reusable chemistry practice")
         ModuleTabs(pages, page, Purple) { page = it }
         when (page) {
-            0 -> DynamicMcqLibraryPage()
-            1 -> QuizReviewPage()
-            2 -> QuizHistoryPage()
+            0 -> ReusableQuizModulePage()
+            1 -> DynamicMcqLibraryPage()
+            2 -> QuizReviewPage()
+            3 -> QuizHistoryPage()
             else -> QuizLeaguePage()
         }
     }

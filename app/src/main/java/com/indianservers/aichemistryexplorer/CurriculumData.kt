@@ -53,7 +53,7 @@ internal val curriculum by lazy { listOf(
         lesson("Quantum numbers and orbitals", "Four quantum numbers describe an electron's energy level, orbital shape, orientation and spin.", "n, ℓ, mℓ, ms", "The maximum number of electrons in one orbital is…", 1, "1", "2", "6", "10")
     )),
     CurriculumModule("Periodic Table and Trends", "▦", Color(0xFF4D8BFF), "Read the table as a map of structure and chemical behavior.", listOf(
-        lesson("Periods, groups and blocks", "Rows are periods, columns are groups, and s, p, d and f blocks reflect the valence subshell being filled.", "group → similar valence behavior", "Elements in one group usually share similar…", 2, "Mass numbers", "Neutron counts", "Chemical properties", "Nuclear sizes"),
+        lesson("Periods, groups and blocks", "Rows are periods, columns are groups, and s-, p-, d- and f-blocks reflect the valence subshell being filled.", "group → similar valence behaviour", "Elements in one group usually share similar…", 2, "Mass numbers", "Neutron counts", "Chemical properties", "Nuclear sizes"),
         lesson("Electronic configuration", "Electrons fill lower-energy orbitals first while obeying Pauli exclusion and Hund's rule.", "1s → 2s → 2p → 3s", "The ground-state configuration of lithium ends in…", 0, "2s¹", "2p¹", "3s¹", "1p¹"),
         lesson("Atomic and ionic radius", "Atomic radius generally decreases across a period and increases down a group.", "cation < atom < anion", "Which is typically smaller than its neutral atom?", 1, "Anion", "Cation", "Isotope", "Noble gas"),
         lesson("Ionization energy", "Ionization energy is the energy needed to remove a gaseous electron and generally rises across a period.", "X(g) → X⁺(g) + e⁻", "Ionization energy is highest near which region?", 3, "Lower left", "Center", "Lower right", "Upper right"),
@@ -149,7 +149,14 @@ private fun generatedLesson(seed: CurriculumSeed, concept: String): CurriculumLe
         "Postgraduate Chemistry" -> levelFourFiveConceptContent["Postgraduate|${seed.title}|$concept"]
         else -> null
     }
-    val summary = authoredContent?.summary ?: conceptSummary(concept, topic)
+    val rawSummary = authoredContent?.summary ?: conceptSummary(concept, topic)
+    val summary = lessonQualitySummary(concept, topic, rawSummary, seed.level)
+    val rawTheory = authoredContent?.theory(topic) ?: expandedTheory(concept, summary, topic, seed.category, seed.level)
+    val rawExample = authoredContent?.workedExample ?: workedExampleFor(concept, seed.category)
+    val rawSteps = authoredContent?.learningSteps ?: exampleStepsFor(concept, seed.category)
+    val rawMistake = authoredContent?.commonMistake ?: commonMistakeFor(concept, seed.category)
+    val rawApplication = authoredContent?.application ?: applicationFor(concept, seed.category)
+    val rawConnections = authoredContent?.connections ?: advancedConceptsFor(concept)
     return CurriculumLesson(
         title = concept,
         concept = summary,
@@ -162,13 +169,102 @@ private fun generatedLesson(seed: CurriculumSeed, concept: String): CurriculumLe
             "Using an unrelated model"
         ),
         correct = 1,
-        theory = authoredContent?.theory(topic) ?: expandedTheory(concept, summary, topic, seed.category, seed.level),
-        workedExample = authoredContent?.workedExample ?: workedExampleFor(concept, seed.category),
-        exampleSteps = authoredContent?.learningSteps ?: exampleStepsFor(concept, seed.category),
-        commonMistake = authoredContent?.commonMistake ?: commonMistakeFor(concept, seed.category),
-        realWorldApplication = authoredContent?.application ?: applicationFor(concept, seed.category),
-        advancedConcepts = authoredContent?.connections ?: advancedConceptsFor(concept)
+        theory = lessonQualityTheory(rawTheory, seed.category, seed.level),
+        workedExample = lessonQualityWorkedExample(concept, rawExample, seed.category),
+        exampleSteps = lessonQualitySteps(concept, rawSteps, seed.category),
+        commonMistake = lessonQualityMistake(concept, rawMistake),
+        realWorldApplication = lessonQualityApplication(concept, rawApplication, seed.category),
+        advancedConcepts = lessonQualityConnections(concept, rawConnections, seed.category)
     )
+}
+
+private fun lessonQualitySummary(concept: String, topic: String, summary: String, level: String): String {
+    val audience = when (level) {
+        "Class 6-8" -> "Use particle pictures and everyday evidence."
+        "Class 9-10" -> "Connect definitions with observations, formula writing and simple calculations."
+        "Class 11-12" -> "Link the model to equations, trends, graphs and laboratory evidence."
+        "Undergraduate" -> "Include mechanism, assumptions, limitations and quantitative interpretation."
+        else -> "Evaluate evidence quality, uncertainty, model limits and research-level applications."
+    }
+    return "$summary Learning goal: explain $concept inside $topic, predict one observable result, and justify the answer with evidence. $audience"
+}
+
+private fun lessonQualityTheory(theory: String, category: String, level: String): String {
+    val evidencePrompt = when {
+        category.contains("Analytical", true) -> "Evidence focus: calibration, blank/reference controls, replicate measurements and uncertainty decide whether the conclusion is reliable."
+        category.contains("Organic", true) -> "Evidence focus: product identity follows from mechanism, functional groups, stereochemistry and supporting spectra or chemical tests."
+        category.contains("Inorganic", true) -> "Evidence focus: oxidation state, electron count, coordination environment, color, magnetism or reactivity should support the claim."
+        category.contains("Physical", true) -> "Evidence focus: graphs, equations, limiting cases, units and assumptions must agree with the observed chemical behavior."
+        category.contains("Biochemistry", true) -> "Evidence focus: structure, binding, catalytic rate, regulation and biological context must be connected carefully."
+        else -> "Evidence focus: connect the particle-level model to a clear observation, measurement or balanced equation."
+    }
+    val depthPrompt = if (level == "Postgraduate") {
+        "At research level, compare alternative models and state the limitation that would change the interpretation."
+    } else {
+        "Before moving on, state one condition where the idea works well and one mistake that would make the answer unreliable."
+    }
+    return "$theory\n\n$evidencePrompt\n\n$depthPrompt"
+}
+
+private fun lessonQualityWorkedExample(concept: String, example: String, category: String): String {
+    val frame = when {
+        category.contains("Analytical", true) -> "Worked example focus: define analyte, choose calibration, calculate with units, then report uncertainty."
+        category.contains("Organic", true) -> "Worked example focus: mark electron-rich/electron-poor sites, follow arrows, then check the product."
+        category.contains("Physical", true) -> "Worked example focus: write the relationship, define variables, substitute units and interpret the trend."
+        category.contains("Inorganic", true) -> "Worked example focus: assign oxidation state/electron count, predict structure or reaction, then compare with evidence."
+        else -> "Worked example focus: claim, evidence, calculation or model, then chemical meaning."
+    }
+    return "$frame $example Key check: after solving $concept, explain why at least two wrong approaches fail."
+}
+
+private fun lessonQualitySteps(concept: String, steps: List<String>, category: String): List<String> {
+    val base = steps.ifEmpty {
+        listOf(
+            "Identify the chemical species, quantities and observations.",
+            "Choose the relationship, model or balanced equation that applies.",
+            "Work through the reasoning with units and assumptions.",
+            "Compare the answer with evidence and chemical plausibility."
+        )
+    }
+    val qualityStep = when {
+        category.contains("Laboratory", true) || category.contains("Analytical", true) ->
+            "Record uncertainty, controls, possible interferences and whether the evidence is sufficient."
+        category.contains("Drug", true) ->
+            "Balance potency with solubility, permeability, metabolism, selectivity and safety."
+        else ->
+            "Finish by naming the assumption, common mistake and real-world use connected with $concept."
+    }
+    return (base + qualityStep).distinct().take(6)
+}
+
+private fun lessonQualityMistake(concept: String, mistake: String): String =
+    "$mistake Fix it by writing the claim in your own words, checking units/conditions, and explaining how the evidence supports $concept."
+
+private fun lessonQualityApplication(concept: String, application: String, category: String): String {
+    val impact = when {
+        category.contains("Environmental", true) -> "Also consider sustainability, exposure and waste."
+        category.contains("Drug", true) -> "Also consider patient safety, dosing and off-target effects."
+        category.contains("Materials", true) -> "Also consider structure-property tuning and durability."
+        category.contains("Nuclear", true) || category.contains("Radiochemistry", true) || concept.contains("nuclear", true) || concept.contains("radiation", true) ->
+            "Also consider radiation protection, medical imaging, power generation and waste management."
+        else -> "Also consider safety, cost, efficiency and measurement reliability."
+    }
+    return "$application $impact"
+}
+
+private fun lessonQualityConnections(concept: String, connections: List<String>, category: String): List<String> {
+    val required = listOf(
+        "Evidence and uncertainty",
+        "Common misconception boundary",
+        "Real-world safety or design decision"
+    )
+    val nuclear = if (
+        concept.contains("nuclear", true) || concept.contains("decay", true) ||
+        concept.contains("radiation", true) || category.contains("Radiochemistry", true)
+    ) {
+        listOf("Nuclide notation", "Half-life modelling", "Radiation shielding")
+    } else emptyList()
+    return (connections + nuclear + required).distinct().take(8)
 }
 
 private fun conceptSummary(concept: String, topic: String): String {
@@ -184,6 +280,8 @@ private fun conceptSummary(concept: String, topic: String): String {
             "$concept explains how quickly chemical change occurs by relating molecular collisions, energy barriers and reaction pathways."
         listOf("spectr", "nmr", "raman", "mass spect", "chromat", "analysis").any { it in name } ->
             "$concept converts a chemical or physical response into evidence about identity, structure, purity or concentration."
+        listOf("nuclear", "radioactivity", "half-life", "half life", "fission", "fusion", "alpha", "beta", "gamma", "mass defect", "binding energy").any { it in name } ->
+            "$concept explains how unstable nuclei change while conserving nucleon number, charge, energy and momentum, with radiation evidence interpreted safely."
         listOf("enzyme", "protein", "carbohydrate", "lipid", "metabolism", "biomolecule").any { it in name } ->
             "$concept applies chemical structure, bonding and reaction energetics to molecules and transformations found in living systems."
         listOf("drug", "pharmaco", "adme", "qsar", "docking", "tox").any { it in name } ->
@@ -218,6 +316,8 @@ private fun expandedTheory(
             "A chemical equation gives overall change, while a mechanism describes the elementary steps. Reaction rate depends on the frequency of effective collisions and the fraction of molecules able to cross the activation barrier. Rate laws are established experimentally. A catalyst creates an alternative pathway with a lower barrier but does not change the balanced reaction or equilibrium composition."
         listOf("spectr", "nmr", "raman", "mass spect").any { it in name } ->
             "Spectroscopic methods probe quantized interactions between matter and energy. Peak position reports an energy difference or chemical environment, intensity relates to probability or amount, and splitting or fragmentation reveals connectivity. Reliable interpretation combines multiple signals with molecular formula, symmetry and chemical reasoning."
+        listOf("nuclear", "radioactivity", "half-life", "half life", "fission", "fusion", "alpha", "beta", "gamma", "mass defect", "binding energy").any { it in name } ->
+            "Nuclear chemistry studies changes in the nucleus rather than ordinary electron-shell reactions. A balanced nuclear equation conserves mass number and atomic number. Radioactive decay is random for individual nuclei but predictable for large samples through activity and half-life. Energy release is explained by mass defect and binding energy. Radiation must be interpreted with shielding, distance, time and dose in mind."
         listOf("chromat", "separation", "purification").any { it in name } ->
             "A mixture separates when its components interact differently with two phases or respond differently to a physical property. In chromatography, repeated partitioning between stationary and mobile phases produces different migration rates. Good separation requires appropriate selectivity, controlled conditions and a way to detect the separated substances."
         listOf("enzyme", "protein", "carbohydrate", "lipid", "metabolism", "biomolecule").any { it in name } ->
@@ -352,6 +452,12 @@ private fun exampleStepsFor(title: String, category: String = ""): List<String> 
             "Check the assignment against molecular formula, symmetry and chemical environment.",
             "Combine evidence from more than one signal before proposing the final structure."
         )
+        listOf("nuclear", "radioactivity", "half-life", "half life", "fission", "fusion", "alpha", "beta", "gamma", "mass defect", "binding energy").any { it in name } -> listOf(
+            "Write the nuclide notation and identify mass number, atomic number and emitted radiation.",
+            "Balance nucleon number and charge on both sides of the nuclear equation.",
+            "Use half-life, activity or mass-energy relationships only after defining every variable.",
+            "Interpret the result with radiation safety: time, distance, shielding and contamination control."
+        )
         listOf("chromat", "separation", "purification").any { it in name } -> listOf(
             "Identify the mixture components and the property that can distinguish them.",
             "Select stationary/mobile phases or a physical separation condition.",
@@ -414,10 +520,12 @@ private fun commonMistakeFor(title: String, category: String = ""): String {
             "Do not identify anode and cathode only by sign. Oxidation is always at the anode and reduction is always at the cathode."
         listOf("spectr", "nmr", "mass spect").any { it in name } ->
             "Do not assign a structure from one peak alone. A valid structure must account for every important signal, the molecular formula and chemical plausibility."
+        listOf("nuclear", "radioactivity", "half-life", "half life", "fission", "fusion", "alpha", "beta", "gamma", "mass defect", "binding energy").any { it in name } ->
+            "Do not treat nuclear equations like ordinary chemical equations. Balance mass number and atomic number, and distinguish irradiation from contamination and exposure from dose."
         listOf("drug", "adme", "pharmaco", "docking").any { it in name } ->
             "A high docking score or strong biochemical potency does not by itself make a good drug. Exposure, selectivity, metabolism and toxicity must also be measured."
         category == "Organic Chemistry" ->
-            "Do not memorize the product without tracking electrons. Conditions, intermediate stability and stereochemistry determine which pathway operates."
+            "Do not memorise the product without tracking electrons. Conditions, intermediate stability and stereochemistry determine which pathway operates."
         category == "Analytical Chemistry" ->
             "Precision is not the same as accuracy. Closely repeated values can still be biased if calibration, sampling or interference is wrong."
         else ->
@@ -442,6 +550,8 @@ private fun applicationFor(title: String, category: String = ""): String {
             "Drug-discovery teams use this concept to select safer molecules, predict human exposure and decide which compounds should advance to further testing."
         listOf("fertilizer", "soil", "agricultural").any { it in name } ->
             "Agricultural chemists use this knowledge to measure nutrients, improve fertilizer efficiency and reduce contamination of soil and water."
+        listOf("nuclear", "radioactivity", "half-life", "half life", "fission", "fusion", "alpha", "beta", "gamma", "mass defect", "binding energy").any { it in name } ->
+            "Nuclear chemistry supports medical imaging and therapy, radiocarbon dating, smoke detectors, power generation, sterilization, tracers and industrial inspection."
         category == "Inorganic Chemistry" ->
             "Inorganic chemistry supports catalysts, pigments, ceramics, electronic materials, metal extraction and metal-based diagnostics or medicines."
         category == "Organic Chemistry" ->
@@ -458,6 +568,15 @@ private fun applicationFor(title: String, category: String = ""): String {
 private fun keyRelationshipFor(title: String): String {
     val name = title.lowercase()
     return when {
+        "half-life" in name || "half life" in name || "decay kinetics" in name -> "N = N0(1/2)^(t/t1/2)"
+        "alpha" in name -> "A_ZX -> A-4_Z-2Y + 4_2He"
+        "beta" in name -> "A_ZX -> A_Z+1Y + beta- + antineutrino"
+        "gamma" in name -> "X* -> X + gamma"
+        "mass defect" in name -> "Delta m = Zmp + Nmn - mnucleus"
+        "binding energy" in name -> "E = Delta mc^2"
+        "fission" in name -> "heavy nucleus + n -> fragments + neutrons + energy"
+        "fusion" in name -> "light nuclei -> heavier nucleus + energy"
+        "nuclear" in name || "radioactivity" in name || "isotope" in name -> "A = Z + N"
         "density" in name -> "density = mass / volume"
         listOf("mole", "molar").any { it in name } -> "moles = mass / molar mass"
         "ph" in name -> "pH = −log[H₃O⁺]"
@@ -471,6 +590,8 @@ private fun keyRelationshipFor(title: String): String {
 private fun advancedConceptsFor(title: String): List<String> {
     val name = title.lowercase()
     return when {
+        listOf("nuclear", "radioactivity", "half-life", "half life", "fission", "fusion", "alpha", "beta", "gamma", "mass defect", "binding energy").any { it in name } ->
+            listOf("Nuclide notation and conservation", "Decay kinetics and activity", "Mass-energy equivalence", "Shielding and dose")
         listOf("atomic", "orbital", "quantum", "electronic").any { it in name } ->
             listOf("Wavefunctions, nodes and orbital probability", "Shielding and effective nuclear charge", "Photoelectron spectroscopy")
         listOf("bond", "vsepr", "hybrid").any { it in name } ->
@@ -566,7 +687,21 @@ private val expandedCurriculum = listOf(
     seed("Solid State", "Class 11–12", "Physical Chemistry", "Solid State",
         "Crystal systems", "Unit cell", "Packing", "Defects", "Semiconductors"),
     seed("Nuclear Chemistry", "Class 11–12", "Physical Chemistry", "Nuclear Chemistry",
-        "Radioactivity", "Alpha decay", "Beta decay", "Gamma rays", "Half-life", "Nuclear fission", "Nuclear fusion"),
+        "Atomic nucleus basics",
+        "Protons neutrons and isotopes",
+        "Mass number and atomic number",
+        "Nuclear stability",
+        "Radioactivity",
+        "Alpha decay",
+        "Beta decay",
+        "Gamma rays",
+        "Half-life",
+        "Nuclear equations",
+        "Mass defect",
+        "Binding energy",
+        "Nuclear fission",
+        "Nuclear fusion",
+        "Radiation safety and applications"),
 
     seed("Advanced Mole Concept", "Class 11–12", "Physical Chemistry", "Stoichiometry",
         "Empirical and molecular formulae", "Limiting reagent", "Concentration units", "Equivalent mass", "Redox titration calculations"),
@@ -587,7 +722,7 @@ private val expandedCurriculum = listOf(
     seed("Hydrocarbons and Halo Compounds", "Class 11–12", "Organic Chemistry", "Organic families",
         "Alkanes and cycloalkanes", "Alkenes and alkynes", "Aromaticity", "Haloalkanes", "Haloarenes"),
     seed("Oxygen and Nitrogen Compounds", "Class 11–12", "Organic Chemistry", "Functional groups",
-        "Alcohols and phenols", "Ethers", "Aldehydes and ketones", "Carboxylic acids", "Amines and diazonium salts"),
+        "Alcohols and phenols", "Ethers", "Aldehydes and ketones", "Carboxylic acids", "Amines and Diazonium Salts"),
     seed("Biomolecules and Polymers", "Class 11–12", "Biochemistry", "Biological molecules",
         "Carbohydrates", "Amino acids and proteins", "Enzymes", "Nucleic acids", "Natural and synthetic polymers"),
     seed("Chemistry in Society", "Class 11–12", "Applied Chemistry", "Health and industry",
@@ -718,12 +853,42 @@ private val expandedCurriculum = listOf(
     seed("Pharmaceutical Chemistry and Formulation", "Postgraduate", "Drug Discovery", "Development",
         "Preformulation", "Dosage forms", "Drug delivery systems", "Stability and degradation", "Quality by design"),
 
+    seed("Class 6 Materials, Separation and Changes", "Class 6–8", "Introduction to Chemistry", "CBSE and AP foundations",
+        "Materials by appearance and hardness", "Soluble and insoluble substances", "Floating and sinking materials",
+        "Handpicking, sieving and winnowing", "Sedimentation, decantation, filtration and evaporation",
+        "Reversible and irreversible changes"),
+    seed("Class 7 Acids, Metals and Everyday Reactions", "Class 6–8", "Introduction to Chemistry", "CBSE and AP foundations",
+        "Natural indicators and litmus", "Neutralisation in daily life", "Rusting of iron", "Preventing corrosion",
+        "Metals and non-metals around us", "Reactions of metals with oxygen, water and acids"),
+    seed("Class 8 Electric Current and Chemical Effects", "Class 6–8", "Introduction to Chemistry", "CBSE and AP foundations",
+        "Conductors and insulators in liquids", "Electrolytes and simple testers", "Simple electroplating for class 8"),
     seed("Fibres, Plastics, Fuels and Combustion", "Class 6–8", "Applied Chemistry", "Materials and fuels",
         "Natural and synthetic fibres", "Thermoplastics and thermosets", "Coal and petroleum fractions", "Combustion and flame", "Fuel efficiency and pollution"),
+    seed("Class 9 Matter and Mixtures", "Class 9–10", "General Chemistry", "CBSE and AP SSC foundations",
+        "Evaporation and diffusion", "Sublimation and latent heat", "Solutions, suspensions and colloids",
+        "Tyndall effect and concentration", "Separating mixtures in class 9"),
+    seed("Class 9 Atoms and Formulae", "Class 9–10", "General Chemistry", "CBSE and AP SSC foundations",
+        "Laws of chemical combination", "Dalton atomic theory at school level", "Atomic mass and molecular mass",
+        "Valency and writing formulae", "Mole concept introduction"),
+    seed("Class 10 Chemical Substances and Carbon", "Class 9–10", "General Chemistry", "CBSE and AP SSC foundations",
+        "Chemical equations and conservation", "Important salts in daily life", "Metals, metallurgy and corrosion",
+        "Carbon bonding and homologous series", "Ethanol, ethanoic acid, soaps and detergents"),
     seed("Periodic Classification and Electrolysis", "Class 9–10", "General Chemistry", "Classification and electrochemistry",
         "Modern periodic law", "Periodic trends at secondary level", "Chemical effects of electric current", "Electrolysis and electrode products", "Electroplating"),
     seed("School Practical Chemistry", "Class 9–10", "Analytical Chemistry", "Practical chemistry",
         "Preparing and diluting solutions", "Testing gases", "Identifying acids and bases", "Precipitation observations", "Recording results and uncertainty"),
+    seed("Intermediate First Year Foundations", "Class 11–12", "General Chemistry", "CBSE and AP Intermediate",
+        "Some basic concepts of chemistry", "Stoichiometry and limiting reagent", "Atomic structure for class 11",
+        "Hydrogen and its compounds", "Environmental chemistry for school"),
+    seed("Intermediate First Year Physical Chemistry", "Class 11–12", "Physical Chemistry", "CBSE and AP Intermediate",
+        "States of matter and gas laws", "Thermodynamics at school level", "Chemical and ionic equilibrium",
+        "Redox reactions and oxidation number", "Organic chemistry basic principles"),
+    seed("Intermediate Second Year Inorganic and Physical", "Class 11–12", "Inorganic Chemistry", "CBSE and AP Intermediate",
+        "Solutions and Raoult's Law", "Colligative properties", "d- and f-block elements",
+        "Coordination compounds exam basics", "Electrochemistry cells and Nernst equation"),
+    seed("Intermediate Second Year Organic and Biomolecules", "Class 11–12", "Organic Chemistry", "CBSE and AP Intermediate",
+        "Haloalkanes and haloarenes", "Alcohols, phenols and ethers", "Aldehydes, ketones and carboxylic acids",
+        "Amines and Diazonium Salts", "Biomolecules, vitamins and polymers"),
     seed("Senior Secondary Practical Chemistry", "Class 11–12", "Analytical Chemistry", "Practical chemistry",
         "Volumetric analysis", "Systematic salt analysis", "Organic functional-group tests", "Inorganic and organic preparations", "Chemical kinetics and electrochemistry experiments"),
     seed("Nuclear and Radiochemistry", "Undergraduate", "Inorganic Chemistry", "Nuclear chemistry",

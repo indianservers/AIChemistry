@@ -184,7 +184,7 @@ internal fun PeriodicHubScreen(
         )
         if (query.isNotBlank()) {
             val matches = complete.filter {
-                it.symbol.contains(query, true) || it.name.contains(query, true) || it.number.toString() == query
+                elementMatchesSearch(it, query)
             }.take(5)
             Column(Modifier.padding(horizontal = 18.dp)) {
                 matches.forEach {
@@ -264,6 +264,11 @@ internal fun EnhancedPeriodicTableScreen(
     var immersive by remember { mutableStateOf(false) }
     var focusedElement by remember { mutableStateOf<Element?>(null) }
     var highlightMode by remember { mutableStateOf("Family") }
+    var trendOverlay by remember { mutableStateOf("Category") }
+    var quizMode by remember { mutableStateOf(false) }
+    var quizTarget by remember { mutableStateOf(elements.first { it.number == 8 }) }
+    var quizFeedback by remember { mutableStateOf("Find ${quizTarget.name} on the table") }
+    var compareSelection by remember { mutableStateOf(emptyList<Element>()) }
     var textScale by remember { mutableFloatStateOf(tablePrefs.getInt("text_scale", 100) / 100f) }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val scope = rememberCoroutineScope()
@@ -300,6 +305,31 @@ internal fun EnhancedPeriodicTableScreen(
                 TabPill("Compare", false, Modifier.weight(1f), onCompare)
                 Box {
                     TabPill("Theme", false, Modifier.width(62.dp)) { themeMenuOpen = true }
+                }
+            }
+            PeriodicToolStrip(
+                trendOverlay = trendOverlay,
+                quizMode = quizMode,
+                compareCount = compareSelection.size,
+                onTrend = { trendOverlay = nextTrendOverlay(trendOverlay) },
+                onQuiz = {
+                    quizMode = !quizMode
+                    quizTarget = nextQuizElement(elements, quizTarget)
+                    quizFeedback = if (!quizMode) "Find ${nextQuizElement(elements, quizTarget).name} on the table" else "Quiz mode paused"
+                },
+                onCompare = onCompare,
+                onExport = { exportPeriodicTablePng(context, elements, share = true) }
+            )
+            FamilyTourStrip { family ->
+                highlightMode = "Family"
+                focusedElement = elements.firstOrNull { it.category == family }
+            }
+            if (quizMode) {
+                PeriodicQuizBanner(quizTarget, quizFeedback)
+            }
+            if (compareSelection.isNotEmpty()) {
+                PeriodicCompareTray(compareSelection, onOpen = onCompare) { element ->
+                    compareSelection = compareSelection.filterNot { it.number == element.number }
                 }
             }
         }
@@ -395,12 +425,21 @@ internal fun EnhancedPeriodicTableScreen(
             )
         }
         if (query.isNotBlank() || listMode) {
-            val results = elements.filter { it.symbol.contains(query, true) || it.name.contains(query, true) || it.number.toString() == query }
+            val results = elements.filter { elementMatchesSearch(it, query) }
             LazyVerticalGrid(GridCells.Fixed(4), contentPadding = PaddingValues(14.dp), modifier = Modifier.fillMaxSize()) {
                 items(results) {
+                    val accent = tableCellAccent(it, tableTheme, trendOverlay)
                     PeriodicCell(
-                        it, 78, { selected -> focusedElement = selected; quickElement = selected }, { onCompare() },
-                        themedColor(it, tableTheme), glowAlpha, showNames, textScale = textScale,
+                        it, 78, { selected ->
+                            handlePeriodicCellClick(
+                                selected, quizMode, quizTarget, elements,
+                                updateQuiz = { target, feedback -> quizTarget = target; quizFeedback = feedback },
+                                openElement = { focusedElement = selected; quickElement = selected }
+                            )
+                        }, { selected ->
+                            compareSelection = toggleCompareSelection(compareSelection, selected)
+                        },
+                        accent, glowAlpha, showNames, textScale = textScale,
                         opacity = highlightOpacity(it, focusedElement, highlightMode)
                     )
                 }
@@ -470,10 +509,19 @@ internal fun EnhancedPeriodicTableScreen(
                                 if (number == null) Spacer(Modifier.size((baseCellSize * zoom).dp, ((baseCellSize + 6) * zoom).dp))
                                 else {
                                     val element = elements[number - 1]
+                                    val accent = tableCellAccent(element, tableTheme, trendOverlay)
                                     PeriodicCell(
                                         element, (baseCellSize * zoom).toInt(),
-                                        { selected -> focusedElement = selected; quickElement = selected }, { onCompare() },
-                                        themedColor(element, tableTheme), glowAlpha, showNames, focusOn,
+                                        { selected ->
+                                            handlePeriodicCellClick(
+                                                selected, quizMode, quizTarget, elements,
+                                                updateQuiz = { target, feedback -> quizTarget = target; quizFeedback = feedback },
+                                                openElement = { focusedElement = selected; quickElement = selected }
+                                            )
+                                        }, { selected ->
+                                            compareSelection = toggleCompareSelection(compareSelection, selected)
+                                        },
+                                        accent, glowAlpha, showNames, focusOn,
                                         textScale, highlightOpacity(element, focusedElement, highlightMode)
                                     )
                                 }
@@ -484,10 +532,19 @@ internal fun EnhancedPeriodicTableScreen(
                     Row(Modifier.padding(start = 26.dp)) {
                         lanthanideRow.forEach {
                             val element = elements[it - 1]
+                            val accent = tableCellAccent(element, tableTheme, trendOverlay)
                             PeriodicCell(
                                 element, (baseCellSize * zoom).toInt(),
-                                { selected -> focusedElement = selected; quickElement = selected }, { onCompare() },
-                                themedColor(element, tableTheme), glowAlpha, showNames, focusOn,
+                                { selected ->
+                                    handlePeriodicCellClick(
+                                        selected, quizMode, quizTarget, elements,
+                                        updateQuiz = { target, feedback -> quizTarget = target; quizFeedback = feedback },
+                                        openElement = { focusedElement = selected; quickElement = selected }
+                                    )
+                                }, { selected ->
+                                    compareSelection = toggleCompareSelection(compareSelection, selected)
+                                },
+                                accent, glowAlpha, showNames, focusOn,
                                 textScale, highlightOpacity(element, focusedElement, highlightMode)
                             )
                         }
@@ -496,10 +553,19 @@ internal fun EnhancedPeriodicTableScreen(
                     Row(Modifier.padding(start = 26.dp)) {
                         actinideRow.forEach {
                             val element = elements[it - 1]
+                            val accent = tableCellAccent(element, tableTheme, trendOverlay)
                             PeriodicCell(
                                 element, (baseCellSize * zoom).toInt(),
-                                { selected -> focusedElement = selected; quickElement = selected }, { onCompare() },
-                                themedColor(element, tableTheme), glowAlpha, showNames, focusOn,
+                                { selected ->
+                                    handlePeriodicCellClick(
+                                        selected, quizMode, quizTarget, elements,
+                                        updateQuiz = { target, feedback -> quizTarget = target; quizFeedback = feedback },
+                                        openElement = { focusedElement = selected; quickElement = selected }
+                                    )
+                                }, { selected ->
+                                    compareSelection = toggleCompareSelection(compareSelection, selected)
+                                },
+                                accent, glowAlpha, showNames, focusOn,
                                 textScale, highlightOpacity(element, focusedElement, highlightMode)
                             )
                         }
@@ -535,6 +601,197 @@ internal fun EnhancedPeriodicTableScreen(
         }
     }
 }
+
+@Composable
+private fun PeriodicToolStrip(
+    trendOverlay: String,
+    quizMode: Boolean,
+    compareCount: Int,
+    onTrend: () -> Unit,
+    onQuiz: () -> Unit,
+    onCompare: () -> Unit,
+    onExport: () -> Unit
+) {
+    Row(
+        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 7.dp),
+        horizontalArrangement = Arrangement.spacedBy(7.dp)
+    ) {
+        PeriodicToolPill("Trend: $trendOverlay", Cyan, onTrend)
+        PeriodicToolPill(if (quizMode) "Quiz on" else "Quiz mode", if (quizMode) Green else Orange, onQuiz)
+        PeriodicToolPill("Compare $compareCount/4", Purple, onCompare)
+        PeriodicToolPill("Share PNG", Green, onExport)
+    }
+}
+
+@Composable
+private fun PeriodicToolPill(label: String, color: Color, onClick: () -> Unit) {
+    Text(
+        label,
+        color = color,
+        fontSize = 9.sp,
+        fontWeight = FontWeight.Bold,
+        maxLines = 1,
+        modifier = Modifier.clip(CircleShape)
+            .background(color.copy(alpha = .10f))
+            .border(1.dp, color.copy(alpha = .34f), CircleShape)
+            .clickable { onClick() }
+            .padding(horizontal = 11.dp, vertical = 7.dp)
+    )
+}
+
+@Composable
+private fun FamilyTourStrip(onFamily: (String) -> Unit) {
+    val tours = listOf("Alkali metal", "Halogen", "Noble gas", "Transition metal")
+    Row(
+        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 2.dp),
+        horizontalArrangement = Arrangement.spacedBy(7.dp)
+    ) {
+        Text("Family tours", color = Muted, fontSize = 9.sp, modifier = Modifier.padding(top = 7.dp))
+        tours.forEach { family ->
+            PeriodicToolPill(family.replace(" metal", ""), categoryColor(family)) { onFamily(family) }
+        }
+    }
+}
+
+@Composable
+private fun PeriodicQuizBanner(target: Element, feedback: String) {
+    GlowCard(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp), Orange) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(42.dp).background(Orange.copy(alpha = .14f), CircleShape), contentAlignment = Alignment.Center) {
+                Text("?", color = Orange, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            }
+            Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                Text("PERIODIC TABLE QUIZ", color = Orange, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                Text("Tap ${target.name} (${target.number})", color = White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Text(feedback, color = if (feedback.startsWith("Correct")) Green else Muted, fontSize = 9.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun PeriodicCompareTray(selection: List<Element>, onOpen: () -> Unit, onRemove: (Element) -> Unit) {
+    GlowCard(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp), Purple) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("COMPARE MODE", color = Purple, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                Row(Modifier.horizontalScroll(rememberScrollState()).padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    selection.forEach { element ->
+                        Text(
+                            "${element.symbol} x",
+                            color = element.color,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.clip(CircleShape)
+                                .background(element.color.copy(alpha = .10f))
+                                .border(1.dp, element.color.copy(alpha = .32f), CircleShape)
+                                .clickable { onRemove(element) }
+                                .padding(horizontal = 9.dp, vertical = 5.dp)
+                        )
+                    }
+                }
+            }
+            Text(
+                if (selection.size >= 2) "Open" else "Pick 2+",
+                color = if (selection.size >= 2) Cyan else Muted,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable(enabled = selection.size >= 2) { onOpen() }.padding(9.dp)
+            )
+        }
+    }
+}
+
+private fun elementMatchesSearch(element: Element, query: String): Boolean {
+    if (query.isBlank()) return true
+    val q = query.lowercase()
+    val facts = elementFacts(element.number)
+    val searchable = listOf(
+        element.symbol,
+        element.name,
+        element.number.toString(),
+        element.category,
+        facts.standardState,
+        periodicUseKeywords(element),
+        periodicHazardKeywords(element)
+    ).joinToString(" ").lowercase()
+    return q in searchable
+}
+
+private fun periodicUseKeywords(element: Element): String = when (element.symbol) {
+    "H" -> "fuel cells ammonia petroleum reduction"
+    "C" -> "steel fuels filters polymers carbon materials"
+    "O" -> "medicine steelmaking combustion water life support"
+    "Si" -> "semiconductors glass concrete ceramics silicones"
+    "Fe" -> "structural steel machinery transport tools magnets"
+    "Cu" -> "wiring electronics plumbing alloys heat exchangers"
+    "Au" -> "electronics jewelry dentistry contacts investment"
+    else -> "materials synthesis electronics energy medicine research"
+}
+
+private fun periodicHazardKeywords(element: Element): String = when (element.category) {
+    "Alkali metal" -> "reactive water violent corrosive handle oil"
+    "Halogen" -> "toxic corrosive reactive inhalation skin"
+    "Actinide" -> "radioactive toxic containment nuclear"
+    "Noble gas" -> "inert asphyxiant oxygen displacement"
+    else -> "hazard safety toxicity exposure compound dose"
+}
+
+private fun nextTrendOverlay(current: String): String = when (current) {
+    "Category" -> "Radius"
+    "Radius" -> "Electronegativity"
+    "Electronegativity" -> "Density"
+    "Density" -> "Melting point"
+    else -> "Category"
+}
+
+private fun tableCellAccent(element: Element, theme: PeriodicTheme, overlay: String): Color {
+    if (overlay == "Category") return themedColor(element, theme)
+    val property = when (overlay) {
+        "Radius" -> "Atomic radius"
+        "Electronegativity" -> "Electronegativity"
+        "Density" -> "Density"
+        else -> "Melting point"
+    }
+    return trendOverlayColor(normalizedMeasuredProperty(element.number, property) ?: .08f)
+}
+
+private fun trendOverlayColor(value: Float): Color = when {
+    value < .25f -> Color(0xFF56B4E9)
+    value < .50f -> Green
+    value < .75f -> Orange
+    else -> Purple
+}
+
+private fun nextQuizElement(elements: List<Element>, current: Element): Element =
+    elements[((current.number * 37) + 11) % elements.size]
+
+private fun handlePeriodicCellClick(
+    selected: Element,
+    quizMode: Boolean,
+    quizTarget: Element,
+    elements: List<Element>,
+    updateQuiz: (Element, String) -> Unit,
+    openElement: () -> Unit
+) {
+    if (!quizMode) {
+        openElement()
+        return
+    }
+    if (selected.number == quizTarget.number) {
+        val next = nextQuizElement(elements, quizTarget)
+        updateQuiz(next, "Correct - next: find ${next.name}")
+    } else {
+        updateQuiz(quizTarget, "Try again - ${selected.symbol} is ${selected.name}")
+    }
+}
+
+private fun toggleCompareSelection(current: List<Element>, element: Element): List<Element> =
+    if (current.any { it.number == element.number }) {
+        current.filterNot { it.number == element.number }
+    } else {
+        (current + element).takeLast(4)
+    }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -879,12 +1136,7 @@ internal fun ElementComparisonScreen(elements: List<Element>, onBack: () -> Unit
         }
         Text("COMPARISON MATRIX", color = Muted, fontSize = 9.sp, modifier = Modifier.padding(18.dp, 15.dp, 18.dp, 6.dp))
         if (compared.isEmpty()) {
-            Text(
-                "Choose one or more elements above to start comparing.",
-                color = Muted,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp)
-            )
+            EmptyState("No elements selected", "Choose one or more elements above to start comparing properties.", ChemIcons.Table, Cyan)
         } else {
             ElementComparisonMatrix(
                 elements = compared,
@@ -994,11 +1246,7 @@ internal fun ElementNotebookScreen(
     Column(Modifier.fillMaxSize()) {
         ScreenTitle("My Notebook", "${elements.size} saved elements", onBack)
         if (elements.isEmpty()) {
-            Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Text("☆", color = Cyan, fontSize = 58.sp)
-                Text("Your notebook is ready", color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text("Open any element and tap the star to save it.", color = Muted, fontSize = 12.sp)
-            }
+            EmptyState("Your notebook is ready", "Open any element and tap the star to save it.", ChemIcons.Spark, Cyan)
         } else {
             LazyColumn(contentPadding = PaddingValues(18.dp)) {
                 items(elements, key = { it.number }) { element ->

@@ -2,6 +2,7 @@ package com.indianservers.aichemistryexplorer
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas as AndroidCanvas
 import android.graphics.Paint
@@ -68,6 +69,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.Locale
@@ -330,7 +332,7 @@ internal fun ElementKnowledgeLab(element: Element) {
         Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 18.dp),
         horizontalArrangement = Arrangement.spacedBy(7.dp)
     ) {
-        listOf("Atomic", "Story", "Uses & safety", "Notes & AI").forEach {
+        listOf("Atomic", "Story", "Uses & safety", "Builder", "Notes & AI").forEach {
             StudioPill(it, tab == it) { tab = it }
         }
     }
@@ -338,6 +340,7 @@ internal fun ElementKnowledgeLab(element: Element) {
         "Atomic" -> ElementAtomicLab(element)
         "Story" -> ElementStory(element)
         "Uses & safety" -> ElementUsesAndSafety(element)
+        "Builder" -> ElementCompoundBuilder(element)
         else -> ElementNotesAndAssistant(element)
     }
 }
@@ -620,14 +623,124 @@ private fun ElementUsesAndSafety(element: Element) {
 }
 
 @Composable
+private fun ElementCompoundBuilder(element: Element) {
+    var partner by remember(element.number) { mutableStateOf(compoundPartnersFor(element).first()) }
+    var count by remember(element.number) { mutableIntStateOf(1) }
+    val formula = remember(element.number, partner, count) { builtCompoundFormula(element, partner, count) }
+    val prediction = remember(element.number, partner, count) { compoundPrediction(element, partner, formula) }
+    Column(Modifier.fillMaxWidth().padding(18.dp)) {
+        FeatureHeading("COMPOUND BUILDER")
+        GlowCard(Modifier.fillMaxWidth(), element.color) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ElementBuilderTile(element.symbol, element.name, element.color, Modifier.weight(1f))
+                Text("+", color = Muted, fontSize = 22.sp, modifier = Modifier.padding(horizontal = 8.dp))
+                ElementBuilderTile(partner.symbol, partner.name, partner.color, Modifier.weight(1f))
+            }
+            Text(formula, color = element.color, fontSize = 26.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(top = 14.dp))
+            Text(prediction, color = White, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 8.dp))
+        }
+        FeatureHeading("CHOOSE PARTNER")
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            compoundPartnersFor(element).forEach { option ->
+                StudioPill("${option.symbol} ${option.name}", option.symbol == partner.symbol) {
+                    partner = option
+                }
+            }
+        }
+        FeatureHeading("STOICHIOMETRY")
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StudioPill("-", false) { count = (count - 1).coerceAtLeast(1) }
+            Text("$count unit${if (count == 1) "" else "s"}", color = White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            StudioPill("+", false) { count = (count + 1).coerceAtMost(6) }
+        }
+        FeatureHeading("CURATED EXAMPLES")
+        val curated = validatedCompoundsFor(element)
+        if (curated.isEmpty()) {
+            InfoBlock("No curated offline examples yet. Use the builder to explore likely formula patterns and compare them with trusted references.", Muted)
+        } else {
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                curated.forEach { compound ->
+                    Text(
+                        compound,
+                        color = element.color,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.background(element.color.copy(alpha = .09f), RoundedCornerShape(9.dp))
+                            .border(1.dp, element.color.copy(alpha = .32f), RoundedCornerShape(9.dp))
+                            .padding(horizontal = 11.dp, vertical = 9.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ElementBuilderTile(symbol: String, name: String, color: Color, modifier: Modifier) {
+    Column(
+        modifier.background(color.copy(alpha = .10f), RoundedCornerShape(12.dp))
+            .border(1.dp, color.copy(alpha = .35f), RoundedCornerShape(12.dp))
+            .padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(symbol, color = color, fontSize = 28.sp, fontWeight = FontWeight.Black)
+        Text(name, color = White, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+private data class CompoundPartner(val symbol: String, val name: String, val color: Color, val charge: Int)
+
+private fun compoundPartnersFor(element: Element): List<CompoundPartner> = when (element.category) {
+    "Alkali metal", "Alkaline earth", "Transition metal", "Post-transition", "Lanthanide", "Actinide" -> listOf(
+        CompoundPartner("O", "Oxygen", Cyan, -2),
+        CompoundPartner("Cl", "Chlorine", Green, -1),
+        CompoundPartner("S", "Sulfur", Orange, -2),
+        CompoundPartner("OH", "Hydroxide", Purple, -1)
+    )
+    "Halogen" -> listOf(
+        CompoundPartner("Na", "Sodium", Color(0xFF4D8BFF), 1),
+        CompoundPartner("H", "Hydrogen", Cyan, 1),
+        CompoundPartner("Ag", "Silver", Color(0xFFB8C7D9), 1),
+        CompoundPartner("Ca", "Calcium", Orange, 2)
+    )
+    else -> listOf(
+        CompoundPartner("H", "Hydrogen", Cyan, 1),
+        CompoundPartner("O", "Oxygen", Cyan, -2),
+        CompoundPartner("Na", "Sodium", Color(0xFF4D8BFF), 1),
+        CompoundPartner("Cl", "Chlorine", Green, -1)
+    )
+}
+
+private fun builtCompoundFormula(element: Element, partner: CompoundPartner, count: Int): String {
+    val base = validatedCompoundsFor(element).firstOrNull { partner.symbol in it } ?: "${element.symbol}${partner.symbol}"
+    return if (count == 1) base else "($base)$count"
+}
+
+private fun compoundPrediction(element: Element, partner: CompoundPartner, formula: String): String {
+    val bond = when {
+        element.category.contains("metal", true) && partner.charge < 0 -> "mostly ionic"
+        element.category == "Halogen" && partner.charge > 0 -> "mostly ionic or polar"
+        else -> "mostly covalent or polar covalent"
+    }
+    return "$formula is a teaching prediction from common valence patterns. Expect $bond bonding; verify real stability, hydration and oxidation state with experimental data."
+}
+
+@Composable
 private fun ElementNotesAndAssistant(element: Element) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("element_notes", 0) }
     var note by remember(element.number) { mutableStateOf(prefs.getString("note_${element.number}", "") ?: "") }
     var question by remember { mutableStateOf("") }
     var answer by remember { mutableStateOf("Ask about properties, uses, safety, family or electron structure.") }
+    var collections by remember(element.number) {
+        mutableStateOf(prefs.getStringSet("collections_${element.number}", emptySet()).orEmpty().toSet())
+    }
     Column(Modifier.fillMaxWidth().padding(18.dp)) {
         FeatureHeading("PERSONAL NOTES & COLLECTIONS")
+        ElementCollectionChips(element, collections) { name ->
+            collections = if (name in collections) collections - name else collections + name
+            prefs.edit().putStringSet("collections_${element.number}", collections).apply()
+        }
         OutlinedTextField(
             value = note,
             onValueChange = {
@@ -653,6 +766,29 @@ private fun ElementNotesAndAssistant(element: Element) {
         ) { Text("Ask", color = Night, fontWeight = FontWeight.Bold) }
         InfoBlock(answer, Cyan)
     }
+}
+
+@Composable
+private fun ElementCollectionChips(element: Element, selected: Set<String>, toggle: (String) -> Unit) {
+    val collections = listOf("Favorites", "Exam revision", "Lab useful", "Hazards", "Materials")
+    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+        collections.forEach { name ->
+            val active = name in selected
+            Text(
+                if (active) "$name saved" else name,
+                color = if (active) Night else element.color,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                modifier = Modifier.background(if (active) element.color else element.color.copy(alpha = .08f), CircleShape)
+                    .border(1.dp, element.color.copy(alpha = .38f), CircleShape)
+                    .clickable { toggle(name) }
+                    .padding(horizontal = 10.dp, vertical = 7.dp)
+            )
+        }
+    }
+    val summary = if (selected.isEmpty()) "Not in any named collection yet." else "In collections: ${selected.joinToString(", ")}."
+    Text(summary, color = Muted, fontSize = 9.sp, modifier = Modifier.padding(bottom = 8.dp))
 }
 
 @Composable
@@ -854,7 +990,7 @@ private fun localElementAnswer(element: Element, question: String): String {
     }
 }
 
-internal fun exportPeriodicTablePng(context: Context, elements: List<Element>) {
+internal fun exportPeriodicTablePng(context: Context, elements: List<Element>, share: Boolean = false) {
     val width = 1920
     val height = 1120
     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -909,9 +1045,18 @@ internal fun exportPeriodicTablePng(context: Context, elements: List<Element>) {
     runCatching {
         context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)?.let { uri ->
             context.contentResolver.openOutputStream(uri)?.use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            uri
         } ?: error("Unable to create image")
     }.onSuccess {
         Toast.makeText(context, "Periodic table PNG saved to Pictures", Toast.LENGTH_LONG).show()
+        if (share) {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/png"
+                putExtra(Intent.EXTRA_STREAM, it)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(Intent.createChooser(shareIntent, "Share periodic table").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
     }.onFailure {
         Toast.makeText(context, "Could not export PNG", Toast.LENGTH_LONG).show()
     }
