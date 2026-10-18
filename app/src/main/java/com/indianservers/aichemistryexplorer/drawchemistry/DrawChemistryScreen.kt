@@ -9,6 +9,17 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.style.TextOverflow
+import android.content.Intent
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.net.Uri
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,7 +27,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -31,8 +46,8 @@ import java.util.UUID
 import java.util.Locale
 import kotlin.math.*
 
-private val Ink=Color(0xFF172C43)
-private val Accent=Color(0xFF1879C8)
+private val Ink=StudioInk
+private val Accent=StudioBlue
 @Composable internal fun DrawChemistryHomeCard(onOpen:()->Unit){
     Card(onClick=onOpen,modifier=Modifier.fillMaxWidth().padding(horizontal=20.dp,vertical=6.dp),colors=CardDefaults.cardColors(containerColor=Color(0xFFF3FAFF)),shape=RoundedCornerShape(20.dp)){
         Row(Modifier.padding(18.dp),verticalAlignment=Alignment.CenterVertically){
@@ -44,13 +59,19 @@ private val Accent=Color(0xFF1879C8)
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable internal fun DrawChemistryScreen(elements:List<Element>,onBack:()->Unit){
-    MaterialTheme(colorScheme=lightColorScheme(primary=Accent,background=Color.White,surface=Color.White,onSurface=Ink)){
-        Studio(elements,onBack)
+    val density=LocalDensity.current
+    val systemFontScale=LocalContext.current.resources.configuration.fontScale
+    // Reading zoom belongs to lesson prose; the workstation honors Android accessibility scaling.
+    CompositionLocalProvider(LocalDensity provides Density(density.density,systemFontScale)){
+        MaterialTheme(colorScheme=lightColorScheme(primary=Accent,background=Color.White,surface=Color.White,onSurface=Ink)){
+            Studio(elements,onBack)
+        }
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable private fun Studio(elements:List<Element>,onBack:()->Unit){
     val context=LocalContext.current;val scope=rememberCoroutineScope()
+    val focusManager=LocalFocusManager.current
     val configuration=LocalConfiguration.current
     val landscape=configuration.screenWidthDp>configuration.screenHeightDp
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
@@ -58,7 +79,7 @@ private val Accent=Color(0xFF1879C8)
     var project by rememberSaveable { mutableStateOf("") };var ready by remember { mutableStateOf(false) }
     var graph by remember { mutableStateOf(if(project.isBlank())ChemGraph()else ChemProject.decode(project)) }
     val history=remember { ChemHistory(graph) }
-    var tab by rememberSaveable { mutableIntStateOf(0) };var tool by remember { mutableStateOf(DrawTool.Atom) };var symbol by rememberSaveable { mutableStateOf("C") }
+    var tab by rememberSaveable { mutableIntStateOf(0) };var tool by remember { mutableStateOf(DrawTool.Select) };var symbol by rememberSaveable { mutableStateOf("C") }
     var order by remember { mutableIntStateOf(1) };var stereo by remember { mutableStateOf("") };var ring by remember { mutableIntStateOf(6) };var aromatic by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(emptySet<Int>()) };var measures by remember { mutableStateOf(emptyList<Int>()) }
     var query by rememberSaveable { mutableStateOf("") };var searchType by remember { mutableStateOf("Name") };var busy by remember { mutableStateOf(false) };var status by remember { mutableStateOf(if(graph.atoms.isEmpty())"Tap to place an atom. Drag between atoms to draw a bond."else "${graph.name} · ${graph.atoms.size} atoms") }
@@ -69,7 +90,15 @@ private val Accent=Color(0xFF1879C8)
     var results by remember { mutableStateOf(emptyList<Int>()) };var resultPage by remember { mutableIntStateOf(0) }
     var favoritesOnly by remember { mutableStateOf(false) };var category by remember { mutableStateOf("All") }
     val saved by repo.dao.observe().collectAsState(initial=emptyList())
-    val library=remember { repo.library() }
+    val library=remember {val priority=listOf(962,702,241,176,2244,2519,5793,5997,243);repo.library().sortedBy {e->priority.indexOf(e.cid).takeIf {it>=0}?:100+e.cid} }
+    var libraryGroup by rememberSaveable {mutableStateOf("Common")}
+    var propertyPage by rememberSaveable {mutableStateOf("Overview")}
+    var gestureMode by rememberSaveable {mutableIntStateOf(0)}
+    var modelZoom by rememberSaveable {mutableFloatStateOf(1f)}
+    var focused by rememberSaveable {mutableStateOf(false)}
+    val previews by produceState<Map<Int,ChemGraph>>(emptyMap(),repo){
+        value=withContext(Dispatchers.IO){library.associate {entry->entry.cid to repo.bundled(entry)}}
+    }
     val calculated by produceState(initialValue=Pair("Calculating…","Calculating…"),key1=graph){
         val snapshot=graph
         if(snapshot.annotations.any {it.kind=="arrow"}){value=Pair("Reaction scheme · multiple species","Not a single molecule");return@produceState}
@@ -77,10 +106,23 @@ private val Accent=Color(0xFF1879C8)
     }
     fun change(next:ChemGraph){if(graph.sourceMol.isNotBlank() && next.sourceMol.isBlank() && graph.atoms.isNotEmpty())status="Structure edited: reference properties/3D cleared. Review stereochemistry before export.";history.change(next);graph=next;project=ChemProject.encode(next);selected=selected.intersect(next.atoms.map { it.id }.toSet());measures=emptyList()}
     fun message(t:String){status=t}
-    fun work(block:suspend ()->Unit){if(busy)return;busy=true;scope.launch {try{block()}catch(e:Exception){message(e.message?:"Operation failed; drawing retained.")}finally{busy=false}}}
-    fun load(next:ChemGraph){change(next);tab=0;selected=emptySet();status="${next.name} · ${next.atoms.size} atoms";scope.launch { delay(60);canvas?.fit() }}
+    fun work(block:suspend ()->Unit){
+        if(busy)return
+        busy=true
+        scope.launch {
+            try{block()}
+            catch(e:CancellationException){throw e}
+            catch(e:Exception){val notice=e.message?:"Operation failed; drawing retained.";message(notice);android.widget.Toast.makeText(context,notice,android.widget.Toast.LENGTH_LONG).show()}
+            finally{busy=false}
+        }
+    }
+    fun load(next:ChemGraph){focusManager.clearFocus();change(next);tab=0;selected=emptySet();status="${next.name} · ${next.atoms.size} atoms";scope.launch { delay(60);canvas?.fit() }}
     LaunchedEffect(Unit){
-        if(project.isBlank()){repo.dao.get("draft")?.let { runCatching { ChemProject.decode(it.project) }.onSuccess { graph=it;history.change(it);project=it.let(ChemProject::encode);status="${it.name} · ${it.atoms.size} atoms" } }}
+        if(project.isBlank()){
+            val draft=repo.dao.get("draft")
+            val restored=if(draft!=null)runCatching {ChemProject.decode(draft.project)}.getOrNull()else repo.bundled(library.first {it.cid==243})
+            restored?.let {graph=it;history.change(it);project=ChemProject.encode(it);status="${it.name} · ${it.atoms.size} atoms"}
+        }
         ready=true
     }
     LaunchedEffect(project,ready){if(ready && project.isNotBlank()){delay(250);try{withContext(Dispatchers.IO){repo.dao.save(SavedStructure("draft",graph.name,project))}}catch(e:Exception){if(e is CancellationException)throw e;status="Draft could not be saved. Export a copy to retain your work."}}}
@@ -93,90 +135,215 @@ private val Accent=Color(0xFF1879C8)
         val snapshot=graph;val format=exportFormat
         require(snapshot.annotations.none {it.kind=="arrow"} || format in listOf("Project JSON","SVG","PNG")){"Export reaction schemes as project JSON, SVG or PNG. Molecular formats do not retain the scheme."}
         val bitmap=if(format=="PNG")canvas?.let { view->Bitmap.createBitmap(view.width.coerceAtLeast(1),view.height.coerceAtLeast(1),Bitmap.Config.ARGB_8888).also { view.draw(Canvas(it)) } }else null
-        withContext(Dispatchers.IO){context.contentResolver.openOutputStream(uri)!!.use { out->if(bitmap!=null){bitmap.compress(Bitmap.CompressFormat.PNG,100,out);bitmap.recycle()}else out.write(when(format){"MOL V2000"->ChemToolkit.writeMol(snapshot);"SDF"->ChemToolkit.writeMol(snapshot)+"\n$$$$\n";"SMILES"->ChemToolkit.writeSmiles(snapshot);"SVG"->chemSvg(snapshot);"XYZ coordinates"->{require(snapshot.conformer.isNotEmpty()){ "A source 3D conformer is required." };"${snapshot.conformer.size}\n${snapshot.name} · ${snapshot.source}, coordinates in angstroms; no bond data\n"+snapshot.conformer.joinToString("\n"){"${it.symbol} ${it.x} ${it.y} ${it.z}"}};else->ChemProject.encode(snapshot)}.toByteArray()) }}
+        withContext(Dispatchers.IO){context.contentResolver.openOutputStream(uri)!!.use { out->if(bitmap!=null){bitmap.compress(Bitmap.CompressFormat.PNG,100,out);bitmap.recycle()}else out.write(when(format){"MOL V2000"->ChemToolkit.writeMol(snapshot);"SDF"->ChemToolkit.writeMol(snapshot)+"\n$$$$\n";"3D SDF"->ChemToolkit.writeMol(snapshot,true)+"\n$$$$\n";"SMILES"->ChemToolkit.writeSmiles(snapshot);"SVG"->chemSvg(snapshot);"XYZ coordinates"->{require(snapshot.conformer.isNotEmpty()){ "A source 3D conformer is required." };"${snapshot.conformer.size}\n${snapshot.name} · ${snapshot.source}, coordinates in angstroms; no bond data\n"+snapshot.conformer.joinToString("\n"){"${it.symbol} ${it.x} ${it.y} ${it.z}"}};else->ChemProject.encode(snapshot)}.toByteArray()) }}
         message("Export saved: $format")
     }}
-    Column(Modifier.fillMaxSize().background(Color.White)){
-        Row(Modifier.fillMaxWidth().heightIn(min=48.dp).padding(horizontal=4.dp),verticalAlignment=Alignment.CenterVertically){
-            TextButton(onClick=onBack){Text("‹ Back")};Text("Draw Chemistry",fontWeight=FontWeight.Bold,fontSize=19.sp,modifier=Modifier.weight(1f),color=Ink)
-            if(landscape)TextButton(onClick={searchExpanded=!searchExpanded}){Text(if(searchExpanded)"Hide search"else "Search")}
-            TextButton(onClick={dialog="Save"},enabled=ready){Text("Save")};TextButton(onClick={dialog="Actions"}){Text("•••")}
+    fun copyText(value:String){(context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Chemical structure",value));message("Copied to clipboard")}
+    fun sourceLink(){graph.cid?.let {context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://pubchem.ncbi.nlm.nih.gov/compound/$it")))}}
+    fun copyFragment(){clipboard=graph.copy(atoms=graph.atoms.filter {selected.isEmpty()||it.id in selected},bonds=graph.bonds.filter {selected.isEmpty()||(it.a in selected&&it.b in selected)},conformer=emptyList(),sourceMol="",properties=emptyMap(),cid=null);message("Fragment copied. Use Paste fragment from the menu.")}
+    fun rotateSelection(){val ids=selected.ifEmpty {graph.atoms.map {it.id}.toSet()};if(ids.isNotEmpty()){val cx=graph.atoms.filter {it.id in ids}.map {it.x}.average();val cy=graph.atoms.filter {it.id in ids}.map {it.y}.average();change(graph.copy(atoms=graph.atoms.map {if(it.id in ids){val x=it.x-cx;val y=it.y-cy;it.copy(x=cx+x*cos(PI/12)-y*sin(PI/12),y=cy+x*sin(PI/12)+y*cos(PI/12))}else it}))}}
+    val formula=graph.properties.entries.firstOrNull {it.key=="Molecular Formula"}?.value?:calculated.first
+    fun property(prefix:String)=graph.properties.entries.firstOrNull {it.key.startsWith(prefix)}?.value
+    val smiles=property("SMILES")
+    val searchPane: @Composable ()->Unit = {
+        if(!focused && (!landscape||searchExpanded)){
+            Surface(Modifier.fillMaxWidth().padding(horizontal=14.dp,vertical=6.dp).shadow(7.dp,RoundedCornerShape(28.dp),ambientColor=Color(0xFFC4D1E0),spotColor=Color(0xFFDEE6F0)),shape=RoundedCornerShape(28.dp),color=Color.White,border=BorderStroke(1.dp,StudioLine)){
+                Row(Modifier.heightIn(min=44.dp).padding(start=16.dp,end=5.dp),verticalAlignment=Alignment.CenterVertically){
+                    androidx.compose.foundation.text.BasicTextField(query,{query=it},singleLine=true,textStyle=LocalTextStyle.current.copy(color=StudioInk,fontSize=11.sp,lineHeight=14.sp),modifier=Modifier.weight(1f),decorationBox={inner->if(query.isBlank())Text("Search compound or enter SMILES",color=StudioMuted,fontSize=11.sp);inner()})
+                    Box(Modifier.size(40.dp).semantics {contentDescription="Find"}.clickable(enabled=query.isNotBlank()&&!busy){focusManager.clearFocus();dialog="Search"},contentAlignment=Alignment.Center){StudioIcon("search",Modifier.size(21.dp),if(query.isBlank())StudioInk else StudioBlue)}
+                }
+            }
         }
-        if(!landscape || searchExpanded)Row(Modifier.padding(horizontal=8.dp).fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
-            OutlinedTextField(query,{query=it},modifier=Modifier.weight(1f),singleLine=true,placeholder={Text("Search compound or enter SMILES",fontSize=12.sp)},textStyle=LocalTextStyle.current.copy(fontSize=13.sp))
-            TextButton(onClick={dialog="Search"},enabled=!busy && query.isNotBlank()){Text("Find")}
+    }
+    val toolPane: @Composable ()->Unit = {
+        if(!focused)StudioTabs(tab,compact=false){focusManager.clearFocus();tab=it}
+        if(busy)LinearProgressIndicator(Modifier.fillMaxWidth(),color=StudioBlue)
+        if(tab==0 && !focused){StudioPanel(Modifier.padding(horizontal=14.dp,vertical=if(landscape)3.dp else 8.dp)){
+            Row(Modifier.fillMaxWidth().padding(3.dp)){
+                listOf(DrawTool.Select to "select",DrawTool.Atom to "atom",DrawTool.Bond to "bond",DrawTool.Ring to "ring",DrawTool.Lasso to "lasso",DrawTool.Erase to "erase").forEach {(mode,icon)->
+                    StudioAction(mode.name,icon,{focusManager.clearFocus();tool=mode;if(mode==DrawTool.Bond)dialog="Bonds";if(mode==DrawTool.Ring)dialog="Rings"},Modifier.weight(1f),selected=tool==mode,compact=landscape)
+                }
+            }
+        }}
+        if(tab==1 && !focused){StudioPanel(Modifier.padding(horizontal=14.dp,vertical=if(landscape)3.dp else 8.dp)){
+            Row(Modifier.fillMaxWidth().padding(3.dp)){
+                listOf("Ball & stick" to "atom","Space filling" to "space","Sticks" to "bond","Wireframe" to "3d").forEachIndexed {i,(label,icon)->StudioAction(label,icon,{style=i},Modifier.weight(1f),selected=style==i,compact=landscape)}
+            }
+        }}
+    }
+    val footerPane: @Composable ()->Unit = {
+        if(tab==0 && !focused){
+            Row(Modifier.fillMaxWidth().padding(horizontal=12.dp,vertical=6.dp)){
+                StudioAction("Edit atom","edit",{if(selected.isNotEmpty())inspect=selected.first()else dialog="Atoms"},Modifier.weight(1f),enabled=graph.atoms.isNotEmpty(),compact=true)
+                StudioAction("Delete","delete",{if(selected.isNotEmpty()){change(graph.delete(selected));selected=emptySet()}else dialog="Clear"},Modifier.weight(1f),enabled=graph.atoms.isNotEmpty(),compact=true)
+                StudioAction("Copy","copy",::copyFragment,Modifier.weight(1f),enabled=graph.atoms.isNotEmpty(),compact=true)
+                StudioAction("Rotate 15°","rotate",::rotateSelection,Modifier.weight(1f),enabled=graph.atoms.isNotEmpty(),compact=true)
+                StudioAction("Clear","clear",{dialog="Clear"},Modifier.weight(1f),enabled=graph.atoms.isNotEmpty(),compact=true)
+            }
+            if(!landscape)StudioPanel(Modifier.fillMaxWidth().padding(horizontal=13.dp,vertical=5.dp)){Row(Modifier.padding(10.dp),verticalAlignment=Alignment.CenterVertically){StudioIcon("light",Modifier.size(22.dp),Color(0xFFE5B328));Text(status,fontSize=10.sp,color=StudioMuted,maxLines=2,modifier=Modifier.padding(start=10.dp).weight(1f))}}
         }
-        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.SpaceEvenly){
-            listOf("Draw 2D","Build 3D","Structures","Properties").forEachIndexed { i,t->TextButton(onClick={tab=i}){Text(t,color=if(tab==i)Accent else Color(0xFF61748A),fontWeight=if(tab==i)FontWeight.Bold else FontWeight.Normal,fontSize=12.sp)} }
+        if(tab==1 && !focused){
+            Column(Modifier.padding(horizontal=15.dp,vertical=5.dp)){
+                if(landscape)Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
+                    Row(Modifier.weight(1f).background(Color(0xFFEEF2F7),RoundedCornerShape(12.dp)).padding(3.dp)){
+                        listOf("Rotate","Zoom","Pan").forEachIndexed {i,label->Text(label,modifier=Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(if(gestureMode==i)StudioBlue else Color.Transparent).clickable {gestureMode=i}.padding(vertical=9.dp),fontSize=10.sp,color=if(gestureMode==i)Color.White else StudioMuted,textAlign=androidx.compose.ui.text.style.TextAlign.Center)}
+                    }
+                    TextButton(onClick={showH=!showH}){Text(if(showH)"Hide H"else "Show H",fontSize=10.sp)}
+                }
+                if(!landscape)Row(Modifier.fillMaxWidth().background(Color(0xFFEEF2F7),RoundedCornerShape(12.dp)).padding(3.dp)){
+                    listOf("Rotate","Zoom","Pan").forEachIndexed {i,label->Text(label,modifier=Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(if(gestureMode==i)StudioBlue else Color.Transparent).clickable {gestureMode=i}.padding(vertical=10.dp),fontSize=11.sp,color=if(gestureMode==i)Color.White else StudioMuted,textAlign=androidx.compose.ui.text.style.TextAlign.Center)}
+                }
+                if(!landscape){
+                    Row(Modifier.fillMaxWidth().padding(top=5.dp)){
+                        listOf("X axis","Y axis","Z axis").forEachIndexed {i,label->Column(Modifier.weight(1f).clickable {gl?.orient(i)},horizontalAlignment=Alignment.CenterHorizontally){StudioIcon("atom",Modifier.padding(top=6.dp).size(23.dp),listOf(Color(0xFFD74A56),Color(0xFF23846A),StudioBlue)[i]);Text(label,fontSize=9.sp,color=StudioMuted,modifier=Modifier.padding(top=5.dp))}}
+                        StudioAction("Reset","reset",{gl?.reset();measures=emptyList()},Modifier.weight(1f),compact=true)
+                    }
+                    Slider(value=modelZoom,onValueChange={modelZoom=it;gl?.setZoom(it)},valueRange=.4f..3f,modifier=Modifier.fillMaxWidth().height(30.dp),thumb={Box(Modifier.size(17.dp).background(StudioBlue,CircleShape))},track={androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(4.dp)){drawRoundRect(Color(0xFFE4E9F2),cornerRadius=androidx.compose.ui.geometry.CornerRadius(20f));drawRoundRect(StudioBlue,size=androidx.compose.ui.geometry.Size(size.width*((modelZoom-.4f)/2.6f).coerceIn(0f,1f),size.height),cornerRadius=androidx.compose.ui.geometry.CornerRadius(20f))}})
+                    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){
+                        Row(Modifier.weight(1f).horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(7.dp)){listOf(243,2244,702,2519).forEach {cid->Surface(Modifier.size(66.dp).clip(RoundedCornerShape(11.dp)).border(if(graph.cid==cid)2.dp else 1.dp,if(graph.cid==cid)StudioBlue else StudioLine,RoundedCornerShape(11.dp)).clickable {previews[cid]?.let {change(it);status="${it.name} · ${it.atoms.size} atoms"}},shape=RoundedCornerShape(11.dp),color=Color.White){MoleculePreview(previews[cid],Modifier.fillMaxSize())}}}
+                        TextButton(onClick={showH=!showH}){Text(if(showH)"Hide H"else "Show H",fontSize=10.sp)}
+                    }
+                }
+                Text(if(graph.source.startsWith("PubChem"))"PubChem computed conformer · coordinates in Å"else graph.source,fontSize=8.sp,color=StudioMuted,maxLines=1,modifier=Modifier.padding(top=3.dp))
+            }
         }
-        if(busy)LinearProgressIndicator(Modifier.fillMaxWidth())
-        Box(Modifier.weight(1f).fillMaxWidth()){
+    }
+    val workspace: @Composable (Modifier)->Unit = { workspaceModifier ->
+        BoxWithConstraints(workspaceModifier.padding(horizontal=if(focused)0.dp else 11.dp).clip(RoundedCornerShape(18.dp)).background(Color.White)){
             when(tab){
-                0->{AndroidView(factory={ChemCanvasView(it).also { v->canvas=v }},modifier=Modifier.fillMaxSize(),update={v->v.graph=graph;v.selected=selected;v.tool=tool;v.element=symbol;v.bondOrder=order;v.bondStereo=stereo;v.ringSize=ring;v.aromatic=aromatic;v.onBondInspect={bondInspect=it};v.onChange={change(it)};v.onSelect={selected=it};v.onInspect={inspect=it}})
-                    val toolControls: @Composable ()->Unit = {
-                        listOf(DrawTool.Select to "Select",DrawTool.Atom to "Atom",DrawTool.Bond to "Bond",DrawTool.Ring to "Ring",DrawTool.Lasso to "Lasso",DrawTool.Erase to "Erase").forEach { (mode,label)->
-                            TextButton(onClick={tool=mode;if(mode==DrawTool.Bond)dialog="Bonds";if(mode==DrawTool.Ring)dialog="Rings"},modifier=Modifier.heightIn(min=44.dp)){Text(label,fontSize=11.sp,color=if(tool==mode)Accent else Ink,fontWeight=if(tool==mode)FontWeight.Bold else FontWeight.Normal)}
+                0->{
+                    AndroidView(factory={ChemCanvasView(it).also {v->canvas=v}},modifier=Modifier.fillMaxSize().then(if(landscape)Modifier.padding(start=51.dp,top=54.dp)else Modifier).testTag("drawing-viewport"),update={v->v.skeletal=true;v.graph=graph;v.selected=selected;v.tool=tool;v.element=symbol;v.bondOrder=order;v.bondStereo=stereo;v.ringSize=ring;v.aromatic=aromatic;v.onBondInspect={bondInspect=it};v.onChange={change(it)};v.onSelect={selected=it};v.onInspect={inspect=it}})
+                    StudioPanel(Modifier.align(Alignment.TopStart).padding(6.dp).width(39.dp).heightIn(max=minOf(if(landscape)160.dp else 367.dp,(maxHeight-if(landscape)10.dp else 65.dp).coerceAtLeast(44.dp)))){
+                        Column(Modifier.verticalScroll(rememberScrollState()).padding(vertical=3.dp),horizontalAlignment=Alignment.CenterHorizontally){
+                            listOf("C","H","O","N","S","P","Cl","Br","I").forEach {s->Box(Modifier.size(36.dp).semantics {contentDescription="Element $s"}.clickable {symbol=s;tool=DrawTool.Atom},contentAlignment=Alignment.Center){
+                                Box(Modifier.size(27.dp).background(if(s=="H")Color(0xFFE7ECF1)else Color(elementColor(s)),CircleShape).then(if(s==symbol)Modifier.border(2.dp,StudioBlue,CircleShape)else Modifier),contentAlignment=Alignment.Center){Text(s,fontSize=11.sp,color=if(s=="H")StudioInk else Color.White,fontWeight=FontWeight.Medium)}
+                            }}
+                            Box(Modifier.size(36.dp).semantics {contentDescription="All 118 elements"}.clickable {dialog="Elements"},contentAlignment=Alignment.Center){StudioIcon("more",Modifier.size(18.dp))}
                         }
                     }
-                    if(landscape)Row(Modifier.align(Alignment.TopStart).padding(4.dp).widthIn(max=430.dp).horizontalScroll(rememberScrollState()).background(Color(0xF5F1F6FB),RoundedCornerShape(14.dp))){toolControls()}
-                    else Column(Modifier.align(Alignment.TopStart).padding(8.dp).width(62.dp).background(Color(0xF5F1F6FB),RoundedCornerShape(14.dp))){toolControls()}
-                    Row(Modifier.align(Alignment.TopEnd).padding(4.dp).background(Color.White.copy(.9f),RoundedCornerShape(10.dp))){
-                        TextButton(onClick={graph=history.undo();project=ChemProject.encode(graph);measures=emptyList();selected=emptySet()},enabled=history.canUndo){Text("Undo",fontSize=11.sp)}
-                        TextButton(onClick={graph=history.redo();project=ChemProject.encode(graph);measures=emptyList();selected=emptySet()},enabled=history.canRedo){Text("Redo",fontSize=11.sp)}
+                    val editControls: @Composable ()->Unit = {
+                        StudioSquare("Undo","undo",{graph=history.undo();project=ChemProject.encode(graph);selected=emptySet();measures=emptyList()},history.canUndo)
+                        StudioSquare("Redo","redo",{graph=history.redo();project=ChemProject.encode(graph);selected=emptySet();measures=emptyList()},history.canRedo)
+                        StudioSquare("Delete selection","delete",{if(selected.isNotEmpty()){change(graph.delete(selected));selected=emptySet()}else dialog="Clear"},graph.atoms.isNotEmpty())
+                        StudioSquare("Fit","fit",{canvas?.fit()})
                     }
-                    TextButton(onClick={canvas?.fit()},modifier=Modifier.align(Alignment.BottomEnd)){Text("Fit")}
-                    if(graph.atoms.isEmpty())Text("Tap to start a molecule\nPinch to zoom · two fingers to pan",modifier=Modifier.align(Alignment.Center).padding(start=60.dp),color=Color(0xFF8092A5),fontSize=12.sp)
+                    if(landscape)Row(Modifier.align(Alignment.TopEnd).padding(7.dp),horizontalArrangement=Arrangement.spacedBy(7.dp)){editControls()}
+                    else Column(Modifier.align(Alignment.TopEnd).padding(7.dp),verticalArrangement=Arrangement.spacedBy(7.dp)){editControls()}
+                    if(!landscape)StudioPanel(Modifier.align(Alignment.BottomCenter).padding(horizontal=9.dp,vertical=9.dp)){
+                        Row(Modifier.fillMaxWidth().padding(3.dp),horizontalArrangement=Arrangement.SpaceEvenly){
+                            listOf(Triple(6,true,"hexagon"),Triple(5,false,"pentagon"),Triple(6,false,"ring"),Triple(6,true,"ring"),Triple(3,false,"triangle"),Triple(4,false,"square")).forEachIndexed {i,(n,ar,icon)->
+                                Box(Modifier.size(39.dp).semantics {contentDescription=if(i==0)"Benzene ring"else "$n member ring preset $i"}.clickable {ring=n;aromatic=ar;tool=DrawTool.Ring;message("Tap the canvas to add a ring.")},contentAlignment=Alignment.Center){StudioIcon(icon,Modifier.size(25.dp))}
+                            }
+                        }
+                    }
                 }
-                1->if(graph.conformer.isEmpty())Column(Modifier.align(Alignment.Center).padding(24.dp),horizontalAlignment=Alignment.CenterHorizontally){
-                    Text("No verified 3D conformer",fontWeight=FontWeight.Bold,color=Ink)
-                    Text("Open a bundled molecule or retrieve its PubChem record. Edited drawings invalidate reference coordinates. Offline force-field generation is not available.",fontSize=13.sp,modifier=Modifier.padding(vertical=12.dp),color=Ink)
+                1->if(graph.conformer.isEmpty())Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),horizontalAlignment=Alignment.CenterHorizontally){
+                    StudioIcon("3d",Modifier.size(42.dp),StudioBlue)
+                    Text("No verified 3D conformer",fontWeight=FontWeight.Bold,color=StudioInk,modifier=Modifier.padding(top=12.dp))
+                    Text("Choose a library structure or retrieve a PubChem match. Editing connectivity clears the previous 3D model.",fontSize=12.sp,color=StudioMuted,modifier=Modifier.padding(vertical=12.dp))
                     Button(onClick={tab=2}){Text("Browse structures")}
-                    TextButton(onClick={work { val smiles=withContext(Dispatchers.Default){ChemToolkit.writeSmiles(graph)};val ids=repo.search(smiles,"SMILES");require(ids.isNotEmpty());val matched=repo.remote(ids.first());change(matched);tab=1;message("Loaded PubChem match ${matched.cid}; inspect identity and stereochemistry before use.") }},enabled=graph.atoms.isNotEmpty()&&!busy){Text("Find PubChem structure match")}
-                }else {
-                    AndroidView(factory={ChemGlView(it).also { gl=it }},update={v->v.graph=graph;v.style=style;v.hydrogens=showH;v.selected=measures.toSet();v.onSelect={id->measures=if(id in measures)measures-id else (measures+id).takeLast(4)}},modifier=Modifier.fillMaxSize(),onRelease={it.onPause()})
-                    val modelStyle: @Composable ()->Unit = {TextButton(onClick={style=(style+1)%4}){Text(listOf("Ball & stick","Space filling","Wireframe","Licorice")[style],fontSize=12.sp)}}
-                    val modelControls: @Composable ()->Unit = {TextButton(onClick={showH=!showH}){Text(if(showH)"Hide H"else "Show H",fontSize=12.sp)};TextButton(onClick={gl?.reset();measures=emptyList()}){Text("Reset",fontSize=12.sp)}}
-                    if(landscape)Row(Modifier.align(Alignment.TopStart).padding(4.dp).background(Color.White.copy(.94f),RoundedCornerShape(12.dp))){modelStyle();modelControls()}
-                    else Column(Modifier.align(Alignment.TopStart).padding(8.dp).background(Color.White.copy(.94f),RoundedCornerShape(12.dp))){modelStyle();Row{modelControls()}}
-                    Column(Modifier.align(Alignment.BottomStart).fillMaxWidth().background(Color.White.copy(.94f)).padding(if(landscape)4.dp else 8.dp)){
-                        if(!landscape)Text(if(graph.source.startsWith("PubChem"))"PubChem computed conformer · coordinates in Å"else "Imported coordinates · source supplied by project · Å",fontSize=11.sp,color=Color(0xFF60758A))
-                        val chosen=measures.mapNotNull { id->graph.conformer.firstOrNull { it.id==id } }
-                        Text((if(landscape)if(graph.source.startsWith("PubChem"))"PubChem computed · "else "Imported · "else "")+runCatching { when(chosen.size){1->chosen[0].let { "${it.symbol}${it.id}  (${fmt(it.x)}, ${fmt(it.y)}, ${fmt(it.z)}) Å" };2->"Distance: ${fmt(distance(chosen[0],chosen[1]))} Å";3->"Angle: ${fmt(angle(chosen[0],chosen[1],chosen[2]))}°";4->"Dihedral: ${fmt(torsion(chosen[0],chosen[1],chosen[2],chosen[3]))}°";else->"Tap 2–4 atoms in order to measure."} }.getOrElse { "Selected atoms do not define a valid measurement." },fontSize=13.sp,color=Ink)
+                    TextButton(onClick={work {val ids=repo.search(withContext(Dispatchers.Default){ChemToolkit.writeSmiles(graph)},"SMILES");require(ids.isNotEmpty());val match=repo.remote(ids.first());change(match);tab=1}},enabled=graph.atoms.isNotEmpty()&&!busy){Text("Find PubChem structure match")}
+                }else{
+                    AndroidView(factory={ChemGlView(it).also {gl=it;it.setZoom(modelZoom)}},update={v->v.graph=graph;v.style=style;v.hydrogens=showH;v.gestureMode=gestureMode;v.selected=measures.toSet();v.onZoomChange={modelZoom=it};v.onSelect={id->measures=if(id in measures)measures-id else (measures+id).takeLast(4)}},modifier=Modifier.fillMaxSize().then(if(landscape)Modifier.padding(top=54.dp)else Modifier).testTag("model-viewport"),onRelease={it.onPause()})
+                    val viewerControls: @Composable ()->Unit = {
+                        StudioSquare(if(focused)"Exit full screen"else "Full screen","fit",{focused=!focused})
+                        StudioSquare("Reset","reset",{gl?.reset();measures=emptyList()})
+                        StudioSquare("Model settings","settings",{dialog="Model settings"})
+                    }
+                    if(landscape)Row(Modifier.align(Alignment.TopEnd).padding(7.dp),horizontalArrangement=Arrangement.spacedBy(7.dp)){viewerControls()}
+                    else Column(Modifier.align(Alignment.TopEnd).padding(9.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){viewerControls()}
+                    if(measures.isNotEmpty()){
+                        val chosen=measures.mapNotNull {id->graph.conformer.firstOrNull {it.id==id}}
+                        Text(runCatching {when(chosen.size){1->chosen[0].let {"${it.symbol}${it.id}: ${fmt(it.x)}, ${fmt(it.y)}, ${fmt(it.z)} Å"};2->"Distance: ${fmt(distance(chosen[0],chosen[1]))} Å";3->"Angle: ${fmt(angle(chosen[0],chosen[1],chosen[2]))}°";4->"Dihedral: ${fmt(torsion(chosen[0],chosen[1],chosen[2],chosen[3]))}°";else->"Select atoms to measure"}}.getOrDefault("Undefined measurement"),modifier=Modifier.align(Alignment.BottomCenter).background(Color.White.copy(.94f),RoundedCornerShape(10.dp)).padding(8.dp),fontSize=11.sp,color=StudioInk)
                     }
                 }
-                2->Column(Modifier.fillMaxSize()){
-                    Row(Modifier.horizontalScroll(rememberScrollState())){listOf("All","Basic chemistry","Hydrocarbons","Functional groups","Biomolecules","Pharmaceuticals","My structures").forEach { c->FilterChip(selected=category==c,onClick={category=c},label={Text(c,fontSize=11.sp)},modifier=Modifier.padding(3.dp))}}
-                    Row(verticalAlignment=Alignment.CenterVertically){Checkbox(favoritesOnly,{favoritesOnly=it});Text("Favorites only",fontSize=12.sp,color=Ink);Text("${library.size} verified source records",fontSize=11.sp,color=Color.Gray,modifier=Modifier.padding(start=8.dp))}
-                    LazyColumn(Modifier.fillMaxSize()){
-                        if(category!="My structures")items(library.filter { (category=="All"||it.category==category)&&(query.isBlank()||it.name.contains(query,true)||it.cid.toString()==query)&&(!favoritesOnly||saved.any { s->s.id=="favorite:${it.cid}" }) },key={"lib:${it.cid}"}){entry->
-                            ListItem(headlineContent={Text(entry.name,fontSize=15.sp)},supportingContent={Text("${entry.category} · PubChem CID ${entry.cid}",fontSize=11.sp)},modifier=Modifier.clickable { work { load(repo.bundled(entry)) } },trailingContent={TextButton(onClick={work { val id="favorite:${entry.cid}";if(saved.any { it.id==id })repo.dao.delete(id)else {val g=repo.bundled(entry);repo.dao.save(SavedStructure(id,g.name,ChemProject.encode(g),true))} }}){Text(if(saved.any { it.id=="favorite:${entry.cid}" })"♥" else "♡")}})
+                2->Column(Modifier.fillMaxSize().background(StudioBackground)){
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(bottom=9.dp),horizontalArrangement=Arrangement.spacedBy(5.dp)){
+                        listOf("Common","Amino acids","Sugars","Drug-like","Biomolecules","Favorites","My structures").forEach {group->
+                            Text(group,modifier=Modifier.clip(RoundedCornerShape(22.dp)).background(if(libraryGroup==group)StudioBlue else Color(0xFFEFF3F7)).clickable {libraryGroup=group}.padding(horizontal=13.dp,vertical=11.dp),fontSize=10.sp,color=if(libraryGroup==group)Color.White else StudioInk)
                         }
-                        items(saved.filter { it.id!="draft" && !it.id.startsWith("cache:") && !it.id.startsWith("favorite:") && (query.isBlank()||it.name.contains(query,true)) && (!favoritesOnly||it.favorite) },key={it.id}){s->ListItem(headlineContent={Text(s.name)},supportingContent={Text("Saved locally · ${if(s.favorite)"favorite" else "personal structure"}",fontSize=11.sp)},modifier=Modifier.clickable { load(ChemProject.decode(s.project)) },trailingContent={Row{TextButton(onClick={work {repo.dao.save(s.copy(favorite=!s.favorite))}}){Text(if(s.favorite)"♥" else "♡")};TextButton(onClick={work {repo.dao.delete(s.id)}}){Text("Delete",fontSize=11.sp)}}})}
+                    }
+                    val filtered=library.filter {entry->(query.isBlank()||entry.name.contains(query,true)||entry.cid.toString()==query)&&when(libraryGroup){"Amino acids"->entry.cid==750;"Sugars"->entry.cid in setOf(5793,5984);"Drug-like"->entry.cid in setOf(2244,3672,1983,2519);"Biomolecules"->entry.cid in setOf(5793,5984,750,5997,5957);"Favorites"->saved.any {it.id=="favorite:${entry.cid}"};"My structures"->false;else->true}}
+                    LazyVerticalGrid(columns=if(landscape)GridCells.Adaptive(145.dp)else GridCells.Fixed(2),horizontalArrangement=Arrangement.spacedBy(9.dp),verticalArrangement=Arrangement.spacedBy(10.dp),contentPadding=PaddingValues(bottom=10.dp)){
+                        gridItems(filtered,key={it.cid}){entry->
+                            Surface(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).clickable {work {load(previews[entry.cid]?:repo.bundled(entry))}},shape=RoundedCornerShape(16.dp),color=Color.White,border=BorderStroke(1.dp,Color(0xFFF0F4F8))){
+                                Column{Box{MoleculePreview(previews[entry.cid],Modifier.fillMaxWidth().height(if(landscape)100.dp else 128.dp));Box(Modifier.align(Alignment.TopEnd).size(34.dp).semantics {contentDescription="Favorite ${entry.name}"}.clickable {work {val id="favorite:${entry.cid}";if(saved.any {it.id==id})repo.dao.delete(id)else {val molecule=previews[entry.cid]?:repo.bundled(entry);repo.dao.save(SavedStructure(id,molecule.name,ChemProject.encode(molecule),true))}}},contentAlignment=Alignment.Center){StudioIcon("favorite",Modifier.size(15.dp),if(saved.any {it.id=="favorite:${entry.cid}"})StudioBlue else Color(0xFFCFD9E4))}};Column(Modifier.padding(horizontal=12.dp,vertical=11.dp)){Text(entry.name,fontSize=12.sp,fontWeight=FontWeight.SemiBold,color=StudioInk,maxLines=1,overflow=TextOverflow.Ellipsis);Text(previews[entry.cid]?.properties?.get("Molecular Formula")?:"PubChem ${entry.cid}",fontSize=11.sp,color=StudioMuted,modifier=Modifier.padding(top=3.dp))}}
+                            }
+                        }
+                        if(libraryGroup=="My structures")gridItems(saved.filter {it.id!="draft"&&!it.id.startsWith("cache:")&&(query.isBlank()||it.name.contains(query,true))},key={it.id}){item->
+                            val itemGraph=remember(item.project){ChemProject.decode(item.project)}
+                            Surface(Modifier.clip(RoundedCornerShape(16.dp)).clickable {load(itemGraph)},shape=RoundedCornerShape(16.dp),color=Color.White){Column{MoleculePreview(itemGraph,Modifier.fillMaxWidth().height(128.dp));Text(item.name,fontSize=12.sp,fontWeight=FontWeight.SemiBold,color=StudioInk,modifier=Modifier.padding(10.dp));Row{TextButton(onClick={work {repo.dao.save(item.copy(favorite=!item.favorite))}}){Text(if(item.favorite)"♥"else "♡")};TextButton(onClick={work {repo.dao.delete(item.id)}}){Text("Delete",fontSize=10.sp)}}}}
+                        }
                     }
                 }
-                3->LazyColumn(Modifier.fillMaxSize().padding(horizontal=16.dp)){
-                    item {Text(graph.name,fontSize=22.sp,fontWeight=FontWeight.Bold,color=Ink);Text(graph.source,fontSize=12.sp,color=Color.Gray)}
-                    item {Property("Calculated formula",calculated.first);Property("Calculated average molar mass",calculated.second);Property("Atoms / bonds","${graph.atoms.size} / ${graph.bonds.size}");Property("Validation",graph.validate().joinToString("\n").ifBlank { "No supported-rule violations found. Not a complete chemical validity certificate." })}
-                    items(graph.properties.toList()){(k,v)->Property("PubChem computed/reference · $k",v)}
-                    item {Text("3D conformers are computed models, not experimental structures. No force-field optimization, electron density or orbital calculation is performed here.",fontSize=12.sp,color=Color.Gray,modifier=Modifier.padding(vertical=16.dp))}
+                3->Column(Modifier.fillMaxSize().background(StudioBackground)){
+                    val propertyHero: @Composable ()->Unit = {
+                    Row(Modifier.fillMaxWidth().padding(vertical=8.dp),verticalAlignment=Alignment.CenterVertically){
+                        StudioPanel(Modifier.width(if(landscape)64.dp else 112.dp).height(if(landscape)58.dp else 131.dp)){MoleculePreview(graph,Modifier.fillMaxSize())}
+                        Column(Modifier.weight(1f).padding(start=14.dp)){
+                            Row(verticalAlignment=Alignment.CenterVertically){Text(graph.name,fontSize=16.sp,fontWeight=FontWeight.Bold,color=StudioInk,modifier=Modifier.weight(1f));Box(Modifier.size(34.dp).semantics {contentDescription="Rename molecule"}.clickable {dialog="Save"},contentAlignment=Alignment.Center){StudioIcon("edit",Modifier.size(16.dp),StudioBlue)}}
+                            Text(formula,fontSize=12.sp,color=StudioMuted,modifier=Modifier.padding(vertical=7.dp))
+                            if(graph.cid!=null)Row(Modifier.clickable {sourceLink()},verticalAlignment=Alignment.CenterVertically){Text("PubChem CID ${graph.cid}",fontSize=11.sp,color=StudioMuted);StudioIcon("external",Modifier.padding(start=6.dp).size(14.dp),StudioMuted)}
+                        }
+                    }
+                    }
+                    if(!landscape)propertyHero()
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(vertical=if(landscape)2.dp else 10.dp)){
+                        listOf("Overview","Physical","Spectra","Safety","More").forEach {page->Column(Modifier.clickable {propertyPage=page}.padding(horizontal=9.dp,vertical=8.dp),horizontalAlignment=Alignment.CenterHorizontally){Text(page,fontSize=10.sp,fontWeight=if(page==propertyPage)FontWeight.Bold else FontWeight.Normal,color=if(page==propertyPage)StudioBlue else StudioInk);Box(Modifier.padding(top=9.dp).height(2.dp).width(40.dp).background(if(page==propertyPage)StudioBlue else Color.Transparent))}}
+                    }
+                    LazyColumn(Modifier.weight(1f).testTag("property-list"),verticalArrangement=Arrangement.spacedBy(12.dp),contentPadding=PaddingValues(bottom=12.dp)){
+                        if(landscape)item{propertyHero()}
+                        item{
+                            val rows=when(propertyPage){
+                                "Physical"->listOf("Molar mass" to calculated.second)+graph.properties.filterKeys {it.startsWith("Mass")||it.contains("Log P")||it.contains("Polar")||it.contains("Rotatable")}.map {it.key to it.value}
+                                "Identifiers"->listOfNotNull(graph.cid?.let {"PubChem CID" to it.toString()},property("InChI")?.let {"InChI" to it},property("InChIKey")?.let {"InChIKey" to it},smiles?.let {"SMILES" to it})
+                                "Validation"->listOf("Supported-rule checks" to graph.validate().joinToString("\n").ifBlank {"No supported-rule violations found."},"Scope" to "Not a complete chemical validity certificate.","Atoms / bonds" to "${graph.atoms.size} / ${graph.bonds.size}")
+                                "Spectra"->listOf("Spectral data" to "Not included in this offline compound record.","Source" to "Open the compound’s PubChem record for available experimental spectra.")
+                                "Safety"->listOf("Safety data" to "Not included in this offline compound record.","Source" to "Consult the compound’s current source record and supplier safety data sheet.")
+                                "More"->listOf("Validation" to graph.validate().joinToString("\n").ifBlank {"No supported-rule violations found."},"Scope" to "Not a complete chemical validity certificate.","Data source" to graph.source,"Retrieved" to (property("Retrieved")?:"Local drawing"),"3D representation" to if(graph.conformer.isNotEmpty())"Computed coordinates; not experimental"else "No source conformer")
+                                else->listOfNotNull("Molecular formula" to formula,"Molecular weight" to (property("Molecular Weight")?.let {"$it g/mol"}?:calculated.second),property("IUPAC Name · Preferred")?.let {"IUPAC name" to it},smiles?.let {"SMILES" to it},property("InChI ·")?.let {"InChI" to it},property("InChIKey")?.let {"InChIKey" to it})
+                            }
+                            StudioPropertyRows(rows,::copyText)
+                        }
+                        if(propertyPage=="Overview")item{StudioPanel{Column(Modifier.padding(13.dp)){Text("Structure identifiers",fontSize=12.sp,fontWeight=FontWeight.Bold,color=StudioInk,modifier=Modifier.padding(bottom=10.dp));StudioPropertyRows(listOf("PubChem CID" to (graph.cid?.toString()?:"Not assigned"),"Formal charge" to graph.atoms.sumOf {it.charge}.toString(),"Data source" to graph.source),::copyText)}}}
+                    }
+                    Row(Modifier.fillMaxWidth().padding(vertical=if(landscape)3.dp else 8.dp),horizontalArrangement=Arrangement.spacedBy(7.dp)){
+                        listOf(Triple("Copy SMILES","copy",StudioBlue),Triple(if(graph.conformer.isNotEmpty())"3D SDF"else "Export SDF","download",Color(0xFF00A482)),Triple("View in PubChem","external",Color(0xFF5A40DD)),Triple("Share","share",Color(0xFFEAF0F6))).forEachIndexed {i,(label,icon,color)->
+                            Column(Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).background(color).clickable(enabled=graph.atoms.isNotEmpty()&&(i!=2||graph.cid!=null)){when(i){0->work {copyText(withContext(Dispatchers.Default){ChemToolkit.writeSmiles(graph)})};1->{exportFormat=if(graph.conformer.isNotEmpty())"3D SDF"else "SDF";exportFile.launch("${graph.name}.sdf")};2->sourceLink();else->work {val value=withContext(Dispatchers.Default){ChemToolkit.writeSmiles(graph)};context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT,"${graph.name}\n$value"),"Share molecular structure"))}}}.padding(vertical=if(landscape)5.dp else 11.dp,horizontal=3.dp),horizontalAlignment=Alignment.CenterHorizontally){StudioIcon(icon,Modifier.size(20.dp),if(i==3)StudioInk else Color.White);Text(label,fontSize=8.sp,maxLines=2,color=if(i==3)StudioInk else Color.White,modifier=Modifier.padding(top=5.dp))}
+                        }
+                    }
                 }
             }
         }
-        if(tab==0){
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).background(Color(0xFFF4F7FB)),verticalAlignment=Alignment.CenterVertically){
-                listOf("C","H","O","N","S","P","F","Cl","Br","I","B","Si","Na","K","Mg","Ca","Fe","Cu","Zn").forEach { s->TextButton(onClick={symbol=s;tool=DrawTool.Atom}){Text(s,color=Color(elementColor(s)),fontWeight=if(s==symbol)FontWeight.Black else FontWeight.Normal)} };TextButton(onClick={dialog="Elements"}){Text("All 118")}
-            }
-            if(selected.isNotEmpty())Row(Modifier.horizontalScroll(rememberScrollState())){
-                TextButton(onClick={inspect=selected.first()}){Text("Edit atom")}
-                TextButton(onClick={change(graph.delete(selected));selected=emptySet()}){Text("Delete ${selected.size}")}
-                TextButton(onClick={clipboard=graph.copy(atoms=graph.atoms.filter { it.id in selected },bonds=graph.bonds.filter { it.a in selected && it.b in selected },conformer=emptyList(),sourceMol="",properties=emptyMap(),cid=null);message("Fragment copied locally.")}){Text("Copy")}
-                TextButton(onClick={val ids=selected;val cx=graph.atoms.filter { it.id in ids }.map { it.x }.average();val cy=graph.atoms.filter { it.id in ids }.map { it.y }.average();change(graph.copy(atoms=graph.atoms.map { if(it.id in ids){val x=it.x-cx;val y=it.y-cy;it.copy(x=cx+x*cos(PI/12)-y*sin(PI/12),y=cy+x*sin(PI/12)+y*cos(PI/12))}else it }))}){Text("Rotate 15°")}
-            }
+    }
+    Column(Modifier.fillMaxSize().background(StudioBackground)){
+        Row(Modifier.fillMaxWidth().heightIn(min=49.dp).padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically){
+            Box(Modifier.size(40.dp).semantics {contentDescription="Back"}.clickable(onClick=onBack),contentAlignment=Alignment.Center){StudioIcon("back",Modifier.size(20.dp))}
+            Text("Draw Chemistry",fontWeight=FontWeight.Bold,fontSize=17.sp,modifier=Modifier.weight(1f),color=StudioInk,maxLines=1)
+            if(landscape)TextButton(onClick={searchExpanded=!searchExpanded}){Text(if(searchExpanded)"Hide search"else "Search",fontSize=11.sp)}
+            Button(onClick={dialog="Save"},enabled=ready,shape=RoundedCornerShape(24.dp),contentPadding=PaddingValues(horizontal=18.dp,vertical=0.dp),modifier=Modifier.height(35.dp),colors=ButtonDefaults.buttonColors(containerColor=StudioBlue)){Text("Save",fontSize=12.sp)}
+            Box(Modifier.size(40.dp).semantics {contentDescription="Molecule actions"}.clickable {dialog="Actions"},contentAlignment=Alignment.Center){StudioIcon("more",Modifier.size(20.dp))}
         }
-        Text(status,modifier=Modifier.fillMaxWidth().padding(horizontal=12.dp,vertical=if(landscape)2.dp else 5.dp),fontSize=11.sp,maxLines=if(landscape)1 else 2,color=Color(0xFF60758A))
+        if(landscape && !focused){
+            Row(Modifier.weight(1f).fillMaxWidth()){
+                Column(Modifier.width(284.dp).fillMaxHeight().testTag("landscape-controls").verticalScroll(rememberScrollState())){
+                    searchPane()
+                    toolPane()
+                    footerPane()
+                }
+                workspace(Modifier.weight(1f).fillMaxHeight())
+            }
+        }else{
+            searchPane()
+            toolPane()
+            workspace(Modifier.weight(1f).fillMaxWidth())
+            footerPane()
+        }
     }
     if(dialog.isNotEmpty()){
         when(dialog){
+            "Model settings"->StudioDialog("Model settings",{dialog=""}){Row(verticalAlignment=Alignment.CenterVertically){Checkbox(showH,{showH=it});Text("Show hydrogen atoms")};Text("Computed source coordinates in angstroms. Tap atoms to measure distances, angles and dihedrals. Surfaces require separate validated data and are not represented by the space-filling model.",fontSize=12.sp);TextButton(onClick={dialog="Atoms"}){Text("Inspect atoms")}}
+
             "Reactions"->StudioDialog("Editable reaction templates",{dialog=""}){Text("Opens a new balanced educational scheme. Undo restores the previous drawing. No reaction simulation is performed.",fontSize=12.sp);LazyColumn(Modifier.heightIn(max=350.dp)){items(reactionTemplates){t->TextButton(onClick={dialog="";work{load(withContext(Dispatchers.Default){reactionGraph(t)})}}){Text(t.name)}}}}
             "Annotations"->StudioDialog("Reaction labels & arrows",{dialog=""}){
                 var text by remember {mutableStateOf("")};var x by remember {mutableStateOf("0")};var y by remember {mutableStateOf("2")}
@@ -206,7 +373,7 @@ private val Accent=Color(0xFF1879C8)
                     "Inspect atoms"->dialog="Atoms"
                     "Clean 2D"->work {change(withContext(Dispatchers.Default){ChemToolkit.clean(graph)});canvas?.fit()}
                     "Add explicit H","Remove explicit H"->work{change(withContext(Dispatchers.Default){ChemToolkit.hydrogens(graph,action=="Add explicit H")});canvas?.fit()}
-                    "Check chemistry"->{val issues=graph.validate();message(issues.joinToString("\n").ifBlank { "No supported-rule violations. Formula: ${runCatching {ChemToolkit.formula(graph)}.getOrDefault("unavailable")}" });tab=3}
+                    "Check chemistry"->{val issues=graph.validate();message(issues.joinToString("\n").ifBlank { "No supported-rule violations. Formula: ${runCatching {ChemToolkit.formula(graph)}.getOrDefault("unavailable")}" });propertyPage="More";tab=3}
                     "Paste fragment"->{clipboard?.let { fragment->change(mergeFragment(graph,fragment));canvas?.fit() }?:message("Select and copy a fragment first.")}
                     "Duplicate drawing"->{change(mergeFragment(graph,graph));canvas?.fit()}
                     "Import document"->importFile.launch(arrayOf("*/*"))
@@ -215,7 +382,7 @@ private val Accent=Color(0xFF1879C8)
                     else->dialog="About"
                 }}){Text(action)}}
             }}
-            "About"->StudioDialog("Draw Chemistry capabilities",{dialog=""}){Text("Native 2D vector editor and OpenGL ES 3D viewer. CDK 2.13 parses SMILES and MOL V2000, assigns supported hydrogen counts and arranges 2D structures. PubChem supplies reference identifiers, properties and available computed conformers.\n\n25 offline compounds. No offline force-field optimizer, protein ribbons, surfaces, orbital calculations, automated reaction mechanisms or thousands-compound library. Seven editable reaction templates are educational balanced schemes. Unsupported chemistry requires specialist review.\n\nCDK: LGPL-2.1-or-later; source https://github.com/cdk/cdk (tag cdk-2.13). License and attribution are included in the application assets. PubChem data: https://pubchem.ncbi.nlm.nih.gov/docs/pug-rest",fontSize=12.sp)}
+            "About"->StudioDialog("Draw Chemistry capabilities",{dialog=""}){Text("Native 2D vector editor and OpenGL ES 3D viewer. CDK 2.13 parses SMILES and MOL V2000, assigns supported hydrogen counts and arranges 2D structures. PubChem supplies reference identifiers, properties and available computed conformers.\n\n26 offline compounds. No offline force-field optimizer, protein ribbons, surfaces, orbital calculations, automated reaction mechanisms or thousands-compound library. Seven editable reaction templates are educational balanced schemes. Unsupported chemistry requires specialist review.\n\nCDK: LGPL-2.1-or-later; source https://github.com/cdk/cdk (tag cdk-2.13). License and attribution are included in the application assets. PubChem data: https://pubchem.ncbi.nlm.nih.gov/docs/pug-rest",fontSize=12.sp)}
         }
     }
     bondInspect?.let { bond->StudioDialog("Edit bond ${bond.a}–${bond.b}",{bondInspect=null}){

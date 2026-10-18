@@ -1,7 +1,7 @@
 import urllib.request,json,time
 from pathlib import Path
-cids=[962,280,297,222,1118,944,5234,702,176,180,241,1140,996,6115,1049,8078,5793,5984,750,2519,2244,3672,1983,5997,5957]
-names=['Water','Carbon dioxide','Methane','Ammonia','Sulfuric acid','Nitric acid','Sodium chloride','Ethanol','Acetic acid','Acetone','Benzene','Toluene','Phenol','Aniline','Pyridine','Cyclohexane','Glucose','Fructose','Glycine','Caffeine','Aspirin','Ibuprofen','Paracetamol','Cholesterol','ATP']
+cids=[962,280,297,222,1118,944,5234,702,176,180,241,1140,996,6115,1049,8078,5793,5984,750,2519,2244,3672,1983,5997,5957,243]
+names=['Water','Carbon dioxide','Methane','Ammonia','Sulfuric acid','Nitric acid','Sodium chloride','Ethanol','Acetic acid','Acetone','Benzene','Toluene','Phenol','Aniline','Pyridine','Cyclohexane','Glucose','Fructose','Glycine','Caffeine','Aspirin','Ibuprofen','Paracetamol','Cholesterol','ATP','Benzoic acid']
 root=Path('app/src/main/assets/drawchemistry'); records=[]
 def get(path):
  for attempt in range(3):

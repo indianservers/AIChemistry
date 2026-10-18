@@ -110,6 +110,7 @@ import androidx.compose.ui.unit.sp
 import com.indianservers.aichemistryexplorer.ui.theme.AIChemistryExplorerTheme
 import com.indianservers.aichemistryexplorer.drawchemistry.DrawChemistryHomeCard
 import com.indianservers.aichemistryexplorer.drawchemistry.DrawChemistryScreen
+import com.indianservers.aichemistryexplorer.drawchemistry.StudioBackground
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.cos
@@ -203,6 +204,15 @@ fun ChemistryApp() {
     val density = LocalDensity.current
     var screen by rememberSaveable { mutableStateOf(Screen.Splash) }
     var navigationHistory by rememberSaveable { mutableStateOf(emptyList<Screen>()) }
+    LaunchedEffect(screen) {
+        val activity = context as? ComponentActivity
+        if (activity != null) {
+            androidx.core.view.WindowCompat.getInsetsController(activity.window, activity.window.decorView).apply {
+                isAppearanceLightStatusBars = screen == Screen.DrawChemistry
+                isAppearanceLightNavigationBars = screen == Screen.DrawChemistry
+            }
+        }
+    }
     var selected by remember { mutableStateOf(elements.first { it.symbol == "O" }) }
     var selectedModule by remember { mutableStateOf("Atomic Structure") }
     var selectedLesson by remember { mutableStateOf("Subatomic particles") }
@@ -243,7 +253,7 @@ fun ChemistryApp() {
     ) {
     Scaffold(
         contentWindowInsets = WindowInsets.safeDrawing,
-        containerColor = palette.background,
+        containerColor = if (screen == Screen.DrawChemistry) StudioBackground else palette.background,
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
             if (screen != Screen.ElementsViewer && screen != Screen.DrawChemistry) {
@@ -329,12 +339,13 @@ fun ChemistryApp() {
                 .fillMaxSize()
                 .background(
                     Brush.radialGradient(
-                        listOf(palette.glow, palette.background),
+                        if (screen == Screen.DrawChemistry) listOf(StudioBackground, StudioBackground) else listOf(palette.glow, palette.background),
                         center = Offset(600f, 100f),
                         radius = 1000f
                     )
                 )
                 .drawBehind {
+                    if (screen == Screen.DrawChemistry) return@drawBehind
                     val grid = palette.outline.copy(alpha = .10f)
                     var x = 0f
                     while (x < size.width) { drawLine(grid, Offset(x, 0f), Offset(x, size.height), 1f); x += 72f }

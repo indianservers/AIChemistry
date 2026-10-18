@@ -22,15 +22,15 @@ class DrawChemistryDeviceTest {
     private var previous:SavedStructure?=null
     @Before fun preserveDraft()=runBlocking {previous=repo().dao.get("draft");repo().dao.delete("draft");savedIds=repo().dao.observe().first().map {it.id}.toSet()}
     @After fun restoreDraft()=runBlocking {repo().dao.delete("draft");previous?.let {repo().dao.save(it)};repo().dao.observe().first().filter {it.id!="draft" && it.id !in savedIds && !it.id.startsWith("cache:")}.forEach {repo().dao.delete(it.id)};Unit}
-    @Test fun all25BundledGraphsMatchSourceFormulaAndConformerConnectivity()=runBlocking {
-        val r=repo();val entries=r.library();assertEquals(25,entries.size);assertEquals(25,entries.map {it.cid}.distinct().size)
+    @Test fun allBundledGraphsMatchSourceFormulaAndConformerConnectivity()=runBlocking {
+        val r=repo();val entries=r.library();assertEquals(26,entries.size);assertEquals(26,entries.map {it.cid}.distinct().size)
         var conformers=0
         entries.forEach { entry->val g=r.bundled(entry);val expected=g.properties.entries.first {it.key.startsWith("Molecular Formula")}.value
             assertEquals(entry.name,expected,ChemToolkit.formula(g));assertEquals(entry.cid,g.cid)
             assertTrue(entry.name,g.atoms.isNotEmpty());assertTrue(entry.name,g.bonds.all {b->g.atoms.any {it.id==b.a}&&g.atoms.any {it.id==b.b}})
             assertEquals(g,ChemProject.decode(ChemProject.encode(g)))
             if(g.conformer.isNotEmpty()){conformers++;assertEquals(g.atoms.map {it.id}.toSet(),g.conformer.map {it.id}.toSet());assertTrue(g.conformer.all {it.x.isFinite()&&it.y.isFinite()&&it.z.isFinite()})}
-        };assertEquals(24,conformers)
+        };assertEquals(25,conformers)
     }
     @Test fun localDatabaseRoundTripWorksWithoutNetwork()=runBlocking {
         val r=repo();val g=r.bundled(r.library().first {it.cid==2244});val saved=SavedStructure("test:aspirin",g.name,ChemProject.encode(g),true)
@@ -43,15 +43,17 @@ class DrawChemistryDeviceTest {
     @Test fun drawingUndoRedoSaveAndLibraryNavigation(){
         compose.activityRule.scenario.onActivity {it.setShowWhenLocked(true);it.setTurnScreenOn(true);it.window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)}
         compose.setContent { DrawChemistryScreen(completePeriodicTable(emptyList()),{}) }
-        compose.waitForIdle()
+        compose.waitUntil(5000){compose.onAllNodes(hasText("Save") and isEnabled()).fetchSemanticsNodes().isNotEmpty()}
+        compose.onNodeWithContentDescription("Clear",substring=false).performClick()
+        compose.onNodeWithText("Clear drawing",substring=false).performClick()
         compose.onNodeWithText("O",useUnmergedTree=true).performClick()
         onView(isAssignableFrom(ChemCanvasView::class.java)).perform(click())
         compose.onNodeWithText("Properties").performClick()
         compose.waitUntil(5000){compose.onAllNodesWithText("H2O",substring=false).fetchSemanticsNodes().isNotEmpty()}
-        compose.onNodeWithText("H2O",substring=false).assertIsDisplayed()
+        compose.onAllNodesWithText("H2O",substring=false).onFirst().assertIsDisplayed()
         compose.onNodeWithText("Draw 2D").performClick()
-        compose.onNodeWithText("Undo").performClick()
-        compose.onNodeWithText("Redo").performClick()
+        compose.onNodeWithContentDescription("Undo",substring=false).performClick()
+        compose.onNodeWithContentDescription("Redo",substring=false).performClick()
         compose.onNodeWithText("Save",substring=false).performClick()
         compose.onNodeWithText("Save as new").performClick()
         compose.waitUntil(5000){compose.onAllNodesWithText("Save as new").fetchSemanticsNodes().isEmpty()}
@@ -60,8 +62,8 @@ class DrawChemistryDeviceTest {
         compose.waitUntil(10000){compose.onAllNodesWithText("Water · 3 atoms").fetchSemanticsNodes().isNotEmpty()}
         compose.onNodeWithText("Build 3D").performClick()
         compose.onNodeWithText("PubChem computed conformer · coordinates in Å").assertIsDisplayed()
-        compose.onNodeWithText("Ball & stick").performClick()
-        compose.onNodeWithText("Space filling").assertIsDisplayed()
+        compose.onNodeWithText("Space filling").performClick()
+        compose.onNodeWithText("Space filling").assertIsSelected()
         compose.onNodeWithText("Hide H").performClick()
         compose.onNodeWithText("Show H").assertIsDisplayed()
         compose.onNodeWithText("Reset",substring=false).performClick()

@@ -114,7 +114,11 @@ internal object ChemToolkit {
         val patterns=linkedMapOf("Alcohol" to "[OX2H][CX4]","Phenol" to "[OX2H]c","Carbonyl" to "[CX3]=[OX1]","Carboxylic acid" to "[CX3](=[OX1])[OX2H1]","Ester" to "[CX3](=[OX1])[OX2][#6]","Amide" to "[CX3](=[OX1])[NX3]","Amine" to "[NX3;!$(N-C=O)]","Nitrile" to "[CX2]#[NX1]","Alkene" to "[CX3]=[CX3]")
         return patterns.mapValues {(_,smarts)->SmartsPattern.create(smarts).matchAll(mol).uniqueAtoms().toArray().flatMap {it.toList()}.map {g.atoms[it].id}.toSet()}.filterValues {it.isNotEmpty()}
     }
-    fun writeMol(g:ChemGraph):String {val writer=StringWriter();MDLV2000Writer(writer).use { it.write(toCdk(g)) };return writer.toString()}
+    fun writeMol(g:ChemGraph,coordinates3D:Boolean=false):String {
+        val mol=toCdk(g)
+        if(coordinates3D){require(g.conformer.size==g.atoms.size && g.conformer.isNotEmpty()){ "A source 3D conformer is required." };g.atoms.forEachIndexed {i,a->val point=g.conformer.first {it.id==a.id};mol.getAtom(i).point2d=null;mol.getAtom(i).point3d=javax.vecmath.Point3d(point.x,point.y,point.z)}}
+        val writer=StringWriter();MDLV2000Writer(writer).use {it.write(mol)};return writer.toString()
+    }
     fun writeSmiles(g:ChemGraph)=SmilesGenerator.isomeric().create(toCdk(g))
     fun formula(g:ChemGraph):String = if(g.atoms.isEmpty())"—" else MolecularFormulaManipulator.getString(MolecularFormulaManipulator.getMolecularFormula(toCdk(g)))
     fun mass(g:ChemGraph):Double=AtomContainerManipulator.getMass(toCdk(g),AtomContainerManipulator.MolWeight)

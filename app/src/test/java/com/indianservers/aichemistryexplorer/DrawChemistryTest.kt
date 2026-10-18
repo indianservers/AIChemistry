@@ -61,4 +61,14 @@ class DrawChemistryTest {
         assertTrue(before.contains("@"))
         assertEquals(before,ChemToolkit.writeSmiles(alanine.edited()))
     }
+    @Test fun sdf3dExportRetainsSourceConformerCoordinates(){
+        val record=org.json.JSONObject(java.io.File("src/main/assets/drawchemistry/962.json").readText())
+        val coords=record.getJSONObject("three").getJSONArray("coords").getJSONObject(0).getJSONArray("conformers").getJSONObject(0)
+        val original=ChemToolkit.smiles("[H]O[H]")
+        val conformer=original.atoms.map {a->val sourceIndex=when(a.id){1->1;2->0;else->2};a.copy(x=coords.getJSONArray("x").getDouble(sourceIndex),y=coords.getJSONArray("y").getDouble(sourceIndex),z=coords.getJSONArray("z").getDouble(sourceIndex))}
+        val graph=original.copy(conformer=conformer)
+        val mol=org.openscience.cdk.io.MDLV2000Reader(java.io.StringReader(ChemToolkit.writeMol(graph,true))).use {it.read(org.openscience.cdk.silent.SilentChemObjectBuilder.getInstance().newAtomContainer())}
+        conformer.forEachIndexed {i,a->assertEquals(a.x,mol.getAtom(i).point3d.x,.00011);assertEquals(a.y,mol.getAtom(i).point3d.y,.00011);assertEquals(a.z,mol.getAtom(i).point3d.z,.00011)}
+        assertTrue(runCatching {ChemToolkit.writeMol(original,true)}.isFailure)
+    }
 }

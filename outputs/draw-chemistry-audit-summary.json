@@ -1,7 +1,7 @@
 {
-  "status": "Core module added; full master specification incomplete",
+  "status": "Reference-style four-tab UI implemented; broader advanced-feature limitations unchanged",
   "homeRoute": "Screen.DrawChemistry",
-  "unitTests": 99,
+  "unitTests": 100,
   "unitFailures": 0,
   "unitErrors": 0,
   "physicalDeviceCoreTests": 5,
@@ -9,8 +9,8 @@
   "debugBuild": "passed",
   "releaseBundleBuild": "passed",
   "releaseBundleSigned": false,
-  "bundledCompounds": 25,
-  "bundledComputedConformers": 24,
+  "bundledCompounds": 26,
+  "bundledComputedConformers": 25,
   "educationalReactionTemplates": 7,
   "device": {
     "model": "OnePlus CPH2717",
@@ -22,8 +22,8 @@
     "frames": 120,
     "width": 640,
     "height": 640,
-    "medianMs": 3.338231,
-    "p95Ms": 8.848923,
+    "medianMs": 1.763923,
+    "p95Ms": 2.897231,
     "kind": "offscreen GLES render plus glFinish; not on-screen FPS"
   },
   "notImplemented": [
@@ -34,9 +34,9 @@
     "MOL2/PDB/mmCIF/V3000 import",
     "Automated advanced reaction modeling"
   ],
-  "git": "local changes, not pushed",
-  "physicalDeviceTests": 7,
-  "physicalDeviceUiTests": 2,
+  "git": "local UI changes, not pushed",
+  "physicalDeviceTests": 8,
+  "physicalDeviceUiTests": 3,
   "remainingAcceptance": [
     "Complete on-screen FPS/latency and memory/leak profiling",
     "Exhaustive small-screen/font-scale matrix",
@@ -47,5 +47,7 @@
     "Horizontal landscape drawing and 3D tools",
     "Compact measurement footer",
     "Fit initial/restored 2D graph on resize"
-  ]
+  ],
+  "referenceUi": "Draw 2D, Build 3D, Structures and Properties validated on physical device",
+  "source3dSdfExport": "round-trip coordinates verified"
 }

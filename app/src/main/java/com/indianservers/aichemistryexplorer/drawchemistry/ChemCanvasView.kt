@@ -10,6 +10,7 @@ internal enum class DrawTool { Select, Atom, Bond, Erase, Ring, Lasso }
 internal class ChemCanvasView(context:Context):View(context){
     private var hasUserInteraction=false
     var graph=ChemGraph();set(v){val initialLoad=field.atoms.isEmpty()&&v.atoms.isNotEmpty()&&!hasUserInteraction;field=v;if(initialLoad&&width>0&&height>0)fit()else invalidate()}
+    var skeletal=false;set(value){field=value;invalidate()}
     var selected=emptySet<Int>();set(v){field=v;invalidate()}
     var tool=DrawTool.Atom;var element="C";var bondOrder=1;var bondStereo="";var ringSize=6;var aromatic=false
     var onBondInspect:(ChemBond)->Unit={}
@@ -39,12 +40,13 @@ internal class ChemCanvasView(context:Context):View(context){
     private fun viewport()=ChemViewport(width.toFloat(),height.toFloat(),unit,origin.x,origin.y,panX,panY)
     private fun screen(a:ChemAtom):PointF {val p=viewport().screen(a.x.toFloat(),a.y.toFloat());return PointF(p.first,p.second)}
     private fun world(x:Float,y:Float):PointF{val p=viewport().world(x,y);return PointF(p.first,p.second)}
-    private fun hit(x:Float,y:Float):Int?=graph.atoms.minByOrNull { val p=screen(it);hypot(p.x-x,p.y-y) }?.takeIf { val p=screen(it);hypot(p.x-x,p.y-y)<26*resources.displayMetrics.density }?.id
+    private fun visible(a:ChemAtom):Boolean = !skeletal || a.symbol!="H" || a.isotope!=null || graph.bonds.none {b->(b.a==a.id||b.b==a.id)&&b.stereo.isBlank()&&graph.atoms.any {it.id==(if(b.a==a.id)b.b else b.a)&&it.symbol!="H"}}
+    private fun hit(x:Float,y:Float):Int?=graph.atoms.filter(::visible).minByOrNull { val p=screen(it);hypot(p.x-x,p.y-y) }?.takeIf { val p=screen(it);hypot(p.x-x,p.y-y)<26*resources.displayMetrics.density }?.id
     private fun hitBond(x:Float,y:Float):ChemBond?=graph.bonds.minByOrNull { b->segmentDistance(x,y,screen(graph.atoms.first { it.id==b.a }),screen(graph.atoms.first { it.id==b.b })) }?.takeIf { b->segmentDistance(x,y,screen(graph.atoms.first { it.id==b.a }),screen(graph.atoms.first { it.id==b.b }))<14*resources.displayMetrics.density }
     private fun segmentDistance(x:Float,y:Float,a:PointF,b:PointF):Float {val dx=b.x-a.x;val dy=b.y-a.y;val den=dx*dx+dy*dy;val t=if(den<.001)0f else ((x-a.x)*dx+(y-a.y)*dy)/den;return hypot(x-a.x-t.coerceIn(0f,1f)*dx,y-a.y-t.coerceIn(0f,1f)*dy)}
     override fun onDraw(c:Canvas){super.onDraw(c);paint.color=Color.rgb(236,241,247);paint.strokeWidth=1f
         val spacing=24*resources.displayMetrics.density;var x=0f;while(x<width){var y=0f;while(y<height){c.drawCircle(x,y,1f,paint);y+=spacing};x+=spacing}
-        graph.bonds.forEach { b->val a=screen(graph.atoms.first { it.id==b.a });val z=screen(graph.atoms.first { it.id==b.b });paint.color=Color.rgb(74,86,105);paint.strokeWidth=2*resources.displayMetrics.density;paint.style=Paint.Style.STROKE
+        graph.bonds.filter {b->graph.atoms.filter {it.id==b.a||it.id==b.b}.all(::visible)}.forEach { b->val a=screen(graph.atoms.first { it.id==b.a });val z=screen(graph.atoms.first { it.id==b.b });paint.color=Color.rgb(25,32,42);paint.strokeWidth=1.6f*resources.displayMetrics.density;paint.style=Paint.Style.STROKE
             val dx=z.x-a.x;val dy=z.y-a.y;val len=hypot(dx,dy).coerceAtLeast(1f);val nx=-dy/len*4*resources.displayMetrics.density;val ny=dx/len*4*resources.displayMetrics.density
             when(b.stereo){
                 "wedge"->{paint.style=Paint.Style.FILL;val p=Path();p.moveTo(a.x,a.y);p.lineTo(z.x+nx,z.y+ny);p.lineTo(z.x-nx,z.y-ny);p.close();c.drawPath(p,paint)}
@@ -59,11 +61,14 @@ internal class ChemCanvasView(context:Context):View(context){
             val p=screen(ChemAtom(0,"",note.x,note.y));paint.color=Color.rgb(52,76,101);paint.style=Paint.Style.FILL;paint.textAlign=Paint.Align.CENTER;paint.textSize=(if(note.kind=="arrow")28 else 12)*resources.displayMetrics.scaledDensity
             c.drawText(note.text,p.x,p.y,paint)
         }
-        graph.atoms.forEach { a->val p=screen(a);paint.style=Paint.Style.FILL
+        graph.atoms.filter(::visible).forEach { a->val p=screen(a);paint.style=Paint.Style.FILL
             if(a.id in selected){paint.color=Color.rgb(207,231,255);c.drawCircle(p.x,p.y,22*resources.displayMetrics.density,paint)}
+            val carbonVertex=skeletal&&a.symbol=="C"&&a.isotope==null&&a.charge==0&&a.label.isBlank()&&graph.bonds.any {it.a==a.id||it.b==a.id}
+            if(carbonVertex)return@forEach
             paint.color=Color.WHITE;c.drawCircle(p.x,p.y,13*resources.displayMetrics.density,paint)
             paint.color=elementColor(a.symbol);paint.textSize=18*resources.displayMetrics.scaledDensity;paint.typeface=Typeface.create("sans-serif-medium",Typeface.NORMAL);paint.textAlign=Paint.Align.CENTER
-            c.drawText(a.label.ifEmpty { a.symbol },p.x,p.y-(paint.ascent()+paint.descent())/2,paint)
+            val attachedH=if(skeletal&&a.symbol!="C"&&a.symbol!="H")graph.bonds.count {b->(b.a==a.id||b.b==a.id)&&graph.atoms.any {it.id==(if(b.a==a.id)b.b else b.a)&&it.symbol=="H"&&!visible(it)}}+(a.hydrogens?:0)else 0
+            c.drawText(a.label.ifEmpty { a.symbol+if(attachedH>0)"H"+if(attachedH>1)attachedH.toString()else ""else "" },p.x,p.y-(paint.ascent()+paint.descent())/2,paint)
             paint.textSize=10*resources.displayMetrics.scaledDensity
             if(a.charge!=0)c.drawText(if(a.charge==1)"+" else if(a.charge== -1)"−" else "${abs(a.charge)}${if(a.charge>0)"+" else "−"}",p.x+17*resources.displayMetrics.density,p.y-11*resources.displayMetrics.density,paint)
             a.isotope?.let { c.drawText(it.toString(),p.x-16*resources.displayMetrics.density,p.y-11*resources.displayMetrics.density,paint) }
