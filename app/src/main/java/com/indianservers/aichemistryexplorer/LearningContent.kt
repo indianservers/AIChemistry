@@ -8,7 +8,8 @@ internal data class KnowledgeCheck(
     val hint: String = "Eliminate choices that ignore evidence, units or the lesson's stated model.",
     val skill: String = "Concept transfer",
     val difficulty: String = "Core",
-    val reviewPage: String = "Understand"
+    val reviewPage: String = "Understand",
+    val optionFeedback: List<String> = emptyList()
 )
 
 internal data class ModuleFaq(val question: String, val answer: String)
@@ -313,7 +314,7 @@ private fun schoolPhaseKnowledgeChecksFor(module: CurriculumModule, lesson: Curr
     val brief = schoolBriefFor(lesson)
     val otherLessons = module.lessons.filterNot { it.title == lesson.title }.map { it.title }
     val distractors = (otherLessons + listOf("Only memorise the heading", "Ignore the observation", "Use a college-level rule first")).distinct()
-    return listOf(
+    val phaseChecks = listOf(
         knowledgeQuestion(
             "Discover: why does ${lesson.title} matter in daily life?",
             brief.whyItMatters,
@@ -480,6 +481,8 @@ private fun schoolPhaseKnowledgeChecksFor(module: CurriculumModule, lesson: Curr
             reviewPage = "Remember"
         )
     )
+    val authored = authoredMisconceptionChecksFor(module, lesson)
+    return (authored + phaseChecks).take(15)
 }
 
 private fun String.stripHtml(): String =

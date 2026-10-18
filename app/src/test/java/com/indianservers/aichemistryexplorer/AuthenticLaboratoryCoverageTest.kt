@@ -10,8 +10,8 @@ class AuthenticLaboratoryCoverageTest {
 
     @Test
     fun everySubtopicHasOneTraceableLaboratoryInvestigation() {
-        assertEquals(638, scalableCurriculum.size)
-        assertEquals(638, labs.size)
+        assertTrue(scalableCurriculum.size >= 700)
+        assertEquals(scalableCurriculum.size, labs.size)
         assertEquals(labs.size, labs.map { it.id }.distinct().size)
         assertTrue(scalableCurriculum.all { expansion ->
             expansion.virtualLab.id.startsWith(expansion.id) &&

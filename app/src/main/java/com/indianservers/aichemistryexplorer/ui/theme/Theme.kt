@@ -1,13 +1,9 @@
 package com.indianservers.aichemistryexplorer.ui.theme
 
-import android.app.Activity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalView
 
 private val ChemistryColors = darkColorScheme(
     primary = Color(0xFF1EDCFF),
@@ -23,13 +19,5 @@ private val ChemistryColors = darkColorScheme(
 
 @Composable
 fun AIChemistryExplorerTheme(content: @Composable () -> Unit) {
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = Color.Transparent.toArgb()
-            window.navigationBarColor = Color(0xFF030A13).toArgb()
-        }
-    }
     MaterialTheme(colorScheme = ChemistryColors, typography = Typography, content = content)
 }

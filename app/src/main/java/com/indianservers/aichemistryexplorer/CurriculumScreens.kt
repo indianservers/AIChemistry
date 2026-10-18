@@ -305,7 +305,8 @@ internal fun CurriculumLessonScreen(
     lessonTitle: String,
     onBack: () -> Unit,
     onComplete: () -> Unit,
-    onQuiz: () -> Unit
+    onQuiz: () -> Unit,
+    onTools: () -> Unit
 ) {
     val module = curriculum.firstOrNull { it.title == moduleTitle } ?: curriculum.first()
     val lesson = module.lessons.firstOrNull { it.title == lessonTitle } ?: module.lessons.first()
@@ -329,6 +330,17 @@ internal fun CurriculumLessonScreen(
         ScreenTitle(lesson.title, "${module.title} · Page ${page + 1}/5", onBack)
         Breadcrumb("Curriculum › ${module.title} › ${lesson.title}", Modifier.padding(horizontal = 20.dp))
         LessonProgressStrip(page, 5, module.color, pageLabels)
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)
+                .background(Panel, RoundedCornerShape(9.dp))
+                .border(1.dp, module.color.copy(.45f), RoundedCornerShape(9.dp))
+                .clickable { onTools() }.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("⚗", color = module.color, fontSize = 15.sp)
+            Text("Open interactive chemistry tools", color = White, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f).padding(start = 8.dp))
+            Text("10 TOOLS  ›", color = module.color, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+        }
         AnimatedContent(page, modifier = Modifier.weight(1f), label = "curriculum-page") { current ->
             val savedPages = dbPages
             if (savedPages != null) {
@@ -834,7 +846,13 @@ private fun InteractiveVisualPage(module: CurriculumModule, lesson: CurriculumLe
             }
         }
         Text(simulation.objective, color = White, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 9.dp))
-        ChemistryLessonVisual(module.color, module.icon, if (running) control else .05f)
+        LiveMolecularView(
+            module = module,
+            lesson = lesson,
+            simulation = simulation,
+            control = control,
+            running = running
+        )
         GlowCard(Modifier.fillMaxWidth(), module.color) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(simulation.controlLabel, color = White, fontSize = 12.sp)
@@ -2115,6 +2133,15 @@ private fun EnhancedLessonChallengePage(
             GlowCard(Modifier.fillMaxWidth().padding(top = 10.dp), if (selected == check.correct) Green else Orange) {
                 Text(if (selected == check.correct) "CORRECT" else "REVIEW THIS REASONING", color = if (selected == check.correct) Green else Orange, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                 Text(check.explanation, color = White, fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.padding(top = 6.dp))
+                check.optionFeedback.getOrNull(selected)?.takeIf { it.isNotBlank() }?.let { diagnostic ->
+                    Text(
+                        "WHY THIS CHOICE · $diagnostic",
+                        color = if (selected == check.correct) Green else Orange,
+                        fontSize = 10.sp,
+                        lineHeight = 16.sp,
+                        modifier = Modifier.padding(top = 7.dp)
+                    )
+                }
                 if (selected != check.correct) {
                     Text("Chosen: ${check.options[selected]}", color = Muted, fontSize = 10.sp, modifier = Modifier.padding(top = 8.dp))
                     Text("Correct: ${check.options[check.correct]}", color = Green, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 4.dp))

@@ -1,5 +1,6 @@
 package com.indianservers.aichemistryexplorer
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -29,10 +30,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -49,6 +54,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.LinearProgressIndicator
@@ -117,10 +123,13 @@ internal val Muted = Color(0xFF7890A9)
 internal val White = Color(0xFFEAF7FF)
 internal val Border = Color(0xFF18324A)
 
+private const val PLAY_STORE_URL =
+    "https://play.google.com/store/apps/details?id=com.indianservers.aichemistryexplorer"
+
 enum class Screen {
     Splash, Home, Explore, Table, Lab, Quiz, Progress, Element, Reactions, Molecule,
     FullTable, Categories, Trends, HeatMap, Compare, Notebook, PeriodicStudio,
-    ModuleLesson, TopicLesson, Search, About
+    ModuleLesson, TopicLesson, Search, Tools, About, ElementsViewer
 }
 
 data class Element(
@@ -169,6 +178,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // The app uses dark reading palettes, including the area behind system bars.
+        androidx.core.view.WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
+        }
         setContent { AIChemistryExplorerTheme { ChemistryApp() } }
     }
 }
@@ -225,9 +239,11 @@ fun ChemistryApp() {
         LocalBackAction provides { navigateBack() }
     ) {
     Scaffold(
+        contentWindowInsets = WindowInsets.safeDrawing,
         containerColor = palette.background,
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
+            if (screen != Screen.ElementsViewer) {
             Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
                     modifier = Modifier
@@ -297,6 +313,7 @@ fun ChemistryApp() {
                     )
                 }
             }
+            }
         },
         bottomBar = {
             if (screen in mainScreens) {
@@ -322,12 +339,13 @@ fun ChemistryApp() {
                     while (y < size.height) { drawLine(grid, Offset(0f, y), Offset(size.width, y), 1f); y += 72f }
                 }
                 .padding(padding)
-                .statusBarsPadding()
+                .consumeWindowInsets(padding)
         ) {
             AnimatedContent(screen, label = "screen") { current ->
                 when (current) {
                     Screen.Splash -> ChemistrySplashScreen { screen = Screen.Home }
                     Screen.Home -> HomeScreen(
+                        onElementsViewer = { navigateTo(Screen.ElementsViewer) },
                         onExplore = { navigateTo(Screen.Explore) },
                         onTable = { navigateTo(Screen.Table) },
                         onLab = { navigateTo(Screen.Lab) },
@@ -336,8 +354,26 @@ fun ChemistryApp() {
                         onMolecule = { navigateTo(Screen.Molecule) },
                         onContinue = { navigateTo(Screen.Explore) },
                         onSearch = { navigateTo(Screen.Search) },
+                        onTools = { navigateTo(Screen.Tools) },
+                        onShare = {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_app_subject))
+                                putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    context.getString(R.string.share_app_message, PLAY_STORE_URL)
+                                )
+                            }
+                            context.startActivity(
+                                Intent.createChooser(
+                                    shareIntent,
+                                    context.getString(R.string.share_app_chooser_title)
+                                )
+                            )
+                        },
                         onAbout = { navigateTo(Screen.About) }
                     )
+                    Screen.ElementsViewer -> ElementsViewerScreen(allElements, { navigateBack() })
                     Screen.Search -> GlobalChemistrySearchScreen(
                         elements = allElements,
                         onBack = { navigateBack() },
@@ -363,7 +399,8 @@ fun ChemistryApp() {
                             completedLessons = completedLessons + "$selectedModule/$selectedLesson"
                             navigateBack()
                         },
-                        onQuiz = { navigateTo(Screen.Quiz) }
+                        onQuiz = { navigateTo(Screen.Quiz) },
+                        onTools = { navigateTo(Screen.Tools) }
                     )
                     Screen.Table -> PeriodicHubScreen(
                         savedCount = savedElements.size,
@@ -420,6 +457,7 @@ fun ChemistryApp() {
                     Screen.Progress -> MultiPageProgressScreen()
                     Screen.Reactions -> ReactionsScreen(onBack = { navigateBack() })
                     Screen.Molecule -> MoleculeScreen(onBack = { navigateBack() })
+                    Screen.Tools -> ChemistryToolsScreen(onBack = { navigateBack() })
                     Screen.About -> AppVersionScreen(onBack = { navigateBack() })
                 }
             }
@@ -656,8 +694,10 @@ private fun AboutInfoCard(title: String, body: String, color: Color) {
 
 @Composable
 private fun HomeScreen(
+    onElementsViewer: () -> Unit,
     onExplore: () -> Unit, onTable: () -> Unit, onLab: () -> Unit, onQuiz: () -> Unit,
-    onReactions: () -> Unit, onMolecule: () -> Unit, onContinue: () -> Unit, onSearch: () -> Unit, onAbout: () -> Unit
+    onReactions: () -> Unit, onMolecule: () -> Unit, onContinue: () -> Unit,
+    onSearch: () -> Unit, onTools: () -> Unit, onShare: () -> Unit, onAbout: () -> Unit
 ) {
     val context = LocalContext.current
     val launchPrefs = remember { context.getSharedPreferences("launch_readiness", 0) }
@@ -682,11 +722,22 @@ private fun HomeScreen(
                         modifier = Modifier.clip(CircleShape).background(LocalReadingPalette.current.surfaceAlt)
                             .padding(horizontal = 9.dp, vertical = 5.dp)
                     )
+                    Icon(
+                        painter = painterResource(R.drawable.ic_share),
+                        contentDescription = "Share app",
+                        tint = Cyan,
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(CircleShape)
+                            .clickable { onShare() }
+                            .padding(10.dp)
+                    )
                     Text("⌕", color = Cyan, fontSize = 27.sp, modifier = Modifier.clickable { onSearch() }.padding(9.dp))
                 }
             }
         }
         item { HomeAnimatedChemistryHero(onExplore, onTable, onLab) }
+        item { ElementsViewerHomeCard(onElementsViewer) }
         if (showFirstMission) {
             item {
                 FirstRunSampleMission(
@@ -703,6 +754,18 @@ private fun HomeScreen(
             }
         }
         item { TodayChemistryMissionCard(onContinue) }
+        item {
+            GlowCard(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp).clickable { onTools() }, Green) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("⚗", color = Green, fontSize = 28.sp)
+                    Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                        Text("Interactive Chemistry Tools", color = White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                        Text("Balance, build, predict, graph and check from one reusable workspace.", color = Muted, fontSize = 10.sp)
+                    }
+                    Text("10 TOOLS  ›", color = Green, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
         item { DashboardSnapshot(onContinue) }
         item {
             Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -1139,57 +1202,66 @@ private fun ExploreScreen(onOpen: (Screen) -> Unit, onModule: (String) -> Unit) 
     }
     Column(Modifier.fillMaxSize()) {
         ScreenTitle("Curriculum", "Class 6 to PG · category and subcategory")
-        SyllabusTagRow(level) { selected ->
-            level = selected
-            category = "All categories"
-            subcategory = "All subcategories"
-        }
-        SearchField(
-            query = query,
-            onQueryChange = { query = it },
-            placeholder = "Search modules or concepts...",
-            modifier = Modifier.padding(horizontal = 18.dp)
-        )
-        CurriculumNavigatorSummary(level, category, subcategory)
-        CurriculumFilterRow(levels, level, Cyan) {
-            level = it
-            category = "All categories"
-            subcategory = "All subcategories"
-        }
-        CurriculumFilterRow(categories, category, Purple) {
-            category = it
-            subcategory = "All subcategories"
-        }
-        CurriculumFilterRow(subcategories, subcategory, Green) { subcategory = it }
-        Text(
-            "${topics.size} modules · ${topics.sumOf { it.lessons.size }} concepts",
-            color = Muted,
-            fontSize = 10.sp,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
-        )
-        if (query.isNotBlank() || level != "All levels" || category != "All categories" || subcategory != "All subcategories") {
-            Text(
-                "Clear all filters",
-                color = Cyan,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable {
-                    query = ""
-                    level = "All levels"
+        LazyColumn(
+            Modifier.weight(1f).fillMaxWidth(),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 18.dp)
+        ) {
+            item {
+                SyllabusTagRow(level) { selected ->
+                    level = selected
                     category = "All categories"
                     subcategory = "All subcategories"
-                }.padding(horizontal = 20.dp, vertical = 5.dp)
-            )
+                }
+                SearchField(
+                    query = query,
+                    onQueryChange = { query = it },
+                    placeholder = "Search modules or concepts...",
+                    modifier = Modifier.padding(horizontal = 18.dp)
+                )
+                CurriculumNavigatorSummary(level, category, subcategory)
+                CurriculumFilterRow(levels, level, Cyan) {
+                    level = it
+                    category = "All categories"
+                    subcategory = "All subcategories"
+                }
+                CurriculumFilterRow(categories, category, Purple) {
+                    category = it
+                    subcategory = "All subcategories"
+                }
+                CurriculumFilterRow(subcategories, subcategory, Green) { subcategory = it }
+                Text(
+                    "${topics.size} modules · ${topics.sumOf { it.lessons.size }} concepts",
+                    color = Muted,
+                    fontSize = 10.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+                )
+                if (query.isNotBlank() || level != "All levels" || category != "All categories" || subcategory != "All subcategories") {
+                    Text(
+                        "Clear all filters",
+                        color = Cyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable {
+                            query = ""
+                            level = "All levels"
+                            category = "All categories"
+                            subcategory = "All subcategories"
+                        }.padding(horizontal = 20.dp, vertical = 5.dp)
+                    )
+                }
+                CurriculumViewControls(compact, gridView, onCompact = { compact = !compact }, onGrid = { gridView = !gridView })
+                AdaptiveLearningPathCard(topics, onModule)
+            }
+        item {
+            Text("ALL SUBJECTS AND MODULES", color = Cyan, fontSize = 11.sp,
+                fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp))
         }
-        CurriculumViewControls(compact, gridView, onCompact = { compact = !compact }, onGrid = { gridView = !gridView })
-        AdaptiveLearningPathCard(topics, onModule)
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(18.dp)) {
             if (topics.isEmpty()) {
                 item { EmptyState("No modules match", "Clear filters or search for a broader chemistry term.", ChemIcons.Search, Cyan) }
             }
             if (gridView) {
                 items(topics.chunked(2)) { rowTopics ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         rowTopics.forEach { topic ->
                             CurriculumModuleGridCard(topic, compact, Modifier.weight(1f)) { onModule(topic.title) }
                         }
@@ -1200,7 +1272,7 @@ private fun ExploreScreen(onOpen: (Screen) -> Unit, onModule: (String) -> Unit) 
             } else {
             items(topics) { topic ->
                 Card(
-                    Modifier.fillMaxWidth().padding(bottom = 10.dp).clickable { onModule(topic.title) },
+                    Modifier.fillMaxWidth().padding(horizontal = 18.dp).padding(bottom = 10.dp).clickable { onModule(topic.title) },
                     colors = CardDefaults.cardColors(Panel),
                     shape = RoundedCornerShape(16.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Border)
@@ -1235,9 +1307,9 @@ private fun ExploreScreen(onOpen: (Screen) -> Unit, onModule: (String) -> Unit) 
 @Composable
 private fun SyllabusTagRow(selected: String, onSelect: (String) -> Unit) {
     val tags = listOf(
-        "Class 6-8" to "Class 6-8",
-        "Class 9-10" to "Class 9-10",
-        "Class 11-12" to "Class 11-12",
+        "Class 6–8" to "Class 6–8",
+        "Class 9–10" to "Class 9–10",
+        "Class 11–12" to "Class 11–12",
         "UG" to "Undergraduate",
         "PG" to "Postgraduate"
     )
@@ -2417,7 +2489,7 @@ private fun BottomNav(current: Screen, onSelect: (Screen) -> Unit) {
         Triple(Screen.Quiz, "◈", "Quiz"),
         Triple(Screen.Progress, "◉", "Progress")
     )
-    Box(Modifier.fillMaxWidth().background(Night).navigationBarsPadding().padding(horizontal = 9.dp, vertical = 6.dp)) {
+    Box(Modifier.fillMaxWidth().background(Night).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)).padding(horizontal = 9.dp, vertical = 6.dp)) {
         Card(
             Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
             colors = CardDefaults.cardColors(Color(0xEE06101C)),

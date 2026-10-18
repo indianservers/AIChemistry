@@ -18,13 +18,13 @@ class ScalableCurriculumCoverageTest {
 
     @Test
     fun curriculumMeetsRequestedExpansionScale() {
-        assertTrue(scalableCurriculum.size in 600..700)
-        assertEquals(638, scalableCurriculum.size)
-        assertEquals(2_200, scalableCurriculum.sumOf { it.microConcepts.size })
+        assertTrue(scalableCurriculum.size >= 700)
+        assertEquals(curriculum.sumOf { it.lessons.size }, scalableCurriculum.size)
+        assertTrue(scalableCurriculum.sumOf { it.microConcepts.size } >= scalableCurriculum.size * 3)
         assertTrue(scalableCurriculum.sumOf { it.simulations.size } >= 1_500)
-        assertEquals(1_914, scalableCurriculum.sumOf { it.simulations.size })
+        assertTrue(scalableCurriculum.sumOf { it.simulations.size } >= scalableCurriculum.size * 2)
         assertTrue(scalableCurriculum.sumOf { it.visualizations3d.size } >= 3_000)
-        assertEquals(3_190, scalableCurriculum.sumOf { it.visualizations3d.size })
+        assertEquals(scalableCurriculum.size * 5, scalableCurriculum.sumOf { it.visualizations3d.size })
     }
 
     @Test

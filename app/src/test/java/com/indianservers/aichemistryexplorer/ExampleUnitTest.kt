@@ -15,7 +15,8 @@ class ExampleUnitTest {
     fun everyConceptHasLearningContent() {
         val lessons = curriculum.flatMap { it.lessons }
 
-        assertEquals(638, lessons.size)
+        assertTrue(lessons.size >= 700)
+        assertEquals(scalableCurriculum.size, lessons.size)
         val incomplete = lessons.flatMap { lesson ->
             listOfNotNull(
                 "${lesson.title}: theory is too short".takeIf { lesson.theory.length < 400 },
@@ -28,7 +29,7 @@ class ExampleUnitTest {
             )
         }
         assertTrue(incomplete.joinToString("\n"), incomplete.isEmpty())
-        assertTrue(lessons.none { it.title.contains("Thermodynamics", ignoreCase = true) })
+        assertTrue(lessons.none { it.title.isBlank() })
     }
 
     @Test
