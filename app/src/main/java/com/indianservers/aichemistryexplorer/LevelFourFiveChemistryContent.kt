@@ -951,3 +951,12 @@ internal val levelFourFiveConceptContent: Map<String, LevelOneConceptContent> =
             }
         }
     }
+
+/** Read-only editorial sources; missing concepts must be authored instead of using a broad category fallback. */
+internal val academicEditorialSources: Map<String, LevelOneConceptContent> by lazy {
+    (advancedFacts + postgraduateTopicFacts + postgraduateCoreFacts).mapValues { (key, fact) ->
+        val title = key.substringAfterLast('|')
+        LevelOneConceptContent("$title ${fact.focus}", fact.focus.replaceFirstChar { it.uppercase() },
+            fact.example, fact.relationship, "", "", emptyList())
+    }
+}

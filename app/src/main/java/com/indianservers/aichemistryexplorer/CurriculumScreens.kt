@@ -187,7 +187,7 @@ private fun ModuleLessonsPage(module: CurriculumModule, completedLessons: Set<St
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(lesson.title, color = White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                Text("4 pages · Concept · Visual Lab · 15-question check", color = Muted, fontSize = 9.sp)
+                Text("Concept · Visual Lab · Lesson-specific checks", color = Muted, fontSize = 9.sp)
                     }
                     Text("›", color = module.color, fontSize = 24.sp)
                 }
@@ -246,7 +246,7 @@ private fun ModuleProgressPage(module: CurriculumModule, completed: Int) {
         }
         GlowCard(Modifier.fillMaxWidth().padding(top = 18.dp), module.color) {
             Text("MASTERY MILESTONES", color = Muted, fontSize = 9.sp)
-            listOf("Complete all concept pages", "Run every visual lab", "Pass every 15-question knowledge check").forEachIndexed { index, goal ->
+            listOf("Complete all concept pages", "Run every visual lab", "Complete every lesson-specific knowledge check").forEachIndexed { index, goal ->
                 Row(Modifier.fillMaxWidth().padding(top = 11.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(if (completed > index) "✓" else "○", color = if (completed > index) Green else Muted)
                     Text(goal, color = White, fontSize = 11.sp, modifier = Modifier.padding(start = 10.dp))
@@ -760,27 +760,17 @@ private fun revisionSummary(module: CurriculumModule, lesson: CurriculumLesson):
     "In ${module.title}, remember ${lesson.concept} Use ${lesson.formula} with consistent units. Avoid this mistake: ${lesson.commonMistake}"
 
 private fun glossaryTermsFor(module: CurriculumModule, lesson: CurriculumLesson): List<String> {
-    val candidates = (lesson.title.split(' ', '-', ':') + lesson.concept.split(' ', ',', '.', ';') + module.category.split(' '))
-        .map { it.trim().trim('(', ')') }
-        .filter { it.length > 4 && it.none { ch -> ch.isDigit() } }
-    return candidates.distinctBy { it.lowercase() }.take(8).ifEmpty { listOf("model", "evidence", "variable") }
+    val defined = curriculum.flatMap { it.lessons }.map { it.title }.toSet()
+    return (listOf(lesson.title) + lesson.advancedConcepts.filter { it in defined }).distinct().take(8)
 }
 
-private fun glossaryDefinition(term: String, module: CurriculumModule, lesson: CurriculumLesson): String {
-    val lower = term.lowercase()
-    return when {
-        "electron" in lower -> "Electrons are negatively charged particles that control bonding, ions and many chemical properties."
-        "energy" in lower -> "Energy tracks the capacity for change; chemistry often follows transfers between particles, fields and surroundings."
-        "equilibrium" in lower -> "Equilibrium means forward and reverse processes continue at equal rates, so measured composition stays steady."
-        "concentration" in lower -> "Concentration describes amount of solute per amount of solution, often in mol L-1."
-        "oxidation" in lower -> "Oxidation is electron loss or an increase in oxidation state."
-        "covalent" in lower -> "A covalent bond forms when atoms share electron pairs."
-        else -> "$term is used here as part of ${module.category.lowercase()}. In this lesson, connect it to: ${lesson.concept}"
-    }
-}
+private fun glossaryDefinition(term: String, module: CurriculumModule, lesson: CurriculumLesson): String =
+    if (term == lesson.title) lesson.concept
+    else curriculum.firstOrNull { candidate -> candidate.lessons.any { it.title == term } }
+        ?.lessons?.firstOrNull { it.title == term }?.concept.orEmpty()
 
 private fun formulaVariablesFor(formula: String): List<FormulaVariable> {
-    val text = formula.lowercase()
+    val text = formula.lowercase().replace(" ", "")
     return when {
         "pv" in text || "nrt" in text -> listOf(
             FormulaVariable("P", "pressure", "101 kPa"),
@@ -788,12 +778,12 @@ private fun formulaVariablesFor(formula: String): List<FormulaVariable> {
             FormulaVariable("n", "amount", "0.50 mol"),
             FormulaVariable("T", "kelvin", "298 K")
         )
-        "ph" in text || "log" in text -> listOf(
+        "ph=" in text -> listOf(
             FormulaVariable("pH", "unitless", "pH 3 acid"),
             FormulaVariable("[H+]", "mol L-1", "1e-3 M"),
             FormulaVariable("log", "base 10", "inverse scale")
         )
-        "q" in text || "mc" in text -> listOf(
+        "q=mc" in text -> listOf(
             FormulaVariable("q", "joule", "heat change"),
             FormulaVariable("m", "gram", "sample mass"),
             FormulaVariable("c", "J g-1 K-1", "specific heat"),
@@ -804,8 +794,7 @@ private fun formulaVariablesFor(formula: String): List<FormulaVariable> {
             FormulaVariable("k", "rate constant", "depends on T"),
             FormulaVariable("[A]", "mol L-1", "reactant level")
         )
-        else -> formula.filter { it.isLetter() }.map { it.toString() }.distinct().take(4)
-            .map { FormulaVariable(it, "variable", "track units") }
+        else -> emptyList()
     }
 }
 

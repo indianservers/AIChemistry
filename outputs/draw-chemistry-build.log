@@ -1,0 +1,186 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:checkDebugDuplicateClasses
+> Task :app:compressDebugAssets
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:generateDebugAndroidTestResources UP-TO-DATE
+> Task :app:packageDebugAndroidTestResources UP-TO-DATE
+> Task :app:processDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :app:parseDebugAndroidTestLocalResources UP-TO-DATE
+> Task :app:generateDebugAndroidTestRFile UP-TO-DATE
+> Task :app:javaPreCompileDebugAndroidTest UP-TO-DATE
+> Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeDebugAndroidTestAssets UP-TO-DATE
+> Task :app:compressDebugAndroidTestAssets UP-TO-DATE
+> Task :app:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugAndroidTestFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebugAndroidTest UP-TO-DATE
+> Task :app:mergeLibDexDebugAndroidTest UP-TO-DATE
+> Task :app:checkDebugAndroidTestAarMetadata UP-TO-DATE
+> Task :app:mapDebugAndroidTestSourceSetPaths UP-TO-DATE
+> Task :app:compileDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :app:mergeDebugAndroidTestResources UP-TO-DATE
+> Task :app:processDebugAndroidTestManifest UP-TO-DATE
+> Task :app:processDebugAndroidTestResources UP-TO-DATE
+> Task :app:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebugAndroidTest UP-TO-DATE
+> Task :app:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:extractReleaseVersionControlInfo UP-TO-DATE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets
+> Task :app:generateReleaseResources UP-TO-DATE
+> Task :app:packageReleaseResources UP-TO-DATE
+> Task :app:processReleaseNavigationResources UP-TO-DATE
+> Task :app:parseReleaseLocalResources UP-TO-DATE
+> Task :app:generateReleaseRFile UP-TO-DATE
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:javaPreCompileRelease UP-TO-DATE
+> Task :app:mergeReleaseArtProfile UP-TO-DATE
+> Task :app:checkReleaseAarMetadata UP-TO-DATE
+> Task :app:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :app:compileReleaseNavigationResources UP-TO-DATE
+> Task :app:mergeReleaseResources UP-TO-DATE
+> Task :app:createReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksRelease UP-TO-DATE
+> Task :app:processReleaseMainManifest UP-TO-DATE
+> Task :app:processReleaseManifest UP-TO-DATE
+> Task :app:processReleaseManifestForPackage UP-TO-DATE
+> Task :app:processReleaseResources UP-TO-DATE
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :app:mergeReleaseStartupProfile UP-TO-DATE
+> Task :app:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :app:mergeReleaseNativeLibs UP-TO-DATE
+> Task :app:stripReleaseDebugSymbols UP-TO-DATE
+> Task :app:writeReleaseAppMetadata UP-TO-DATE
+> Task :app:collectReleaseDependencies
+> Task :app:configureReleaseDependencies
+> Task :app:extractReleaseNativeSymbolTables UP-TO-DATE
+> Task :app:parseReleaseIntegrityConfig UP-TO-DATE
+> Task :app:desugarDebugFileDependencies
+> Task :app:mergeExtDexDebug
+> Task :app:kspDebugKotlin
+> Task :app:kspReleaseKotlin
+
+> Task :app:compileDebugKotlin
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:93:18 'var stereo: IBond.Stereo!' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:93:55 'enum class Stereo : Enum<IBond.Stereo!>' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:93:79 'enum class Stereo : Enum<IBond.Stereo!>' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:93:103 'enum class Stereo : Enum<IBond.Stereo!>' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:105:20 'var stereo: IBond.Stereo!' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:105:34 'enum class Stereo : Enum<IBond.Stereo!>' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:105:59 'enum class Stereo : Enum<IBond.Stereo!>' is deprecated. Deprecated in Java.
+
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:dexBuilderDebug UP-TO-DATE
+> Task :app:mergeProjectDexDebug UP-TO-DATE
+> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
+
+> Task :app:compileReleaseKotlin
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:93:18 'var stereo: IBond.Stereo!' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:93:55 'enum class Stereo : Enum<IBond.Stereo!>' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:93:79 'enum class Stereo : Enum<IBond.Stereo!>' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:93:103 'enum class Stereo : Enum<IBond.Stereo!>' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:105:20 'var stereo: IBond.Stereo!' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:105:34 'enum class Stereo : Enum<IBond.Stereo!>' is deprecated. Deprecated in Java.
+w: file:///C:/Indian%20Servers/AIChemistryExplorer/app/src/main/java/com/indianservers/aichemistryexplorer/drawchemistry/ChemGraph.kt:105:59 'enum class Stereo : Enum<IBond.Stereo!>' is deprecated. Deprecated in Java.
+
+> Task :app:bundleDebugClassesToRuntimeJar UP-TO-DATE
+> Task :app:compileReleaseJavaWithJavac NO-SOURCE
+> Task :app:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :app:processReleaseJavaRes UP-TO-DATE
+> Task :app:generateReleaseLintVitalReportModel
+> Task :app:mergeDebugJavaResource
+> Task :app:kspDebugAndroidTestKotlin
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
+> Task :app:mergeReleaseJavaResource
+> Task :app:compileDebugAndroidTestKotlin
+> Task :app:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugAndroidTestJavaRes UP-TO-DATE
+> Task :app:mergeDebugAndroidTestJavaResource UP-TO-DATE
+> Task :app:dexBuilderDebugAndroidTest UP-TO-DATE
+> Task :app:mergeProjectDexDebugAndroidTest UP-TO-DATE
+> Task :app:packageDebugAndroidTest UP-TO-DATE
+> Task :app:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebugAndroidTest UP-TO-DATE
+> Task :app:kspDebugUnitTestKotlin
+> Task :app:expandReleaseArtProfileWildcards
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:testDebugUnitTest
+> Task :app:lintVitalAnalyzeRelease
+> Task :app:minifyReleaseWithR8
+> Task :app:lintVitalAnalyzeRelease FAILED
+
+[Incubating] Problems report is available at: file:///C:/Indian%20Servers/AIChemistryExplorer/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:lintVitalAnalyzeRelease' (registered by plugin 'com.android.internal.application').
+> A failure occurred while executing com.android.build.gradle.internal.lint.AndroidLintWorkAction
+   > Unexpected failure during lint analysis (this is a bug in lint or one of the libraries it depends on)
+     
+     Message: Unexpected failure during lint analysis (this is a bug in lint or one of the libraries it depends on)
+     
+     Message: Unexpected failure during lint analysis of ChemCanvasView.kt (this is a bug in lint or one of the libraries it depends on)
+     
+     Message: Error during resolving call class org.jetbrains.kotlin.psi.KtNameReferenceExpression
+     Stack: \\\`KotlinIllegalArgumentExceptionWithAttachments:KaFirResolver.doResolveCall(KaFirResolver.kt:1801)←KaBaseResolver.resolveToCall(KaBaseResolver.kt:32)←KaBaseSession.resolveToCall(KaBaseSession.kt:-1)←FirKotlinUastResolveProviderService.resolveSyntheticJavaPropertyAccessorCall(FirKotlinUastResolveProviderService.kt:330)←KotlinUSimpleReferenceExpression.visitAccessorCalls(KotlinUSimpleReferenceExpression.kt:70)←KotlinUSimpleReferenceExpression.accept(KotlinUSimpleReferenceExpression.kt:61)←UQualifiedReferenceExpression.accept(UQualifiedReferenceExpression.kt:34)←UQualifiedReferenceExpression.accept(UQualifiedReferenceExpression.kt:33)←ImplementationUtilsKt.acceptList(implementationUtils.kt:15)←UCallExpression.accept(UCallExpression.kt:98)←UQualifiedReferenceExpression.accept(UQualifiedReferenceExpression.kt:34)←UBinaryExpression.accept(UBinaryExpression.kt:43)←ImplementationUtilsKt.acceptList(implementationUtils.kt:15)←UBlockExpression.accept(UBlockExpression.kt:21)←UIfExpression.accept(UIfExpression.kt:59)←ImplementationUtilsKt.acceptList(implementationUtils.kt:15)←UBlockExpression.accept(UBlockExpression.kt:21)←UIfExpression.accept(UIfExpression.kt:59)←UIfExpression.accept(UIfExpression.kt:60)←ImplementationUtilsKt.acceptList(implementationUtils.kt:15)←UBlockExpression.accept(UBlockExpression.kt:21)←UIfExpression.accept(UIfExpression.kt:59)←UYieldExpression.accept(UYieldExpression.kt:21)←ImplementationUtilsKt.acceptList(implementationUtils.kt:15)←UExpressionList.accept(UExpressionList.kt:26)←USwitchClauseExpressionWithBody.accept(USwitchExpression.kt:112)←ImplementationUtilsKt.acceptList(implementationUtils.kt:15)←UExpressionList.accept(UExpressionList.kt:26)←USwitchExpression.accept(USwitchExpression.kt:43)←ImplementationUtilsKt.acceptList(implementationUtils.kt:15)←UBlockExpression.accept(UBlockExpression.kt:21)←UMethod.accept(UMethod.kt:45)←ImplementationUtilsKt.acceptList(implementationUtils.kt:15)←AbstractKotlinUClass.accept(AbstractKotlinUClass.kt:223)←ImplementationUtilsKt.acceptList(implementationUtils.kt:15)←UFile.accept(UFile.kt:89)←UastLintUtilsKt.acceptSourceFile(UastLintUtils.kt:956)←UElementVisitor$visitFile$2.run(UElementVisitor.kt:191)←LintClient.runReadAction(LintClient.kt:1645)←LintCliClient.runReadAction(LintCliClient.kt:230)←LintDriver$LintClientWrapper.runReadAction(LintDriver.kt:2690)←UElementVisitor.visitFile(UElementVisitor.kt:189)←LintDriver$visitUastDetectors$1.run(LintDriver.kt:2028)←LintClient.runReadAction(LintClient.kt:1645)←LintCliClient.runReadAction(LintCliClient.kt:230)←LintDriver$LintClientWrapper.runReadAction(LintDriver.kt:2690)←LintDriver.visitUastDetectors(LintDriver.kt:2026)←LintDriver.visitUast(LintDriver.kt:1973)←LintDriver.runFileDetectors(LintDriver.kt:1234)←LintDriver.checkProject(LintDriver.kt:1041)←LintDriver.checkProjectRoot(LintDriver.kt:607)←LintDriver.access$checkProjectRoot(LintDriver.kt:179)←LintDriver$analyzeOnly$1.invoke(LintDriver.kt:434)←LintDriver$analyzeOnly$1.invoke(LintDriver.kt:431)←LintDriver.doAnalyze(LintDriver.kt:490)←LintDriver.analyzeOnly(LintDriver.kt:431)←LintCliClient$analyzeOnly$1.invoke(LintCliClient.kt:263)←LintCliClient$analyzeOnly$1.invoke(LintCliClient.kt:260)←LintCliClient.run(LintCliClient.kt:309)←LintCliClient.analyzeOnly(LintCliClient.kt:260)←Main.run(Main.java:1777)←Main.run(Main.java:283)←DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)←Method.invoke(Method.java:580)←AndroidLintWorkAction.invokeLintMainRunMethod(AndroidLintWorkAction.kt:103)←AndroidLintWorkAction.runLint(AndroidLintWorkAction.kt:90)←AndroidLintWorkAction.execute(AndroidLintWorkAction.kt:64)←DefaultWorkerServer.execute(DefaultWorkerServer.java:68)←NoIsolationWorkerFactory$1$1.create(NoIsolationWorkerFactory.java:64)←NoIsolationWorkerFactory$1$1.create(NoIsolationWorkerFactory.java:61)←ClassLoaderUtils.executeInClassloader(ClassLoaderUtils.java:103)←NoIsolationWorkerFactory$1.lambda$execute$0(NoIsolationWorkerFactory.java:61)←AbstractWorker$1.call(AbstractWorker.java:44)←AbstractWorker$1.call(AbstractWorker.java:41)←DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)←DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)←DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)←DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)←DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)←DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)←DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)←AbstractWorker.executeWrappedInBuildOperation(AbstractWorker.java:41)←NoIsolationWorkerFactory$1.execute(NoIsolationWorkerFactory.java:58)←DefaultWorkerExecutor.lambda$submitWork$1(DefaultWorkerExecutor.java:169)←FutureTask.run(FutureTask.java:317)←DefaultConditionalExecutionQueue$ExecutionRunner.runExecution(DefaultConditionalExecutionQueue.java:191)←DefaultConditionalExecutionQueue$ExecutionRunner.access$600(DefaultConditionalExecutionQueue.java:112)←DefaultConditionalExecutionQueue$ExecutionRunner$1.run(DefaultConditionalExecutionQueue.java:168)←Factories$1.create(Factories.java:30)←DefaultWorkerLeaseService.lambda$runAndReleaseLocks$0(DefaultWorkerLeaseService.java:296)←ResourceLockStatistics$1.measure(ResourceLockStatistics.java:43)←DefaultWorkerLeaseService.runAndReleaseLocks(DefaultWorkerLeaseService.java:294)←DefaultWorkerLeaseService.withLocksAcquired(DefaultWorkerLeaseService.java:290)←DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:282)←DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:132)←DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:138)←DefaultConditionalExecutionQueue$ExecutionRunner.runBatch(DefaultConditionalExecutionQueue.java:163)←DefaultConditionalExecutionQueue$ExecutionRunner.run(DefaultConditionalExecutionQueue.java:125)←Executors$RunnableAdapter.call(Executors.java:572)←FutureTask.run(FutureTask.java:317)\\\`
+     
+     You can run with --stacktrace or set environment variable \\\`LINT_PRINT_STACKTRACE=true\\\` to dump a full stacktrace to stdout.
+     Stack: \`RuntimeException:LintDriver$Companion.handleDetectorError(LintDriver.kt:3597)←LintDriver$Companion.handleDetectorError$default(LintDriver.kt:3462)←LintDriver$Companion.handleDetectorError(LintDriver.kt:3458)←UElementVisitor.visitFile(UElementVisitor.kt:233)←LintDriver$visitUastDetectors$1.run(LintDriver.kt:2028)←LintClient.runReadAction(LintClient.kt:1645)←LintCliClient.runReadAction(LintCliClient.kt:230)←LintDriver$LintClientWrapper.runReadAction(LintDriver.kt:2690)←LintDriver.visitUastDetectors(LintDriver.kt:2026)←LintDriver.visitUast(LintDriver.kt:1973)←LintDriver.runFileDetectors(LintDriver.kt:1234)←LintDriver.checkProject(LintDriver.kt:1041)←LintDriver.checkProjectRoot(LintDriver.kt:607)←LintDriver.access$checkProjectRoot(LintDriver.kt:179)←LintDriver$analyzeOnly$1.invoke(LintDriver.kt:434)←LintDriver$analyzeOnly$1.invoke(LintDriver.kt:431)←LintDriver.doAnalyze(LintDriver.kt:490)←LintDriver.analyzeOnly(LintDriver.kt:431)←LintCliClient$analyzeOnly$1.invoke(LintCliClient.kt:263)←LintCliClient$analyzeOnly$1.invoke(LintCliClient.kt:260)←LintCliClient.run(LintCliClient.kt:309)←LintCliClient.analyzeOnly(LintCliClient.kt:260)←Main.run(Main.java:1777)←Main.run(Main.java:283)←DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)←Method.invoke(Method.java:580)←AndroidLintWorkAction.invokeLintMainRunMethod(AndroidLintWorkAction.kt:103)←AndroidLintWorkAction.runLint(AndroidLintWorkAction.kt:90)←AndroidLintWorkAction.execute(AndroidLintWorkAction.kt:64)←DefaultWorkerServer.execute(DefaultWorkerServer.java:68)←NoIsolationWorkerFactory$1$1.create(NoIsolationWorkerFactory.java:64)←NoIsolationWorkerFactory$1$1.create(NoIsolationWorkerFactory.java:61)←ClassLoaderUtils.executeInClassloader(ClassLoaderUtils.java:103)←NoIsolationWorkerFactory$1.lambda$execute$0(NoIsolationWorkerFactory.java:61)←AbstractWorker$1.call(AbstractWorker.java:44)←AbstractWorker$1.call(AbstractWorker.java:41)←DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)←DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)←DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)←DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)←DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)←DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)←DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)←AbstractWorker.executeWrappedInBuildOperation(AbstractWorker.java:41)←NoIsolationWorkerFactory$1.execute(NoIsolationWorkerFactory.java:58)←DefaultWorkerExecutor.lambda$submitWork$1(DefaultWorkerExecutor.java:169)←FutureTask.run(FutureTask.java:317)←DefaultConditionalExecutionQueue$ExecutionRunner.runExecution(DefaultConditionalExecutionQueue.java:191)←DefaultConditionalExecutionQueue$ExecutionRunner.access$600(DefaultConditionalExecutionQueue.java:112)←DefaultConditionalExecutionQueue$ExecutionRunner$1.run(DefaultConditionalExecutionQueue.java:168)←Factories$1.create(Factories.java:30)←DefaultWorkerLeaseService.lambda$runAndReleaseLocks$0(DefaultWorkerLeaseService.java:296)←ResourceLockStatistics$1.measure(ResourceLockStatistics.java:43)←DefaultWorkerLeaseService.runAndReleaseLocks(DefaultWorkerLeaseService.java:294)←DefaultWorkerLeaseService.withLocksAcquired(DefaultWorkerLeaseService.java:290)←DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:282)←DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:132)←DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:138)←DefaultConditionalExecutionQueue$ExecutionRunner.runBatch(DefaultConditionalExecutionQueue.java:163)←DefaultConditionalExecutionQueue$ExecutionRunner.run(DefaultConditionalExecutionQueue.java:125)←Executors$RunnableAdapter.call(Executors.java:572)←FutureTask.run(FutureTask.java:317)←ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)←AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)←ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)←ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)←Thread.run(Thread.java:1583)\`
+     
+     You can run with --stacktrace or set environment variable \`LINT_PRINT_STACKTRACE=true\` to dump a full stacktrace to stdout.
+     Stack: `RuntimeException:LintDriver$Companion.handleDetectorError(LintDriver.kt:3597)←LintDriver$Companion.handleDetectorError$default(LintDriver.kt:3462)←LintDriver$Companion.handleDetectorError(LintDriver.kt:3458)←LintDriver$analyzeOnly$1.invoke(LintDriver.kt:436)←LintDriver$analyzeOnly$1.invoke(LintDriver.kt:431)←LintDriver.doAnalyze(LintDriver.kt:490)←LintDriver.analyzeOnly(LintDriver.kt:431)←LintCliClient$analyzeOnly$1.invoke(LintCliClient.kt:263)←LintCliClient$analyzeOnly$1.invoke(LintCliClient.kt:260)←LintCliClient.run(LintCliClient.kt:309)←LintCliClient.analyzeOnly(LintCliClient.kt:260)←Main.run(Main.java:1777)←Main.run(Main.java:283)←DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)←Method.invoke(Method.java:580)←AndroidLintWorkAction.invokeLintMainRunMethod(AndroidLintWorkAction.kt:103)←AndroidLintWorkAction.runLint(AndroidLintWorkAction.kt:90)←AndroidLintWorkAction.execute(AndroidLintWorkAction.kt:64)←DefaultWorkerServer.execute(DefaultWorkerServer.java:68)←NoIsolationWorkerFactory$1$1.create(NoIsolationWorkerFactory.java:64)←NoIsolationWorkerFactory$1$1.create(NoIsolationWorkerFactory.java:61)←ClassLoaderUtils.executeInClassloader(ClassLoaderUtils.java:103)←NoIsolationWorkerFactory$1.lambda$execute$0(NoIsolationWorkerFactory.java:61)←AbstractWorker$1.call(AbstractWorker.java:44)←AbstractWorker$1.call(AbstractWorker.java:41)←DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)←DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)←DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)←DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)←DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)←DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)←DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)←AbstractWorker.executeWrappedInBuildOperation(AbstractWorker.java:41)←NoIsolationWorkerFactory$1.execute(NoIsolationWorkerFactory.java:58)←DefaultWorkerExecutor.lambda$submitWork$1(DefaultWorkerExecutor.java:169)←FutureTask.run(FutureTask.java:317)←DefaultConditionalExecutionQueue$ExecutionRunner.runExecution(DefaultConditionalExecutionQueue.java:191)←DefaultConditionalExecutionQueue$ExecutionRunner.access$600(DefaultConditionalExecutionQueue.java:112)←DefaultConditionalExecutionQueue$ExecutionRunner$1.run(DefaultConditionalExecutionQueue.java:168)←Factories$1.create(Factories.java:30)←DefaultWorkerLeaseService.lambda$runAndReleaseLocks$0(DefaultWorkerLeaseService.java:296)←ResourceLockStatistics$1.measure(ResourceLockStatistics.java:43)←DefaultWorkerLeaseService.runAndReleaseLocks(DefaultWorkerLeaseService.java:294)←DefaultWorkerLeaseService.withLocksAcquired(DefaultWorkerLeaseService.java:290)←DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:282)←DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:132)←DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:138)←DefaultConditionalExecutionQueue$ExecutionRunner.runBatch(DefaultConditionalExecutionQueue.java:163)←DefaultConditionalExecutionQueue$ExecutionRunner.run(DefaultConditionalExecutionQueue.java:125)←Executors$RunnableAdapter.call(Executors.java:572)←FutureTask.run(FutureTask.java:317)←ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:65)←AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)←ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)←ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)←Thread.run(Thread.java:1583)`
+     
+     You can run with --stacktrace or set environment variable `LINT_PRINT_STACKTRACE=true` to dump a full stacktrace to stdout.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+> Get more help at https://help.gradle.org.
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 1m 50s
+111 actionable tasks: 25 executed, 86 up-to-date

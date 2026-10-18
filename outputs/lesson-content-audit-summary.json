@@ -1,0 +1,50 @@
+{
+  "lessons": 806,
+  "modules": 152,
+  "schoolPages": 2480,
+  "unitTests": 82,
+  "metrics": [
+    {
+      "field": "Page opening",
+      "beforeDistinct": 66,
+      "afterDistinct": 678,
+      "beforeMaxReuse": 738,
+      "afterMaxReuse": 4
+    },
+    {
+      "field": "Page example",
+      "beforeDistinct": 66,
+      "afterDistinct": 678,
+      "beforeMaxReuse": 738,
+      "afterMaxReuse": 4
+    },
+    {
+      "field": "Prediction prompt",
+      "beforeDistinct": 66,
+      "afterDistinct": 806,
+      "beforeMaxReuse": 738,
+      "afterMaxReuse": 1
+    },
+    {
+      "field": "Worked example",
+      "beforeDistinct": 767,
+      "afterDistinct": 678,
+      "beforeMaxReuse": 29,
+      "afterMaxReuse": 4
+    },
+    {
+      "field": "Application",
+      "beforeDistinct": 315,
+      "afterDistinct": 683,
+      "beforeMaxReuse": 105,
+      "afterMaxReuse": 4
+    }
+  ],
+  "provenance": {
+    "existing authored record": 441,
+    "explicit topic alias": 178,
+    "new case": 187
+  },
+  "androidDatabaseRefreshTest": "passed",
+  "releaseBundleBuild": "passed"
+}

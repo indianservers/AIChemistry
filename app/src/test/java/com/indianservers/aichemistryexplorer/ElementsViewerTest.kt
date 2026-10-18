@@ -6,6 +6,23 @@ import org.junit.Test
 class ElementsViewerTest {
     private val elements = completePeriodicTable(emptyList())
 
+    @Test fun allCardsUseExistingScientificDataAndCachedElectronModels() {
+        elements.forEach { element ->
+            val facts = elementFacts(element.number)
+            val properties = viewerProperties(element).toMap()
+            assertEquals(element.name, 8, properties.size)
+            assertEquals(facts.atomicMass + " u", properties["Atomic mass"])
+            assertEquals(facts.electronConfiguration, properties["Electron configuration"])
+            assertEquals(facts.oxidationStates, properties["Oxidation states"])
+            assertEquals(facts.electronegativity, properties["Electronegativity"])
+            val model = viewerAtomicModel(element.number)
+            assertSame(model, viewerAtomicModel(element.number))
+            assertEquals(element.name, element.number, model.shells.sum())
+            assertTrue(model.shells.all { it > 0 })
+            assertTrue(viewerApplications(element).isNotBlank())
+        }
+    }
+
     @Test fun navigationStopsAtBothEndsForEveryElement() {
         for (number in 1..118) {
             assertEquals((number + 1).coerceAtMost(118), viewerAdjacent(number, 1))

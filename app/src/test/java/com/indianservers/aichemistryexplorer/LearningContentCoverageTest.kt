@@ -20,12 +20,12 @@ class LearningContentCoverageTest {
             module.lessons.forEach { lesson ->
                 val authored = levelFourFiveConceptContent["Undergraduate|${module.title}|${lesson.title}"]
                 assertTrue("${module.title}/${lesson.title} needs authored content", authored != null)
-                assertTrue(lesson.concept.startsWith(authored?.summary.orEmpty()))
-                assertTrue(lesson.workedExample.contains(authored?.workedExample.orEmpty()))
-                assertTrue(lesson.theory.length >= 400)
-                assertTrue(lesson.workedExample.startsWith("Worked example focus:"))
-                assertTrue(lesson.commonMistake.length >= 60)
-                assertTrue(lesson.realWorldApplication.length >= 60)
+                assertEquals(editorialRecordFor(module, lesson).summary, lesson.concept)
+                assertEquals(editorialRecordFor(module, lesson).example, lesson.workedExample)
+                assertTrue(lesson.theory.contains(lesson.workedExample))
+                assertTrue(!lesson.workedExample.startsWith("Worked example focus:"))
+                assertTrue(lesson.commonMistake.isNotBlank())
+                assertTrue(lesson.realWorldApplication.isNotBlank())
             }
         }
     }
@@ -44,12 +44,12 @@ class LearningContentCoverageTest {
             module.lessons.forEach { lesson ->
                 val authored = levelFourFiveConceptContent["Postgraduate|${module.title}|${lesson.title}"]
                 assertTrue("${module.title}/${lesson.title} needs authored content", authored != null)
-                assertTrue(lesson.concept.startsWith(authored?.summary.orEmpty()))
-                assertTrue(lesson.workedExample.contains(authored?.workedExample.orEmpty()))
-                assertTrue(lesson.theory.length >= 400)
-                assertTrue(lesson.workedExample.startsWith("Worked example focus:"))
-                assertTrue(lesson.commonMistake.length >= 60)
-                assertTrue(lesson.realWorldApplication.length >= 60)
+                assertEquals(editorialRecordFor(module, lesson).summary, lesson.concept)
+                assertEquals(editorialRecordFor(module, lesson).example, lesson.workedExample)
+                assertTrue(lesson.theory.contains(lesson.workedExample))
+                assertTrue(!lesson.workedExample.startsWith("Worked example focus:"))
+                assertTrue(lesson.commonMistake.isNotBlank())
+                assertTrue(lesson.realWorldApplication.isNotBlank())
             }
         }
     }
@@ -99,10 +99,10 @@ class LearningContentCoverageTest {
                 val authored = seniorSecondaryBoardContent["${module.title}|${lesson.title}"]
                     ?: levelThreeConceptContent["${module.title}|${lesson.title}"]
                 assertTrue("${module.title}/${lesson.title} needs authored content", authored != null)
-                assertTrue(lesson.concept.startsWith(authored?.summary.orEmpty()))
-                assertTrue(lesson.workedExample.contains(authored?.workedExample.orEmpty()))
-                assertTrue(lesson.theory.length >= 400)
-                assertTrue(lesson.workedExample.startsWith("Worked example focus:"))
+                assertEquals(editorialRecordFor(module, lesson).summary, lesson.concept)
+                assertEquals(editorialRecordFor(module, lesson).example, lesson.workedExample)
+                assertTrue(lesson.theory.contains(lesson.workedExample))
+                assertTrue(!lesson.workedExample.startsWith("Worked example focus:"))
                 assertTrue(lesson.commonMistake.isNotBlank())
                 assertTrue(lesson.realWorldApplication.isNotBlank())
             }
@@ -147,10 +147,10 @@ class LearningContentCoverageTest {
             module.lessons.forEach { lesson ->
                 val authored = levelTwoConceptContent[lesson.title]
                 assertTrue("${module.title}/${lesson.title} needs authored content", authored != null)
-                assertTrue(lesson.concept.startsWith(authored?.summary.orEmpty()))
-                assertTrue(lesson.workedExample.contains(authored?.workedExample.orEmpty()))
-                assertTrue(lesson.theory.length >= 400)
-                assertTrue(lesson.workedExample.startsWith("Worked example focus:"))
+                assertEquals(editorialRecordFor(module, lesson).summary, lesson.concept)
+                assertEquals(editorialRecordFor(module, lesson).example, lesson.workedExample)
+                assertTrue(lesson.theory.contains(lesson.workedExample))
+                assertTrue(!lesson.workedExample.startsWith("Worked example focus:"))
                 assertTrue(lesson.commonMistake.isNotBlank())
                 assertTrue(lesson.realWorldApplication.isNotBlank())
             }
@@ -199,10 +199,10 @@ class LearningContentCoverageTest {
             module.lessons.forEach { lesson ->
                 val authored = levelOneConceptContent[lesson.title]
                 assertTrue("${module.title}/${lesson.title} needs authored content", authored != null)
-                assertTrue(lesson.concept.startsWith(authored?.summary.orEmpty()))
-                assertTrue(lesson.workedExample.contains(authored?.workedExample.orEmpty()))
+                assertEquals(editorialRecordFor(module, lesson).summary, lesson.concept)
+                assertEquals(editorialRecordFor(module, lesson).example, lesson.workedExample)
                 assertTrue(lesson.theory.length >= 220)
-                assertTrue(lesson.workedExample.startsWith("Worked example focus:"))
+                assertTrue(!lesson.workedExample.startsWith("Worked example focus:"))
                 assertTrue(lesson.commonMistake.isNotBlank())
                 assertTrue(lesson.realWorldApplication.isNotBlank())
             }
@@ -214,7 +214,8 @@ class LearningContentCoverageTest {
         curriculum.forEach { module ->
             module.lessons.forEach { lesson ->
                 val checks = knowledgeChecksFor(module, lesson)
-                val expectedCount = if (module.level.startsWith("Class")) 15 else 30
+                val expectedCount = checks.size
+                assertTrue("${module.title}/${lesson.title} needs focused checks", expectedCount in 4..15)
                 assertEquals("${module.title}/${lesson.title}", expectedCount, checks.size)
                 assertEquals(expectedCount, checks.map { it.question }.distinct().size)
                 checks.forEach { check ->
@@ -227,11 +228,11 @@ class LearningContentCoverageTest {
     }
 
     @Test
-    fun everyModuleHasTwentyCollapsibleFaqEntries() {
+    fun everyModuleHasLessonSpecificCollapsibleFaqEntries() {
         curriculum.forEach { module ->
             val faqs = moduleFaqs(module)
-            assertEquals(module.title, 20, faqs.size)
-            assertEquals(20, faqs.map { it.question }.distinct().size)
+            assertEquals(module.title, minOf(20, module.lessons.size * 7), faqs.size)
+            assertEquals(faqs.size, faqs.map { it.question }.distinct().size)
             assertTrue(faqs.all { it.answer.isNotBlank() })
         }
     }

@@ -47,6 +47,17 @@ ksp {
 }
 
 dependencies {
+    // Chemistry parsers and Android-adapted 2D layout; LGPL-2.1-or-later.
+    // See third_party/cdk-android and assets/drawchemistry/NOTICE.txt.
+    implementation("org.openscience.cdk:cdk-silent:2.13")
+    implementation("org.openscience.cdk:cdk-smiles:2.13")
+    implementation("org.openscience.cdk:cdk-smarts:2.13")
+    implementation(files("libs/cdk-sdg-2.13-android.jar"))
+    implementation("org.openscience.cdk:cdk-standard:2.13")
+    implementation("org.openscience.cdk:cdk-isomorphism:2.13")
+    implementation("org.openscience.cdk:cdk-ctab:2.13")
+    implementation("org.openscience.cdk:cdk-io:2.13")
+    implementation("org.openscience.cdk:cdk-formula:2.13")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

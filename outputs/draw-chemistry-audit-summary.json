@@ -1,0 +1,51 @@
+{
+  "status": "Core module added; full master specification incomplete",
+  "homeRoute": "Screen.DrawChemistry",
+  "unitTests": 99,
+  "unitFailures": 0,
+  "unitErrors": 0,
+  "physicalDeviceCoreTests": 5,
+  "visibleUiAcceptance": "Passed listed workflows: drawing, undo/redo, save, home navigation, 3D gestures/styles/H, activity recreation, background/foreground and landscape controls.",
+  "debugBuild": "passed",
+  "releaseBundleBuild": "passed",
+  "releaseBundleSigned": false,
+  "bundledCompounds": 25,
+  "bundledComputedConformers": 24,
+  "educationalReactionTemplates": 7,
+  "device": {
+    "model": "OnePlus CPH2717",
+    "android": "16",
+    "adb": "adb-Q8G6ZLF6NR69Q85D-vvvTJj._adb-tls-connect._tcp",
+    "transport": "wireless"
+  },
+  "glesOffscreenTiming": {
+    "frames": 120,
+    "width": 640,
+    "height": 640,
+    "medianMs": 3.338231,
+    "p95Ms": 8.848923,
+    "kind": "offscreen GLES render plus glFinish; not on-screen FPS"
+  },
+  "notImplemented": [
+    "Offline conformer generation and force-field optimization",
+    "Thousands-compound curated library",
+    "Advanced density/surface/protein rendering",
+    "Full organometallic/stereochemical validation",
+    "MOL2/PDB/mmCIF/V3000 import",
+    "Automated advanced reaction modeling"
+  ],
+  "git": "local changes, not pushed",
+  "physicalDeviceTests": 7,
+  "physicalDeviceUiTests": 2,
+  "remainingAcceptance": [
+    "Complete on-screen FPS/latency and memory/leak profiling",
+    "Exhaustive small-screen/font-scale matrix",
+    "Full import/export SAF workflows and full master-prompt scenario matrix"
+  ],
+  "responsiveFixes": [
+    "Collapsible landscape search",
+    "Horizontal landscape drawing and 3D tools",
+    "Compact measurement footer",
+    "Fit initial/restored 2D graph on resize"
+  ]
+}

@@ -1,0 +1,203 @@
+Atomic number and mass number|Atomic number;Mass number
+Isotopes and ions|Isotopes;Isoelectronic species
+Bohr’s atomic model|Bohr model
+Quantum numbers and orbitals|Quantum numbers;Orbitals
+Periods, groups and blocks|Groups;Periods;p-Block electronic configuration and group trends
+Electronic configuration|Electron configuration
+Atomic and ionic radius|Atomic and ionic radii trends
+Ionization energy|Ionization enthalpy trends
+Electronegativity and metallic character|Electronegativity, valency and periodic reactivity
+Ionic bonding|Ionic bond
+Covalent bonding|Covalent bond
+Metallic bonding|Metallic bond
+VSEPR theory and molecular shapes|VSEPR theory
+Properties of solids, liquids and gases|States of matter
+Intermolecular forces|Van der Waals forces;Hydrogen bond
+Phase changes and diagrams|Phase rule;Sublimation and latent heat
+Crystal structures|Crystal lattice;Unit cell
+Hydrocarbons and nomenclature|Hydrocarbon classification and nomenclature
+Functional groups|Functional groups in carbon compounds
+Structural and stereoisomerism|Stereochemistry
+Organic reaction mechanisms|Reaction mechanisms
+Polymers and biomolecules|Polymerization;Biopolymers
+Writing and balancing equations|Balancing chemical equations
+Combination and decomposition reactions|Combination;Decomposition
+Displacement and precipitation reactions|Displacement;Precipitation reactions
+Combustion reactions|Combustion
+Redox reactions|Redox
+Dynamic chemical equilibrium|Dynamic equilibrium
+Le Chatelier’s principle|Le Chatelier principle
+Solubility and concentration|Solubility;Concentration
+Acids, bases and pH|pH
+Buffers and titration curves|Buffers;Volumetric analysis
+Reaction rate and rate laws|Rate laws
+Collision theory and activation energy|Collision theory;Activation energy
+Catalysts and reaction mechanisms|Catalysis;Reaction mechanisms
+Galvanic and electrolytic cells|Galvanic cells;Electrolysis
+Batteries, corrosion and electrolysis|Batteries;Corrosion;Electrolysis
+Qualitative chemical analysis|Qualitative detection of nitrogen sulfur and halogens
+Chromatography and separation methods|Chromatographic purification;Paper chromatography
+Spectroscopy and instrumental analysis|Spectroscopy;Instrumental analysis
+Environmental and green chemistry|Green chemistry;Water pollution
+Medicinal, industrial and everyday chemistry|Drug discovery;Industrial unit operations
+Combustion and air pollution|Combustion;Air pollution
+Natural indicators|Indicators
+Acidic and basic substances|Arrhenius;Bronsted
+Common salts|Salt chemistry
+Everyday applications|Salt chemistry;Neutralization
+Physical properties of metals|Metals
+Non-metals and their uses|Nonmetals
+Corrosion and prevention|Corrosion
+Laws of chemical combination|Chemical equations and conservation
+Dalton atomic theory|Dalton theory
+Atoms and molecules|Discovery of atom;Molecules
+Mole concept introduction|Moles;Avogadro number
+Atomic models and valency|Bohr model;Valency
+Writing chemical formulae|Chemical formula
+Relative atomic and molecular mass|Molecular mass;Formula mass
+Moles and molar mass|Moles;Molecular mass
+Limiting reactant introduction|Limiting reagent
+Displacement reactions|Displacement
+Oxidation and reduction|Oxidation;Reduction
+Corrosion and rancidity|Corrosion;Oxidation reactions of carbon compounds
+Energy in reactions|Endothermic and exothermic reactions
+Reduction and refining|Metal extraction by reactivity series
+Covalent bonding in carbon|Covalent bond;Electron-dot structures
+Basic nomenclature|IUPAC naming of carbon compounds
+Ethanol and ethanoic acid|Preparation and reactions of alcohols;Preparation and reactions of carboxylic acids
+Soaps and detergents|Soap micelles and cleansing action;Detergents and hard water
+Atomic nucleus basics|Subatomic particles
+Protons neutrons and isotopes|Subatomic particles;Isotopes
+Mass number and atomic number|Mass number;Atomic number
+Radiation safety and applications|Radiochemistry
+Empirical and molecular formulae|Empirical formula;Molecular formula
+Concentration units|Molarity;Molality;Mole fraction
+Redox titration calculations|Redox titrations
+Schrödinger model|Quantum chemistry
+Orbital nodes and shapes|Orbitals;Quantum numbers
+Hydrogen and hydrides|Hydrogen bonding;Hydrogen
+Alkali metals|Chemical reactivity of alkali and alkaline-earth metals
+Alkaline earth metals|Chemical reactivity of alkali and alkaline-earth metals
+Anomalous behavior and trends|Anomalous behaviour of first p-block elements
+Electronic configurations|Electron configuration
+Oxidation states and color|Important compounds of transition elements
+Crystal field splitting|Crystal field theory
+Electronic effects|Organic chemistry basic principles
+Reaction intermediates|Reaction mechanisms
+Acidity and basicity|Bronsted;Lewis
+Purification methods|Crystallisation and sublimation;Simple and fractional distillation
+Qualitative organic analysis|Qualitative detection of nitrogen sulfur and halogens
+Alkanes and cycloalkanes|Preparation and reactions of alkanes;Conformations of ethane
+Alkenes and alkynes|Preparation and reactions of alkenes;Preparation and reactions of alkynes
+Aromaticity|Aromaticity and benzene
+Haloalkanes|Preparation and reactions of haloalkanes
+Haloarenes|Preparation and reactions of haloarenes
+Alcohols and phenols|Preparation and reactions of alcohols;Preparation and reactions of phenols
+Ethers|Preparation and reactions of ethers
+Aldehydes and ketones|Preparation and reactions of aldehydes and ketones
+Carboxylic acids|Preparation and reactions of carboxylic acids
+Amines and Diazonium Salts|Preparation and reactions of amines;Preparation and reactions of diazonium salts
+Amino acids and proteins|Proteins
+Natural and synthetic polymers|Polymerization;Biopolymers
+Medicines and drug classes|Drug discovery;Antibiotics
+Cleansing agents|Soap micelles and cleansing action;Detergents and hard water
+Green chemistry principles|Green chemistry
+Fuel cells and batteries|Fuel cells;Batteries
+Ligand field theory|Crystal field theory
+Substitution and elimination|Substitution reactions of carbon compounds;Reaction mechanisms
+Electrophilic and nucleophilic addition|Addition reactions of carbon compounds;Reaction mechanisms
+Aromatic substitution|Electrophilic substitution in benzene
+Chirality and symmetry|Stereochemistry;Molecular symmetry
+R/S and E/Z notation|Stereochemistry
+Conformational analysis|Conformations of ethane
+Stereoselective reactions|Asymmetric synthesis
+Chiral resolution|Stereochemistry
+Retrosynthetic analysis|Retrosynthetic Analysis
+Oxidation and reduction reagents|Oxidation;Reduction
+Five-membered heterocycles|Heterocyclic chemistry
+Six-membered heterocycles|Heterocyclic chemistry
+Biosynthetic origins|Metabolism
+Protein folding|Proteins
+Michaelis–Menten kinetics|Enzyme catalysis
+Enzyme inhibition|Enzyme catalysis
+Catalytic mechanisms|Enzymes
+Enzyme assays|Enzymes
+Chromatography|HPLC;GC
+Electroanalytical methods|Electroanalytical Chemistry
+Hyphenated techniques|GC-MS;LC-MS/MS
+Water and wastewater treatment|Water pollution
+Industrial unit operations|Unit operations
+Polymers and composites|Polymerization
+Nanochemistry|Nanomaterials
+Electronic and energy materials|Solar cells;Batteries
+Ligand substitution kinetics|Organometallic chemistry
+Electron-transfer reactions|Electrochemistry
+Cross-coupling reactions|Organometallic chemistry
+Flow and automated synthesis|Flow Chemistry
+Target identification and validation|Drug discovery
+Assay development|Drug discovery
+Hit discovery and screening|Drug discovery
+Hit-to-lead optimization|SAR
+Candidate selection|Pharmacokinetics
+Absorption and distribution|Pharmacokinetics
+Clearance and half-life|Pharmacokinetics
+PK/PD modelling|Pharmacokinetics
+QSAR|SAR
+Molecular docking|Docking
+AI and generative molecular design|AI in Chemistry
+Dosage forms|Pharmaceutical Chemistry
+Drug delivery systems|Pharmaceutical Chemistry
+Stability and degradation|Pharmaceutical Chemistry
+Materials by appearance and hardness|Properties of solids
+Soluble and insoluble substances|Solubility
+Floating and sinking materials|Density
+Natural indicators and litmus|Indicators
+Neutralisation in daily life|Neutralization
+Rusting of iron|Corrosion
+Preventing corrosion|Corrosion
+Metals and non-metals around us|Metals;Nonmetals
+Simple electroplating for class 8|Electrolysis
+Combustion and flame|Combustion
+Evaporation and diffusion|Liquids;Gases
+Sublimation and latent heat|Sublimation as a separation method;Heat
+Solutions, suspensions and colloids|Types;Colloids
+Separating mixtures in class 9|Centrifugation of mixtures;Paper chromatography;Sublimation as a separation method
+Dalton atomic theory at school level|Dalton theory
+Atomic mass and molecular mass|Molecular mass;Mass number
+Valency and writing formulae|Valency;Chemical formula
+Important salts in daily life|Preparation equations and uses of baking soda;Preparation equations and uses of washing soda
+Metals, metallurgy and corrosion|Metal extraction by reactivity series;Corrosion
+Carbon bonding and homologous series|Covalent bond;Hydrocarbon classification and nomenclature
+Ethanol, ethanoic acid, soaps and detergents|Preparation and reactions of alcohols;Preparation and reactions of carboxylic acids;Soap micelles and cleansing action
+Modern periodic law|Modern periodic law and long-form table
+Periodic trends at secondary level|Periodic trends
+Electrolysis and electrode products|Electrolysis
+Electroplating|Electrolysis
+Preparing and diluting solutions|Dilution
+Identifying acids and bases|Indicators
+Precipitation observations|Precipitation reactions
+Some basic concepts of chemistry|Moles;Stoichiometry
+Stoichiometry and limiting reagent|Stoichiometry;Limiting reagent
+Atomic structure for class 11|Quantum numbers;Electron configuration
+Environmental chemistry for school|Air pollution;Water pollution
+States of matter and gas laws|Gas laws;States of matter
+Thermodynamics at school level|Internal energy;Enthalpy
+Chemical and ionic equilibrium|Equilibrium constant;Ionic equilibrium
+Redox reactions and oxidation number|Redox
+Organic chemistry basic principles|Reaction mechanisms
+Solutions and Raoult's Law|Ideal and non-ideal solutions
+Colligative properties|Colligative-property numericals
+Coordination compounds exam basics|Bonding in metal carbonyls;Crystal field theory
+Electrochemistry cells and Nernst equation|Galvanic cells;Nernst equation
+Haloalkanes and haloarenes|Preparation and reactions of haloalkanes;Preparation and reactions of haloarenes
+Alcohols, phenols and ethers|Preparation and reactions of alcohols;Preparation and reactions of phenols;Preparation and reactions of ethers
+Aldehydes, ketones and carboxylic acids|Preparation and reactions of aldehydes and ketones;Preparation and reactions of carboxylic acids
+Biomolecules, vitamins and polymers|Carbohydrates;Vitamins;Polymerization
+Chemical kinetics and electrochemistry experiments|Integrated rate equations;Galvanic cells
+Decay kinetics and half-life|Half-life
+Applications and radiation safety|Radiochemistry
+Advanced liquid chromatography|HPLC
+Gas chromatography|GC
+Electrophoretic separations|Electrophoresis
+Fertilizer chemistry|Fertilizers
+Petroleum refining chemistry|Petrochemicals

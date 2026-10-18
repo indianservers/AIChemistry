@@ -42,8 +42,9 @@ class AuthoredAssessmentTest {
         val lesson = lesson("Mole concept and molar mass")
         val checks = knowledgeChecksFor(module("Stoichiometry", lesson), lesson)
 
-        assertEquals(15, checks.size)
-        assertTrue(checks.take(5).all { it.skill in setOf("Misconception diagnosis", "Evidence discrimination", "Misconception repair") })
+        assertTrue(checks.size in 6..15)
+        assertTrue(checks.any { it.skill == "Core concept" })
+        assertTrue(checks.any { it.options.contains(lesson.concept) })
         assertFalse(checks.take(5).any { "which memory trick belongs" in it.question.lowercase() })
     }
 

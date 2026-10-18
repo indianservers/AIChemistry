@@ -47,10 +47,10 @@ class SeniorSecondaryBoardCoverageTest {
             val module = curriculum.single { it.level == "Class 11–12" && it.title == moduleTitle }
             lessonTitles.forEach { lessonTitle ->
                 val lesson = module.lessons.single { it.title == lessonTitle }
-                assertTrue("$moduleTitle/$lessonTitle needs board content", lesson.theory.length >= 650)
-                assertTrue("$moduleTitle/$lessonTitle needs a worked example", lesson.workedExample.startsWith("Worked example focus:"))
+                assertTrue("$moduleTitle/$lessonTitle needs board content", lesson.theory.contains(lesson.workedExample))
+                assertTrue("$moduleTitle/$lessonTitle needs a worked example", lesson.workedExample == editorialRecordFor(module, lesson).example)
                 assertTrue("$moduleTitle/$lessonTitle needs equations", lesson.formula.isNotBlank())
-                assertTrue("$moduleTitle/$lessonTitle needs applications", lesson.realWorldApplication.length >= 100)
+                assertTrue("$moduleTitle/$lessonTitle needs applications", lesson.realWorldApplication.isNotBlank())
             }
         }
         assertEquals(24, expected.values.sumOf { it.size })

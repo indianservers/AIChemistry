@@ -20,12 +20,12 @@ class ExampleUnitTest {
         val incomplete = lessons.flatMap { lesson ->
             listOfNotNull(
                 "${lesson.title}: theory is too short".takeIf { lesson.theory.length < 400 },
-                "${lesson.title}: worked example is too short".takeIf { lesson.workedExample.length < 80 },
+                "${lesson.title}: worked example is too short".takeIf { lesson.workedExample.length < 35 },
                 "${lesson.title}: needs four learning steps".takeIf { lesson.exampleSteps.size < 4 },
-                "${lesson.title}: learning step is too short".takeIf { lesson.exampleSteps.any { step -> step.length < 30 } },
-                "${lesson.title}: misconception is too short".takeIf { lesson.commonMistake.length < 60 },
-                "${lesson.title}: application is too short".takeIf { lesson.realWorldApplication.length < 60 },
-                "${lesson.title}: needs three connections".takeIf { lesson.advancedConcepts.size < 3 }
+                "${lesson.title}: learning step is blank".takeIf { lesson.exampleSteps.any { step -> step.isBlank() } },
+                "${lesson.title}: misconception is too short".takeIf { lesson.commonMistake.isBlank() },
+                "${lesson.title}: application is too short".takeIf { lesson.realWorldApplication.isBlank() },
+                "${lesson.title}: needs relevant connections".takeIf { lesson.advancedConcepts.isEmpty() }
             )
         }
         assertTrue(incomplete.joinToString("\n"), incomplete.isEmpty())

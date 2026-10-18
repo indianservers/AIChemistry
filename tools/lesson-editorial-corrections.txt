@@ -1,0 +1,118 @@
+Quantum chemistry|An approximate electronic energy is method- and basis-dependent; a converged calculation is not automatically an exact molecular description.
+Statistical mechanics|The most populated microstate is not a substitute for the ensemble of states when calculating a thermodynamic average.
+Spectroscopy|A peak is not uniquely diagnostic of an entire structure; selection rules, overlaps and complementary evidence matter.
+Molecular symmetry|Assign symmetry from the specified geometry, not from molecular formula or the symmetry of one convenient drawing.
+Group theory|An irreducible representation labels transformation behaviour, not an orbital energy or a measured vibrational frequency.
+Phase rule|Count independent components rather than blindly counting every chemical species when reactions or constraints relate them.
+Non-ideal systems|Concentration is not interchangeable with thermodynamic activity when the activity coefficient differs appreciably from one.
+Reaction mechanisms|An overall balanced equation does not prove that the reaction occurs in one elementary collision.
+Pericyclic reactions|Thermal and photochemical orbital-symmetry conditions are not interchangeable, and stereochemical predictions depend on the actual reactant geometry.
+Rearrangements|A migrating group changes connectivity; merely moving a drawn charge does not account for the atoms and bonds in a rearrangement.
+Named reactions|A remembered reaction name does not guarantee that a new substrate tolerates the reagent or follows the same selectivity.
+Heterocyclic chemistry|A ring nitrogen lone pair can participate in aromaticity or lie outside it; its role must be assigned from the actual orbital arrangement.
+Organometallic chemistry|Formal oxidation state is bookkeeping, not the metal's literal partial charge, and electron-counting conventions must not be mixed.
+Stereochemistry|R and S descriptors do not specify the sign of optical rotation, and conformational changes do not always change configuration.
+Asymmetric synthesis|Enantiomeric excess is not product yield; a highly selective reaction can still recover little desired material.
+Crystal field theory|Ligand-field splitting and electron pairing compete; oxidation state alone does not decide whether a complex is high spin or low spin.
+Bioinorganic chemistry|A free metal ion does not reproduce a protein-bound metal site's geometry, redox potential or catalytic selectivity.
+Organometallic compounds|Not every metal-containing organic salt contains a direct metal-carbon bond in the same sense as an organometallic complex.
+Cluster compounds|Bridging ligands and metal-metal bonds require framework electron accounting rather than independent terminal-ligand counts at every metal.
+Gravimetric analysis|An incompletely dried or contaminated precipitate gives mass that is not solely the desired weighing form.
+Volumetric analysis|The indicator endpoint is an observed signal and may not coincide exactly with the stoichiometric equivalence point.
+Complexometric titrations|EDTA's effective metal-binding strength depends on protonation and pH; the formal 1:1 stoichiometry does not remove those equilibria.
+Redox titrations|The redox n-factor depends on the specified product and medium, not just on the reagent's formula.
+Instrumental analysis|Instrument resolution does not establish chemical selectivity or correct a sample-preparation bias.
+Error analysis|Repeating measurements reduces uncertainty from some random effects but does not remove a systematic calibration offset.
+UV|Absorbance depends on wavelength and chemical speciation; a concentration calibration cannot be moved to another wavelength without justification.
+IR|An infrared-inactive vibration may still exist and may be observable by Raman spectroscopy.
+Raman|A strongly polar bond is not automatically the strongest Raman scatterer; Raman activity follows changing polarizability.
+NMR|A chemical shift alone does not establish connectivity, and exchange or strong coupling can invalidate simple n+1 splitting.
+ESR|Several hyperfine lines can arise from one radical; each line need not represent a separate chemical species.
+Mass spectrometry|An observed mass-to-charge peak is not always the neutral molecular mass; ion charge and adduct identity matter.
+XRD|A diffraction peak is not a direct photograph of one bond, and Bragg's law uses theta rather than the measured 2theta angle.
+XPS|A near-surface XPS composition need not represent the bulk composition of a layered or contaminated sample.
+Chromatography|A retention-time match alone does not uniquely identify an analyte when another compound can coelute.
+HPLC|A sharp chromatographic peak can still contain coeluting substances; peak shape alone does not establish purity.
+GC|A compound must be sufficiently volatile and stable under the method conditions; GC is not suitable for every analyte unchanged.
+TLC|Rf values depend on the stationary phase, solvent and conditions and are not universal molecular constants.
+Ion exchange|Exchange selectivity depends on competing ions, charge and solution conditions, not merely the presence of an ionic analyte.
+Electrophoresis|Mobility depends on charge, size and medium; two molecules with the same charge need not migrate equally.
+Molecular modeling|An attractive rendered conformation is not necessarily a low-energy or experimentally populated structure.
+Gaussian|Normal software termination does not prove the optimized structure is the desired minimum; convergence and frequency or other checks remain necessary.
+DFT|A chosen functional is not uniformly accurate for every bond, spin state, dispersion interaction or reaction barrier.
+Molecular dynamics|A long trajectory does not guarantee adequate sampling if the system remains trapped in one region of configuration space.
+Docking|A favourable docking score is not a measured affinity or proof of cellular target engagement.
+Polymerization|The repeat-unit formula does not specify molecular-mass distribution, branching or tacticity.
+Conducting polymers|A conjugated backbone does not guarantee high conductivity without appropriate carrier population, morphology and contacts.
+Biopolymers|Biological origin does not imply that a polymer has one universal structure, degradation rate or mechanical property.
+Cement|Cement hydration is not simply evaporation of mixing water; chemical and microstructural changes produce the binding material.
+Fertilizers|A high total nutrient content does not guarantee immediate nutrient availability in every soil or justify unlimited application.
+Glass|Most ordinary glass lacks long-range crystalline order; an amorphous material should not be assigned a single-crystal lattice by appearance.
+Ceramics|A ceramic's properties depend on porosity, phases and processing, not only its nominal chemical formula.
+Petrochemicals|Fractional distillation separates boiling ranges, whereas cracking and reforming chemically transform molecules.
+Soap|Hard-water ions can form poorly soluble salts with soap; this behaviour differs from that of many synthetic detergents.
+Paint|A coating's colour does not establish adhesion, barrier performance or chemical durability.
+Dyes|Absorbed and observed colours are related through the transmitted or reflected spectrum, not by assigning the strongest absorption as the seen colour.
+Explosives|High calculated energy release does not by itself determine initiation sensitivity, stability or practical detonation behaviour.
+Air pollution|A pollutant measured downwind can be a secondary reaction product rather than a substance emitted directly at the source.
+Water pollution|Clear water can contain dissolved contaminants, and one conductivity reading cannot identify every pollutant.
+Green chemistry|High product yield does not establish high atom economy or low environmental burden across a complete process.
+Waste management|Diluting a hazardous waste stream does not destroy the hazardous substance or establish safe disposal.
+Atmospheric chemistry|Tropospheric ozone pollution and stratospheric ozone depletion are different chemical and spatial problems.
+Proteins|A protein's sequence does not mean that every conformation is equally populated or that denaturation always breaks peptide bonds.
+DNA|Complementary strands are antiparallel, and the covalent backbone is not held together by base-pair hydrogen bonds.
+RNA|RNA is not invariably an unstructured single strand; folding and base pairing contribute to many RNA functions.
+Enzymes|An enzyme changes reaction rate but not the equilibrium constant for the overall reaction under unchanged conditions.
+Metabolism|Adding the equations of pathway steps requires cancelling shared intermediates; gross and net cofactor production differ.
+ATP|Breaking a bond alone requires energy; favourable ATP hydrolysis is the free-energy change of the complete reaction and environment.
+Photosynthesis|Plants do not obtain the oxygen released during photosynthesis from simply splitting carbon dioxide; water supplies that oxygen in oxygenic photosynthesis.
+Respiration|Oxygen consumption does not alone quantify ATP yield when coupling efficiency or other pathways differ.
+Drug discovery|Biochemical potency does not establish exposure, safety or efficacy in a biological system.
+SAR|A structural change associated with activity in one series is not necessarily a causal or transferable rule for other scaffolds.
+Pharmacokinetics|Half-life depends on both distribution and elimination in the stated model, so it is not simply another unit for clearance.
+Antibiotics|Antibacterial activity does not imply antiviral activity; bacterial and viral targets differ.
+Antivirals|Activity against one viral target does not establish activity against unrelated viruses or an acceptable host-cell safety margin.
+Nanomaterials|A smaller particle is not automatically safer or more reactive; size distribution, surface chemistry and aggregation also matter.
+Smart materials|A visible response to one stimulus does not prove unlimited reversibility or stability over repeated cycles.
+Biomaterials|Biocompatibility depends on the use, chemical form and biological context; it is not an absolute property inferred from one assay.
+Batteries|Electrons flow through the external circuit; ions carry charge through the electrolyte rather than the same electrons crossing both pathways.
+Solar cells|Strong light absorption alone does not ensure efficient power conversion if charge separation and collection are poor.
+Homogeneous|A homogeneous catalyst changes form through its cycle and need not be present in its active form as the most abundant resting state.
+Heterogeneous|Total solid mass is not the same as accessible catalytic surface or active-site population.
+Enzyme catalysis|A larger substrate concentration does not increase a Michaelis-Menten rate without limit once the enzyme approaches saturation.
+Photocatalysis|An absorption band does not establish a productive photocatalytic pathway or a high quantum yield.
+Unit operations|A physical separation step is not automatically a chemical conversion, and its outlet streams must satisfy material balance.
+Mass transfer|A fast interfacial reaction can still be limited by transport through a surrounding boundary layer.
+Heat transfer|Equal final temperatures do not imply equal heating rates; geometry and heat-transfer resistance affect the time course.
+Reactor design|Residence time alone does not establish conversion without a rate law and mixing or flow model.
+GC-MS|A library mass-spectrum match and retention evidence should be considered together; one shared fragment is not unique identification.
+LC-MS/MS|A selected mass transition can still suffer matrix effects or interference, so it does not replace calibration and selectivity checks.
+ICP-MS|An observed ion mass can include polyatomic or isobaric interference; nominal mass alone is not always element-specific.
+AAS|A calibration curve does not automatically correct chemical or background interferences in a different sample matrix.
+ICP-OES|Elemental emission lines can overlap; one intense feature is not always an interference-free concentration signal.
+XRF|An elemental XRF signal does not by itself specify the element's chemical oxidation state or molecular compound.
+SEM|Contrast in an SEM image can depend on topography, composition and detector conditions; it is not one universal height scale.
+TEM|A two-dimensional projection of a thin specimen does not uniquely reveal all three-dimensional structure.
+AFM|Measured topography includes tip-shape and sample-deformation effects; apparent feature width need not equal true width.
+Confocal microscopy|A fluorescence signal depends on labelling, illumination and detection, not only on local analyte amount.
+Literature review|A reported claim should be evaluated with its method and limitations rather than treated as established because it was published.
+Experimental design|Changing one factor at a time can miss interactions between temperature, concentration and other reaction variables.
+Scientific writing|A result without its chemical conditions, methods and uncertainty cannot be evaluated or reproduced from the numerical value alone.
+Data analysis|A high fitted correlation can coexist with biased residuals or poor prediction outside the calibration range.
+Chemometrics|Selecting variables or preprocessing on the full dataset before validation can leak information and exaggerate model performance.
+Air-sensitive synthesis|A dry-looking vessel is not proof of oxygen- and moisture-free conditions throughout reagent transfer.
+Glove box|An inert enclosure's displayed conditions do not guarantee that an introduced sample or solvent is itself free of oxygen and water.
+Schlenk line|An inert-gas connection alone does not establish that trapped air has been removed from every vessel and transfer path.
+High-pressure reactions|Higher pressure does not universally increase reaction rate or yield; phase, mechanism and equipment limits must be considered.
+Cryogenic techniques|Cooling can change solubility and mixing as well as reaction rate, so low temperature is not a universal selectivity solution.
+AI in Chemistry|A plausible generated molecule is not evidence of synthetic accessibility, target activity or acceptable safety.
+Machine Learning|A model evaluated on close duplicates of its training compounds can appear accurate without generalizing to new chemistry.
+Quantum Computing for Chemistry|A quantum algorithm demonstrated on a small molecule does not establish practical advantage for every chemical calculation.
+CRISPR Chemistry|Chemical modification or improved delivery does not eliminate off-target editing or establish universal specificity.
+Molecular Electronics|A measured junction current depends on contacts and alignment as well as the isolated molecule's structure.
+Soft Matter|A weak individual interaction can collectively produce strong material organization, so weak does not mean chemically irrelevant.
+MOFs|A large calculated pore volume does not guarantee accessible porosity or framework stability after activation and use.
+COFs|An idealized network drawing does not prove that a synthesized sample has the predicted order, defects or accessible pore structure.
+Click Chemistry|A click label does not mean the reaction is compatible with every functional group, solvent or biological environment.
+Flow Chemistry|Continuous operation does not automatically eliminate hazards, mixing limitations or downstream workup requirements.
+Microfluidics|Rapid transport over short distances does not imply ideal mixing or no surface effects in a microchannel.

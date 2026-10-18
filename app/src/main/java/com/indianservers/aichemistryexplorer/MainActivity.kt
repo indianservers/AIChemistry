@@ -76,6 +76,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -107,6 +108,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 import com.indianservers.aichemistryexplorer.ui.theme.AIChemistryExplorerTheme
+import com.indianservers.aichemistryexplorer.drawchemistry.DrawChemistryHomeCard
+import com.indianservers.aichemistryexplorer.drawchemistry.DrawChemistryScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.cos
@@ -129,7 +132,7 @@ private const val PLAY_STORE_URL =
 enum class Screen {
     Splash, Home, Explore, Table, Lab, Quiz, Progress, Element, Reactions, Molecule,
     FullTable, Categories, Trends, HeatMap, Compare, Notebook, PeriodicStudio,
-    ModuleLesson, TopicLesson, Search, Tools, About, ElementsViewer
+    ModuleLesson, TopicLesson, Search, Tools, About, ElementsViewer, DrawChemistry
 }
 
 data class Element(
@@ -198,8 +201,8 @@ fun ChemistryApp() {
     var readingMenu by remember { mutableStateOf(false) }
     val palette = readingPalettes[readingTheme]
     val density = LocalDensity.current
-    var screen by remember { mutableStateOf(Screen.Splash) }
-    var navigationHistory by remember { mutableStateOf(emptyList<Screen>()) }
+    var screen by rememberSaveable { mutableStateOf(Screen.Splash) }
+    var navigationHistory by rememberSaveable { mutableStateOf(emptyList<Screen>()) }
     var selected by remember { mutableStateOf(elements.first { it.symbol == "O" }) }
     var selectedModule by remember { mutableStateOf("Atomic Structure") }
     var selectedLesson by remember { mutableStateOf("Subatomic particles") }
@@ -243,7 +246,7 @@ fun ChemistryApp() {
         containerColor = palette.background,
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
-            if (screen != Screen.ElementsViewer) {
+            if (screen != Screen.ElementsViewer && screen != Screen.DrawChemistry) {
             Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
                     modifier = Modifier
@@ -345,6 +348,7 @@ fun ChemistryApp() {
                 when (current) {
                     Screen.Splash -> ChemistrySplashScreen { screen = Screen.Home }
                     Screen.Home -> HomeScreen(
+                        onDrawChemistry = { navigateTo(Screen.DrawChemistry) },
                         onElementsViewer = { navigateTo(Screen.ElementsViewer) },
                         onExplore = { navigateTo(Screen.Explore) },
                         onTable = { navigateTo(Screen.Table) },
@@ -374,6 +378,7 @@ fun ChemistryApp() {
                         onAbout = { navigateTo(Screen.About) }
                     )
                     Screen.ElementsViewer -> ElementsViewerScreen(allElements, { navigateBack() })
+                    Screen.DrawChemistry -> DrawChemistryScreen(allElements, { navigateBack() })
                     Screen.Search -> GlobalChemistrySearchScreen(
                         elements = allElements,
                         onBack = { navigateBack() },
@@ -694,6 +699,7 @@ private fun AboutInfoCard(title: String, body: String, color: Color) {
 
 @Composable
 private fun HomeScreen(
+    onDrawChemistry: () -> Unit,
     onElementsViewer: () -> Unit,
     onExplore: () -> Unit, onTable: () -> Unit, onLab: () -> Unit, onQuiz: () -> Unit,
     onReactions: () -> Unit, onMolecule: () -> Unit, onContinue: () -> Unit,
@@ -737,6 +743,7 @@ private fun HomeScreen(
             }
         }
         item { HomeAnimatedChemistryHero(onExplore, onTable, onLab) }
+        item { DrawChemistryHomeCard(onDrawChemistry) }
         item { ElementsViewerHomeCard(onElementsViewer) }
         if (showFirstMission) {
             item {

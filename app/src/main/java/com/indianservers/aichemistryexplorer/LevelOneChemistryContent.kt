@@ -13,20 +13,12 @@ internal data class LevelOneConceptContent(
     val application: String,
     val connections: List<String>
 ) {
-    fun theory(moduleTitle: String): String =
-        "$summary\n\n$explanation\n\nIn $moduleTitle, connect the observable evidence to an appropriate particle, electron, molecular or quantitative model. " +
-            "State what is observed, what is inferred, and which measurement or test supports the conclusion. " +
-            "Use the key relationship as a compact reminder, then explain it in complete sentences instead of memorizing symbols alone. " +
-            "Compare the worked example with a second familiar situation, note the conditions, and check that matter, charge and units remain consistent. " +
-            "A strong answer names the evidence, describes the particle-level reason and acknowledges the common mistake."
+    fun theory(moduleTitle: String): String = "$summary\n\n$explanation"
 
     val learningSteps: List<String>
-        get() = listOf(
-            "Identify the substances, particles, properties or measurements named in the question.",
-            "Use the definition and key relationship to make a prediction.",
-            "Check the prediction against the worked example or an everyday observation.",
-            "Explain the result in words and include units, particle behavior or a balanced equation when relevant."
-        )
+        get() = (workedExample.split(Regex("(?<=[.!?])\\s+")) + keyRelationship + commonMistake)
+            .filter { it.isNotBlank() }.distinct()
+
 }
 
 private fun levelOne(
@@ -38,22 +30,12 @@ private fun levelOne(
     application: String,
     vararg connections: String
 ): LevelOneConceptContent {
-    val completeExample = if (example.length >= 80) {
-        example
-    } else {
-        "$example This illustrates the key relationship; explain the particles or quantities involved and keep all symbols and units consistent."
-    }
-    val completeMistake = if (mistake.length >= 60) {
-        mistake
-    } else {
-        "$mistake Check the definition, particles and evidence before deciding."
-    }
     return LevelOneConceptContent(
         summary,
         explanation,
-        completeExample,
+        example,
         relationship,
-        completeMistake,
+        mistake,
         application,
         connections.toList()
     )

@@ -1,0 +1,130 @@
+Gravimetric analysis|Precipitating and weighing an appropriate insoluble sulfate can quantify sulfate when precipitation completeness and contamination are controlled.
+Volumetric analysis|A standardized titrant determines an unknown solution amount from measured endpoint volume and the reaction stoichiometry.
+Complexometric titrations|EDTA titration estimates water hardness by complexing calcium and magnesium under a controlled pH and indicator system.
+Redox titrations|Permanganate titration quantifies suitable reducing agents by tracking electron-transfer stoichiometry in the specified acidic medium.
+Instrumental analysis|A calibrated instrumental signal permits determination of an analyte when selectivity, matrix effects and working range are validated.
+Error analysis|Comparing replicate scatter with a known calibration bias distinguishes random measurement variation from a systematic offset.
+UV|Absorbance of a chromophore at a chosen ultraviolet wavelength can quantify concentration against an appropriate calibration.
+IR|A carbonyl stretching band helps distinguish a carbonyl-containing product from an alcohol precursor when interpreted with the rest of the spectrum.
+Raman|Raman bands reveal vibrations with changing polarizability and complement infrared assignments, including symmetric molecular vibrations.
+NMR|Chemical shifts, integrations and couplings constrain the connectivity and composition of an organic sample.
+ESR|Electron-spin resonance detects radical intermediates and paramagnetic centres through their resonance and hyperfine signatures.
+Mass spectrometry|Accurate ion masses and isotope patterns constrain molecular composition and support identification in complex samples.
+XRD|Diffraction peak positions identify crystalline phases and lattice spacings in powders and solid materials.
+XPS|Photoelectron binding energies probe near-surface elemental composition and chemical-state differences.
+Chromatography|Different interactions with stationary and mobile phases separate mixture components before identity and amount are determined.
+HPLC|Liquid chromatographic separations measure suitable nonvolatile or thermally sensitive analytes, including many pharmaceutical ingredients and impurities.
+GC|Gas chromatography separates volatile sufficiently stable components for analysis of solvents, fuels and other gas-phase-compatible mixtures.
+TLC|A thin-layer plate compares reaction-mixture spots with standards and monitors a separation or reaction under a specified solvent system.
+Ion exchange|Ion-exchange resins remove or separate dissolved ions by reversible exchange, as in water deionization and selected purification processes.
+Electrophoresis|An applied electric field separates charged biomolecules according to charge and medium-dependent mobility, as in DNA fragment analysis.
+GC-MS|Gas chromatography separates volatile components before mass spectra provide additional identification evidence for each eluting component.
+LC-MS/MS|Liquid chromatography with tandem mass spectrometry combines separation and selected fragmentation to measure analytes in complex matrices.
+ICP-MS|Inductively coupled plasma mass spectrometry measures trace elements and isotope ratios after suitable sample preparation and interference control.
+AAS|Atomic absorption measurements quantify selected elements using element-specific absorption and appropriate calibration.
+ICP-OES|Characteristic atomic emission lines permit multielement measurements in suitably prepared samples while spectral interferences are checked.
+XRF|X-ray fluorescence estimates elemental composition of materials using characteristic emitted X rays and a suitable calibration model.
+SEM|Scanning electron microscopy images surface morphology and, with appropriate detection, can support local elemental analysis.
+TEM|Transmission electron microscopy resolves internal or nanoscale structure in sufficiently thin specimens.
+AFM|Atomic force microscopy maps surface topography through tip-sample interactions and can probe local mechanical response.
+Confocal microscopy|Optical sectioning reduces out-of-focus fluorescence and helps reconstruct spatial distributions in labelled specimens.
+Literature review|Comparing experimental conditions and limitations across primary papers identifies reproducible findings and unresolved chemical questions.
+Experimental design|A factorial reaction study reveals interactions between temperature and concentration that one-variable-at-a-time trials can miss.
+Scientific writing|A chemistry methods section records material identities, conditions, analysis and uncertainty sufficiently clearly for another laboratory to evaluate the result.
+Data analysis|Residual plots and independent validation distinguish a useful calibration model from an apparently good but biased fit.
+Chemometrics|Multivariate analysis extracts chemical information from overlapping spectra while validation controls overfitting and data leakage.
+Air-sensitive synthesis|Excluding oxygen and moisture protects reagents or products that would otherwise react before the intended transformation.
+Glove box|An inert-atmosphere enclosure supports preparation and transfer of sensitive chemicals whose degradation is promoted by air or moisture.
+Schlenk line|Alternating inert-gas and vacuum operations allow suitable air-sensitive solutions to be transferred and handled in closed glassware systems.
+High-pressure reactions|Controlled-pressure equipment permits investigation of gas-dependent reaction rates and equilibria within the apparatus operating limits.
+Cryogenic techniques|Low-temperature conditions can slow competing reactions and permit observation or controlled conversion of short-lived intermediates.
+Reaction mechanisms|Mechanistic comparisons explain why changing substrate, nucleophile or solvent alters organic product distribution.
+Pericyclic reactions|A Diels-Alder transformation constructs a six-membered ring while orbital and stereochemical relationships constrain product geometry.
+Rearrangements|Tracking migrating groups and charge through a rearrangement explains changes in carbon connectivity that a simple substitution equation misses.
+Named reactions|Recognizing the transformations and limitations of a named reaction helps choose a carbon-framework construction in a synthesis route.
+Heterocyclic chemistry|Heteroatom placement and aromatic electron participation help predict basicity and substitution patterns in medicinally relevant ring systems.
+Organometallic chemistry|Metal-carbon intermediates provide pathways for selective carbon-carbon coupling and hydrogenation in synthesis.
+Stereochemistry|Configural and conformational analysis distinguishes molecules whose three-dimensional arrangements produce different binding or reaction outcomes.
+Asymmetric synthesis|A chiral reagent or catalyst can favour one enantiomer, reducing the need for later separation of a racemic product.
+Chirality and symmetry|Symmetry analysis tests whether a molecular geometry can be superimposed on its mirror image before assigning chirality.
+Ligand substitution kinetics|Concentration-dependent substitution rates help distinguish entering-ligand participation from ligand-loss-controlled pathways in metal complexes.
+Cross-coupling reactions|Transition-metal catalysis joins appropriately functionalized carbon partners to build molecular fragments with controlled connectivity.
+Polymerization|Monomer structure and polymerization mechanism determine chain architecture, molecular-mass distribution and material behaviour.
+Conducting polymers|Conjugated polymer backbones can support charge transport after suitable doping, enabling selected electronic and sensing materials.
+Biopolymers|Protein, nucleic-acid and polysaccharide structures connect repeat-unit chemistry with recognition, strength or biological storage functions.
+Nanomaterials|Particle size and surface functionalization can tune catalytic, optical and interfacial behaviour compared with the corresponding bulk material.
+Ceramics|Composition, firing and microstructure determine hardness, thermal behaviour and electrical properties of ceramic components.
+Smart materials|A designed material can change optical, mechanical or transport behaviour in response to a specified stimulus such as temperature or pH.
+Biomaterials|Surface chemistry and degradation behaviour influence how a material interacts with biological fluids and tissue environments.
+Batteries|Separated oxidation and reduction half-reactions store and deliver electrical energy while ion transport maintains charge balance.
+Solar cells|A photovoltaic material converts absorbed photons into separated charge carriers whose collection produces electrical power.
+Polymers and composites|Combining a polymer matrix with a reinforcement changes load transfer and damage behaviour relative to either component alone.
+Electronic and energy materials|Band structure, ionic mobility and interfacial stability guide selection of semiconductors, battery electrodes and related devices.
+Enzymes|Catalytic proteins accelerate selected biological transformations through controlled substrate binding and transition-state stabilization.
+Proteins|A protein's folded structure positions functional groups for binding, catalysis or structural support.
+DNA|Complementary base pairing permits sequence-directed copying and molecular recognition of genetic information.
+RNA|RNA structures participate in information transfer, regulation and catalysis, with sequence and folding determining function.
+Metabolism|Linked biochemical pathways transform nutrients and redistribute carbon, reducing equivalents and chemical energy.
+ATP|Coupled ATP hydrolysis can drive otherwise unfavourable biochemical steps when enzymes link the reactions mechanistically.
+Photosynthesis|Light-driven charge separation and subsequent chemistry convert solar input into chemical reducing power and carbon fixation products.
+Respiration|Oxidation of nutrients transfers electrons through pathways that support energy conservation and, in aerobic systems, terminal oxygen reduction.
+Protein folding|Folding studies relate amino-acid sequence, solvent interactions and conformational stability to protein function or aggregation.
+Catalytic mechanisms|Comparing enzyme intermediates and isotope effects helps identify which bond changes and proton transfers contribute to catalysis.
+Enzyme assays|Controlled substrate and enzyme conditions permit measurement of activity while blanks and interference checks distinguish true turnover from assay artifacts.
+AI in Chemistry|Models can prioritize candidate structures for experiments when training coverage, uncertainty and independent chemical validation are considered.
+Machine Learning|A reaction-yield model can rank conditions for testing, but held-out reactions are needed to evaluate predictions beyond the training set.
+Quantum Computing for Chemistry|Small electronic-structure problems provide test cases for quantum algorithms, whose accuracy depends on encoding, ansatz and hardware errors.
+CRISPR Chemistry|Chemical modification and delivery of CRISPR components can change stability and cellular access without removing the need for specificity assessment.
+Molecular Electronics|Charge transport through molecular junctions depends on contact chemistry, level alignment and molecular structure.
+Soft Matter|Weak interactions and thermal fluctuations govern the rheology and organization of polymers, colloids and liquid-crystalline systems.
+MOFs|Metal nodes and organic linkers create porous frameworks whose pore environment can be tuned for adsorption or separation.
+COFs|Covalently linked porous networks permit structure-controlled studies of adsorption, transport and functional organization.
+Click Chemistry|A high-selectivity ligation can join compatible molecular partners efficiently, subject to the actual catalyst and functional-group conditions.
+Flow Chemistry|Continuous reaction channels control residence time and heat transfer and can change the handling of reactive intermediates.
+Microfluidics|Small channels manipulate limited liquid volumes and permit controlled mixing, droplet formation and microscale analytical measurements.
+Flow and automated synthesis|Flow control and automated additions permit reproducible reaction sequences while residence-time distribution and workup still require validation.
+Cement|Hydration of suitable calcium silicate phases creates binding products that develop mechanical strength in cement-based materials.
+Fertilizers|Nitrogen, phosphorus and potassium formulations supply nutrients whose availability depends on soil chemistry and application conditions.
+Glass|Silicate network composition controls softening behaviour, chemical durability and optical properties of glass products.
+Petrochemicals|Cracking, reforming and functionalization convert hydrocarbon feedstocks into fuels and chemical building blocks.
+Soap|Fatty-acid carboxylate surfactants organize at interfaces and form aggregates that help disperse oily soil under suitable water conditions.
+Paint|Pigment dispersion, binder chemistry and solvent or water loss control coating formation, colour and protective behaviour.
+Dyes|Chromophore structure and substrate interactions determine colour and binding in textile and analytical applications.
+Explosives|Energetic-material chemistry evaluates decomposition pathways, energy release and sensitivity under specialized controlled conditions.
+Air pollution|Identifying primary emissions and secondary reaction products helps distinguish sources of particulate and photochemical air pollution.
+Water pollution|Analyte-specific measurements distinguish nutrients, metals and organic pollutants that require different treatment strategies.
+Green chemistry|Choosing reactions with better atom use and less hazardous reagents can reduce waste at its source rather than only treating it afterward.
+Waste management|Chemical characterization separates waste streams requiring recovery, stabilization or controlled disposal because their hazards and useful contents differ.
+Atmospheric chemistry|Reaction pathways involving radicals and sunlight explain formation and removal of pollutants such as tropospheric ozone.
+Water and wastewater treatment|Physical separation, biological conversion and chemical treatment address different contaminants in water streams.
+Industrial unit operations|A process flowsheet links separations, heat exchange and reaction stages so material and energy balances can be evaluated together.
+Homogeneous|A soluble catalyst shares the reaction phase and can be tuned through ligands and reaction conditions to alter product selectivity.
+Heterogeneous|A solid catalyst's accessible surface sites and transport properties control contact with reacting gas or liquid phases.
+Enzyme catalysis|Enzyme binding and catalytic groups accelerate specific substrate transformations under a compatible biochemical environment.
+Photocatalysis|An illuminated catalyst generates excited charge carriers or states that can drive suitable interfacial redox transformations.
+Unit operations|Distillation, extraction and filtration exploit different physical properties and must be connected by consistent material balances.
+Mass transfer|Concentration gradients and transport resistance determine how quickly species move between phases or through boundary layers.
+Heat transfer|Thermal conductivity, area and temperature differences determine heating or cooling rates in process equipment.
+Reactor design|A reactor model connects rate law, residence time and mixing assumptions to expected conversion and selectivity.
+Quantum chemistry|Electronic-structure models predict molecular energies and electron distributions that can be compared with spectra and reactivity trends.
+Statistical mechanics|Molecular energy-level populations connect microscopic states with macroscopic thermodynamic properties.
+Spectroscopy|Characteristic transitions between molecular or atomic energy levels provide evidence about composition and electronic or vibrational structure.
+Molecular symmetry|Symmetry operations constrain orbital combinations, degeneracy and spectroscopic activity in a specified molecular geometry.
+Group theory|Representation methods simplify vibrational and bonding analyses by classifying transformations under molecular symmetry operations.
+Phase rule|Counting phases, components and constraints determines the degrees of freedom available in a stated equilibrium system.
+Non-ideal systems|Activity and fugacity corrections replace ideal-mixture assumptions when interactions significantly change thermodynamic behaviour.
+Drug discovery|A chemical series is evaluated through target relevance, assay validity, exposure and safety rather than potency alone.
+SAR|Systematic structural changes reveal how substituents affect a measured endpoint within a defined compound series.
+Pharmacokinetics|Concentration-time measurements distinguish absorption, distribution and elimination processes in a stated exposure model.
+Antibiotics|Mechanism and structure determine how an antibacterial compound interferes with a susceptible bacterial process while resistance can alter response.
+Antivirals|A viral replication step can be inhibited by a compound whose target interaction, cellular exposure and selectivity are experimentally established.
+Molecular modeling|A structural model tests plausible molecular conformations and interactions while its force field or electronic assumptions are checked.
+Gaussian|A configured quantum-chemistry calculation estimates molecular properties with a specified method, basis and convergence criteria; software output is not automatic validation.
+DFT|A density-functional calculation estimates electronic properties using a chosen functional and basis whose limitations affect interpretation.
+Molecular dynamics|A trajectory samples molecular motion under a force model and conditions, requiring checks of sampling, equilibration and model suitability.
+Docking|A docking calculation proposes ligand poses for experimental follow-up rather than establishing binding affinity or target engagement by itself.
+Molecular docking|Pose predictions prioritize binding hypotheses but need checks of protonation, receptor state, scoring and experimental support.
+Crystal field theory|A simplified electrostatic field explains d-orbital splitting patterns and helps compare possible spin configurations.
+Bioinorganic chemistry|Protein donor atoms tune metal-centre redox, binding and catalytic behaviour beyond what the free metal ion predicts.
+Organometallic compounds|Metal-carbon bonding permits insertion, elimination and coupling pathways that construct organic products.
+Cluster compounds|Multicentre bonding and bridging ligands create reactivity patterns that differ from isolated single-metal complexes.

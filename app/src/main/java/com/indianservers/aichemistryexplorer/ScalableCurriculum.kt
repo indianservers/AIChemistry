@@ -149,32 +149,32 @@ private fun buildMicroConcepts(
         MicroConcept(
             id = "$id-definition",
             title = "Definition and scientific scope",
-            explanation = "${lesson.concept} Interpret this definition using the stated chemical entities, conditions and level-appropriate model.",
+            explanation = lesson.concept,
             example = lesson.workedExample,
             masteryPrompt = "Define ${lesson.title}, identify the chemical entities involved and distinguish it from a closely related idea."
         ),
         MicroConcept(
             id = "$id-model",
             title = "Governing model and relationship",
-            explanation = "Use ${lesson.formula} as a compact model. Define each symbol, state the conditions and connect the relationship to ${lesson.title}.",
+            explanation = lesson.formula + " " + lesson.workedExample,
             example = lesson.exampleSteps.joinToString(" ") { it }.take(700),
-            masteryPrompt = "Apply the relationship with consistent units, then explain why the result is chemically plausible."
+            masteryPrompt = lesson.question
         ),
         MicroConcept(
             id = "$id-evidence",
             title = "Evidence, measurement and interpretation",
-            explanation = "A strong conclusion about ${lesson.title} combines observation, calibration or model output with uncertainty and an independent chemical check.",
+            explanation = lesson.commonMistake,
             example = "Evidence check: ${lesson.commonMistake} ${lesson.realWorldApplication}",
-            masteryPrompt = "Choose evidence that could distinguish the proposed explanation from a plausible alternative."
+            masteryPrompt = lesson.question
         )
     )
     if (!includeExtension) return core
     return core + MicroConcept(
         id = "$id-boundaries",
         title = "Boundary conditions and transfer",
-        explanation = "Evaluate where the model for ${lesson.title} succeeds, where non-ideal behaviour or experimental limitations matter, and how it connects with ${module.title}.",
+        explanation = lesson.realWorldApplication,
         example = "Extension: ${lesson.advancedConcepts.joinToString("; ")}.",
-        masteryPrompt = "Predict how changing one assumption would alter the result and identify a suitable validation method."
+        masteryPrompt = lesson.question
     )
 }
 

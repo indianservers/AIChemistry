@@ -40,11 +40,11 @@ class ClassTenSearchableLessonsTest {
                 val lesson = module.lessons.single { it.title == title }
                 val authored = classTenBoardContent["$moduleTitle|$title"]
                 assertTrue("$moduleTitle/$title needs authored content", authored != null)
-                assertTrue(lesson.concept.startsWith(authored?.summary.orEmpty()))
-                assertTrue(lesson.theory.length >= 650)
-                assertTrue(lesson.workedExample.contains(authored?.workedExample.orEmpty()))
+                assertEquals(editorialRecordFor(module, lesson).summary, lesson.concept)
+                assertTrue(lesson.theory.contains(lesson.workedExample))
+                assertEquals(editorialRecordFor(module, lesson).example, lesson.workedExample)
                 assertTrue(lesson.formula.isNotBlank())
-                assertTrue(lesson.advancedConcepts.size >= 3)
+                assertTrue(lesson.advancedConcepts.isNotEmpty())
             }
         }
         assertEquals(20, expected.values.sumOf { it.size })

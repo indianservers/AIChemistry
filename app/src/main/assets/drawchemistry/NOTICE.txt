@@ -1,0 +1,10 @@
+Draw Chemistry uses Chemistry Development Kit (CDK) 2.13 modules.
+Copyright CDK contributors. Licensed under LGPL 2.1 or later.
+Upstream source and corresponding source: https://github.com/cdk/cdk/tree/cdk-2.13
+Maven artifacts: https://repo.maven.apache.org/maven2/org/openscience/cdk/
+CDK-LICENSE.txt contains the license. The cdk-sdg LayoutRefiner segment-intersection calculation is adapted for Android to remove AWT. Modified source, upstream SDG source and rebuild script are included in CDK-ANDROID-SOURCE.zip. Other CDK modules are unmodified. LGPL rights to modify, relink and reverse engineer for debugging modifications are preserved.
+Bundled PubChem records were retrieved on 2026-10-18 via PUG REST.
+PubChem identifiers, computed properties and computed conformers retain source provenance.
+Source: https://pubchem.ncbi.nlm.nih.gov/docs/pug-rest
+PubChem data reuse: https://pubchem.ncbi.nlm.nih.gov/docs/copyright
+Data from individual contributors may have additional conditions; consult the source record.

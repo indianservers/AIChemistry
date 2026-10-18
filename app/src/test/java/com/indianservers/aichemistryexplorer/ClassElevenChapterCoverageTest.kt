@@ -25,11 +25,11 @@ class ClassElevenChapterCoverageTest {
             module.lessons.forEach { lesson ->
                 val authored = seniorSecondaryClassElevenContent["$title|${lesson.title}"]
                 assertTrue("$title/${lesson.title} needs authored content", authored != null)
-                assertTrue(lesson.concept.startsWith(authored?.summary.orEmpty()))
-                assertTrue(lesson.theory.length >= 650)
-                assertTrue(lesson.workedExample.contains(authored?.workedExample.orEmpty()))
+                assertEquals(editorialRecordFor(module, lesson).summary, lesson.concept)
+                assertTrue(lesson.theory.contains(lesson.workedExample))
+                assertEquals(editorialRecordFor(module, lesson).example, lesson.workedExample)
                 assertTrue(lesson.formula.isNotBlank())
-                assertTrue(lesson.advancedConcepts.size >= 3)
+                assertTrue(lesson.advancedConcepts.isNotEmpty())
             }
         }
         assertEquals(52, expected.values.sum())

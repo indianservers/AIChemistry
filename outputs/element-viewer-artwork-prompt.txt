@@ -1,0 +1,6 @@
+Asset: viewer_uses_triptych.png
+Generator: built-in image_gen tool
+Purpose: bundled Oxygen Common Uses photo strip (three cropped panels).
+Prompt:
+Create a production app texture asset: a single horizontal triptych photographic strip, exactly three equal-width panels edge to edge, total aspect ratio 3:1. No text, borders, typography, symbols, logos or watermarks. Left third: lush bright green leaves with dew in sunlight, macro shallow depth of field; center third: polished blue-and-silver stethoscope on a clean pale blue clinical table, premium healthcare photograph; right third: vivid orange golden flames against a deep dark background, close-up. Each photo fills its entire third, no margins. These will be cropped into three Common Uses image cards for an oxygen chemistry app, matching a premium snow-white blue glass UI. Photorealistic, polished editorial lighting, clear recognizable subjects even in small thumbnails.
+The PNG is illustrative artwork; scientific numeric values continue to use the existing element database.

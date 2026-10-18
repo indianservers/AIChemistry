@@ -1,0 +1,250 @@
+--------- beginning of crash
+10-11 06:45:44.001 22982 22982 F DEBUG   : Process name is dmesg, uid is 10360, not key_process
+10-11 06:45:44.012 22982 22982 F DEBUG   : keyProcess: 0
+10-11 06:45:44.013 22982 22982 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+10-11 06:45:44.013 22982 22982 F DEBUG   : Build fingerprint: 'OnePlus/CPH2717IN/OP613BL1:16/BP2A.250605.015/V.12ce21f_12f810b_12aacdd:user/release-keys'
+10-11 06:45:44.013 22982 22982 F DEBUG   : Revision: '0'
+10-11 06:45:44.013 22982 22982 F DEBUG   : ABI: 'arm64'
+10-11 06:45:44.013 22982 22982 F DEBUG   : Timestamp: 2026-10-11 06:45:43.923934888+0530
+10-11 06:45:44.013 22982 22982 F DEBUG   : Process uptime: 1s
+10-11 06:45:44.014 22982 22982 F DEBUG   : Cmdline: dmesg
+10-11 06:45:44.014 22982 22982 F DEBUG   : pid: 22965, tid: 22965, name: dmesg  >>> dmesg <<<
+10-11 06:45:44.014 22982 22982 F DEBUG   : uid: 10360
+10-11 06:45:44.014 22982 22982 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+10-11 06:45:44.014 22982 22982 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+10-11 06:45:44.015 22982 22982 F DEBUG   : signal 31 (SIGSYS), code 1 (SYS_SECCOMP), fault addr --------
+10-11 06:45:44.015 22982 22982 F DEBUG   : Cause: seccomp prevented call to disallowed arm64 system call 116
+10-11 06:45:44.015 22982 22982 F DEBUG   :     x0  000000000000000a  x1  0000000000000000  x2  0000000000000000  x3  0000000000000000
+10-11 06:45:44.015 22982 22982 F DEBUG   :     x4  0000007ffb332a21  x5  0000000000000004  x6  0000000000000001  x7  2d796c6e6f280067
+10-11 06:45:44.015 22982 22982 F DEBUG   :     x8  0000000000000074  x9  a9617d0863486b6c  x10 0000007ffb330980  x11 0000007ffb330950
+10-11 06:45:44.015 22982 22982 F DEBUG   :     x12 ffffff80ffffffd0  x13 0000000000000140  x14 0000000000000140  x15 0000000000000000
+10-11 06:45:44.015 22982 22982 F DEBUG   :     x16 00000060d510c158  x17 0000007603b83280  x18 0000007606fdc000  x19 0000000000000000
+10-11 06:45:44.016 22982 22982 F DEBUG   :     x20 0000000000000000  x21 0000007606924fc0  x22 00000060d5112000  x23 00000060d5112000
+10-11 06:45:44.016 22982 22982 F DEBUG   :     x24 00000060d5112000  x25 00000060d5110018  x26 00000060d5112000  x27 0000007ffb332b90
+10-11 06:45:44.016 22982 22982 F DEBUG   :     x28 0000000000000000  x29 0000007ffb332a30
+10-11 06:45:44.016 22982 22982 F DEBUG   :     lr  00000060d50e2a74  sp  0000007ffb330a20  pc  0000007603b83288  pst 0000000060001000
+10-11 06:45:44.016 22982 22982 F DEBUG   : 5 total frames
+10-11 06:45:44.016 22982 22982 F DEBUG   : backtrace:
+10-11 06:45:44.016 22982 22982 F DEBUG   :       #00 pc 00000000000fa288  /apex/com.android.runtime/lib64/bionic/libc.so (klogctl+8) (BuildId: 4cf6e860254939889eacd20c5a4dfd94)
+10-11 06:45:44.017 22982 22982 F DEBUG   :       #01 pc 000000000005ea70  /system/bin/toybox (dmesg_main+452) (BuildId: d411da253e322714acc45392177c87b7)
+10-11 06:45:44.017 22982 22982 F DEBUG   :       #02 pc 00000000000394f8  /system/bin/toybox (toybox_main+644) (BuildId: d411da253e322714acc45392177c87b7)
+10-11 06:45:44.017 22982 22982 F DEBUG   :       #03 pc 0000000000039be4  /system/bin/toybox (main+88) (BuildId: d411da253e322714acc45392177c87b7)
+10-11 06:45:44.017 22982 22982 F DEBUG   :       #04 pc 00000000000848b8  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 4cf6e860254939889eacd20c5a4dfd94)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: FATAL EXCEPTION: main
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: Process: com.whereismytrain.android, PID: 3192
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: java.lang.IllegalStateException: focus search returned a view that wasn't able to take focus!
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.widget.TextView.onKeyUp(TextView.java:10108)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.KeyEvent.dispatch(KeyEvent.java:3525)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.View.dispatchKeyEvent(View.java:16724)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.support.v7.widget.RecyclerView.dispatchKeyEvent(PG:1)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at androidx.coordinatorlayout.widget.CoordinatorLayout.dispatchKeyEvent(PG:1)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at androidx.coordinatorlayout.widget.CoordinatorLayout.dispatchKeyEvent(PG:1)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewGroup.dispatchKeyEvent(ViewGroup.java:2031)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at com.android.internal.policy.DecorView.superDispatchKeyEvent(DecorView.java:557)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.superDispatchKeyEvent(PhoneWindow.java:2088)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.app.Activity.dispatchKeyEvent(Activity.java:4705)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at bn.superDispatchKeyEvent(PG:4)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at dzr.a(PG:11)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at bn.dispatchKeyEvent(PG:23)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at cf.dispatchKeyEvent(PG:23)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at eb.dispatchKeyEvent(PG:3)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at cp.dispatchKeyEvent(PG:20)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at com.android.internal.policy.DecorView.dispatchKeyEvent(DecorView.java:423)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.processKeyEvent(ViewRootImpl.java:9199)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:9033)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8401)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8465)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8424)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.forward(ViewRootImpl.java:8597)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8432)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.apply(ViewRootImpl.java:8654)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8405)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8465)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8424)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8432)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8405)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl.deliverInputEvent(ViewRootImpl.java:11913)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl.doProcessInputEvents(ViewRootImpl.java:11860)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl.enqueueInputEvent(ViewRootImpl.java:11805)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewRootHandler.handleMessageImpl(ViewRootImpl.java:8074)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewRootHandler.handleMessage(ViewRootImpl.java:7930)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:115)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:302)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:412)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:9992)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:613)
+10-11 19:03:30.721  3192  3192 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1074)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: FATAL EXCEPTION: main
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: Process: com.whereismytrain.android, PID: 22235
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: java.lang.NullPointerException: Attempt to invoke virtual method 'int android.view.View.getTop()' on a null object reference
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at com.whereismytrain.view.activities.TrackActivity.K(PG:162)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at ost.onGlobalLayout(PG:46)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.view.ViewTreeObserver.dispatchOnGlobalLayout(ViewTreeObserver.java:1145)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.view.ViewRootImpl.performTraversals(ViewRootImpl.java:4973)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.view.ViewRootImpl.doTraversal(ViewRootImpl.java:3593)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.view.ViewRootImpl$TraversalRunnable.run(ViewRootImpl.java:12031)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1852)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1861)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.view.Choreographer.doCallbacks(Choreographer.java:1373)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.view.Choreographer.doFrame(Choreographer.java:1230)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1835)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:1027)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:108)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:302)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:412)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:9992)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:613)
+10-11 21:57:55.924 22235 22235 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1074)
+10-16 00:24:33.474  5898  5898 F libc    : Fatal signal 31 (SIGSYS), code 1 (SYS_SECCOMP), syscall 116 in tid 5898 (dmesg), pid 5898 (dmesg)
+10-16 00:24:34.029  5933  5933 F DEBUG   : Process name is dmesg, uid is 10360, not key_process
+10-16 00:24:34.029  5933  5933 F DEBUG   : keyProcess: 0
+10-16 00:24:34.029  5933  5933 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+10-16 00:24:34.029  5933  5933 F DEBUG   : Build fingerprint: 'OnePlus/CPH2717IN/OP613BL1:16/BP2A.250605.015/V.12ce21f_12f810b_12aacdd:user/release-keys'
+10-16 00:24:34.029  5933  5933 F DEBUG   : Revision: '0'
+10-16 00:24:34.029  5933  5933 F DEBUG   : ABI: 'arm64'
+10-16 00:24:34.029  5933  5933 F DEBUG   : Timestamp: 2026-10-16 00:24:33.845595799+0530
+10-16 00:24:34.029  5933  5933 F DEBUG   : Process uptime: 2s
+10-16 00:24:34.029  5933  5933 F DEBUG   : Cmdline: dmesg
+10-16 00:24:34.029  5933  5933 F DEBUG   : pid: 5898, tid: 5898, name: dmesg  >>> dmesg <<<
+10-16 00:24:34.029  5933  5933 F DEBUG   : uid: 10360
+10-16 00:24:34.029  5933  5933 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+10-16 00:24:34.029  5933  5933 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+10-16 00:24:34.029  5933  5933 F DEBUG   : signal 31 (SIGSYS), code 1 (SYS_SECCOMP), fault addr --------
+10-16 00:24:34.029  5933  5933 F DEBUG   : Cause: seccomp prevented call to disallowed arm64 system call 116
+10-16 00:24:34.029  5933  5933 F DEBUG   :     x0  000000000000000a  x1  0000000000000000  x2  0000000000000000  x3  0000000000000000
+10-16 00:24:34.029  5933  5933 F DEBUG   :     x4  0000007ff7a80a01  x5  0000000000000004  x6  0000000000000001  x7  2d796c6e6f280067
+10-16 00:24:34.029  5933  5933 F DEBUG   :     x8  0000000000000074  x9  11452518608cc11d  x10 0000007ff7a7e960  x11 0000007ff7a7e930
+10-16 00:24:34.030  5933  5933 F DEBUG   :     x12 ffffff80ffffffd0  x13 0000000000000140  x14 0000000000000140  x15 0000000000000000
+10-16 00:24:34.030  5933  5933 F DEBUG   :     x16 0000005612638158  x17 000000737cfce280  x18 00000073807b0000  x19 0000000000000000
+10-16 00:24:34.030  5933  5933 F DEBUG   :     x20 0000000000000000  x21 000000737f856fc0  x22 000000561263e000  x23 000000561263e000
+10-16 00:24:34.030  5933  5933 F DEBUG   :     x24 000000561263e000  x25 000000561263c018  x26 000000561263e000  x27 0000007ff7a80b70
+10-16 00:24:34.030  5933  5933 F DEBUG   :     x28 0000000000000000  x29 0000007ff7a80a10
+10-16 00:24:34.030  5933  5933 F DEBUG   :     lr  000000561260ea74  sp  0000007ff7a7ea00  pc  000000737cfce288  pst 0000000060001000
+10-16 00:24:34.030  5933  5933 F DEBUG   : 5 total frames
+10-16 00:24:34.030  5933  5933 F DEBUG   : backtrace:
+10-16 00:24:34.030  5933  5933 F DEBUG   :       #00 pc 00000000000fa288  /apex/com.android.runtime/lib64/bionic/libc.so (klogctl+8) (BuildId: 4cf6e860254939889eacd20c5a4dfd94)
+10-16 00:24:34.030  5933  5933 F DEBUG   :       #01 pc 000000000005ea70  /system/bin/toybox (dmesg_main+452) (BuildId: d411da253e322714acc45392177c87b7)
+10-16 00:24:34.030  5933  5933 F DEBUG   :       #02 pc 00000000000394f8  /system/bin/toybox (toybox_main+644) (BuildId: d411da253e322714acc45392177c87b7)
+10-16 00:24:34.030  5933  5933 F DEBUG   :       #03 pc 0000000000039be4  /system/bin/toybox (main+88) (BuildId: d411da253e322714acc45392177c87b7)
+10-16 00:24:34.030  5933  5933 F DEBUG   :       #04 pc 00000000000848b8  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 4cf6e860254939889eacd20c5a4dfd94)
+10-17 01:24:38.855  7896  7896 F libc    : Fatal signal 31 (SIGSYS), code 1 (SYS_SECCOMP), syscall 116 in tid 7896 (dmesg), pid 7896 (dmesg)
+10-17 01:24:39.490  7926  7926 F DEBUG   : Process name is dmesg, uid is 10360, not key_process
+10-17 01:24:39.490  7926  7926 F DEBUG   : keyProcess: 0
+10-17 01:24:39.490  7926  7926 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+10-17 01:24:39.803  7926  7926 F DEBUG   : Build fingerprint: 'OnePlus/CPH2717IN/OP613BL1:16/BP2A.250605.015/V.12ce21f_12f810b_12aacdd:user/release-keys'
+10-17 01:24:39.803  7926  7926 F DEBUG   : Revision: '0'
+10-17 01:24:39.803  7926  7926 F DEBUG   : ABI: 'arm64'
+10-17 01:24:39.804  7926  7926 F DEBUG   : Timestamp: 2026-10-17 01:24:39.217875663+0530
+10-17 01:24:39.804  7926  7926 F DEBUG   : Process uptime: 1s
+10-17 01:24:39.804  7926  7926 F DEBUG   : Cmdline: dmesg
+10-17 01:24:39.804  7926  7926 F DEBUG   : pid: 7896, tid: 7896, name: dmesg  >>> dmesg <<<
+10-17 01:24:39.804  7926  7926 F DEBUG   : uid: 10360
+10-17 01:24:39.804  7926  7926 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+10-17 01:24:39.804  7926  7926 F DEBUG   : pac_enabled_keys: 000000000000000f (PR_PAC_APIAKEY, PR_PAC_APIBKEY, PR_PAC_APDAKEY, PR_PAC_APDBKEY)
+10-17 01:24:39.804  7926  7926 F DEBUG   : signal 31 (SIGSYS), code 1 (SYS_SECCOMP), fault addr --------
+10-17 01:24:39.804  7926  7926 F DEBUG   : Cause: seccomp prevented call to disallowed arm64 system call 116
+10-17 01:24:39.804  7926  7926 F DEBUG   :     x0  000000000000000a  x1  0000000000000000  x2  0000000000000000  x3  0000000000000000
+10-17 01:24:39.804  7926  7926 F DEBUG   :     x4  0000007feca90f11  x5  0000000000000004  x6  0000000000000001  x7  2d796c6e6f280067
+10-17 01:24:39.804  7926  7926 F DEBUG   :     x8  0000000000000074  x9  9ee4666ee881491f  x10 0000007feca8ee70  x11 0000007feca8ee40
+10-17 01:24:39.804  7926  7926 F DEBUG   :     x12 ffffff80ffffffd0  x13 0000000000000140  x14 0000000000000140  x15 0000000000000000
+10-17 01:24:39.804  7926  7926 F DEBUG   :     x16 0000005831a78158  x17 0000007ddf31f280  x18 0000007de2f74000  x19 0000000000000000
+10-17 01:24:39.804  7926  7926 F DEBUG   :     x20 0000000000000000  x21 0000007de237ffc0  x22 0000005831a7e000  x23 0000005831a7e000
+10-17 01:24:39.804  7926  7926 F DEBUG   :     x24 0000005831a7e000  x25 0000005831a7c018  x26 0000005831a7e000  x27 0000007feca91080
+10-17 01:24:39.804  7926  7926 F DEBUG   :     x28 0000000000000000  x29 0000007feca90f20
+10-17 01:24:39.804  7926  7926 F DEBUG   :     lr  0000005831a4ea74  sp  0000007feca8ef10  pc  0000007ddf31f288  pst 0000000060001000
+10-17 01:24:39.804  7926  7926 F DEBUG   : 5 total frames
+10-17 01:24:39.804  7926  7926 F DEBUG   : backtrace:
+10-17 01:24:39.804  7926  7926 F DEBUG   :       #00 pc 00000000000fa288  /apex/com.android.runtime/lib64/bionic/libc.so (klogctl+8) (BuildId: 4cf6e860254939889eacd20c5a4dfd94)
+10-17 01:24:39.804  7926  7926 F DEBUG   :       #01 pc 000000000005ea70  /system/bin/toybox (dmesg_main+452) (BuildId: d411da253e322714acc45392177c87b7)
+10-17 01:24:39.804  7926  7926 F DEBUG   :       #02 pc 00000000000394f8  /system/bin/toybox (toybox_main+644) (BuildId: d411da253e322714acc45392177c87b7)
+10-17 01:24:39.805  7926  7926 F DEBUG   :       #03 pc 0000000000039be4  /system/bin/toybox (main+88) (BuildId: d411da253e322714acc45392177c87b7)
+10-17 01:24:39.805  7926  7926 F DEBUG   :       #04 pc 00000000000848b8  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 4cf6e860254939889eacd20c5a4dfd94)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: FATAL EXCEPTION: main
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: Process: com.indianservers.aichemistryexplorer, PID: 28853
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: java.lang.IllegalStateException: visitAncestors called on an unattached node
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.internal.InlineClassHelperKt.throwIllegalStateException(InlineClassHelper.kt:28)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.node.TraversableNodeKt.traverseAncestors(TraversableNode.kt:365)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.material3.internal.ChildSemanticsNode.applySemantics(ChildParentSemantics.kt:92)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.node.LayoutNode$calculateSemanticsConfiguration$1.invoke(LayoutNode.kt:493)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.node.LayoutNode$calculateSemanticsConfiguration$1.invoke(LayoutNode.kt:484)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads(SnapshotStateObserver.kt:728)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.node.LayoutNode.calculateSemanticsConfiguration(LayoutNode.kt:1679)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.node.LayoutNode.invalidateSemantics$ui(LayoutNode.kt:449)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.node.OwnerSnapshotObserver$onCommitAffectingSemantics$1.invoke(OwnerSnapshotObserver.kt:47)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.node.OwnerSnapshotObserver$onCommitAffectingSemantics$1.invoke(OwnerSnapshotObserver.kt:45)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.SnapshotStateObserver$ObservedScopeMap.notifyInvalidatedScopes(SnapshotStateObserver.kt:1149)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.SnapshotStateObserver.sendNotifications$lambda$0(SnapshotStateObserver.kt:90)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.SnapshotStateObserver$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView$snapshotObserver$1.invoke(AndroidComposeView.android.kt:674)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView$snapshotObserver$1.invoke(AndroidComposeView.android.kt:658)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.SnapshotStateObserver.sendNotifications(SnapshotStateObserver.kt:83)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.SnapshotStateObserver.applyObserver$lambda$0(SnapshotStateObserver.kt:51)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.SnapshotStateObserver$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.SnapshotKt.advanceGlobalSnapshot(Snapshot.kt:2023)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.SnapshotKt.advanceGlobalSnapshot(Snapshot.kt:2037)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.SnapshotKt.access$advanceGlobalSnapshot(Snapshot.kt:1)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.runtime.snapshots.Snapshot$Companion.sendApplyNotifications(Snapshot.kt:689)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.platform.GlobalSnapshotManager$ensureStarted$1.invokeSuspend(GlobalSnapshotManager.android.kt:48)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.performTrampolineDispatch(AndroidUiDispatcher.android.kt:79)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.access$performTrampolineDispatch(AndroidUiDispatcher.android.kt:41)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher$dispatchCallback$1.run(AndroidUiDispatcher.android.kt:57)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:1027)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:108)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:302)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:412)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:9992)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:613)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1074)
+10-18 10:16:17.597 28853 28853 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [androidx.compose.ui.platform.AndroidUiFrameClock@ffbe474, StandaloneCoroutine{Cancelling}@393cd9d, AndroidUiDispatcher@3029212]
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: FATAL EXCEPTION: main
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: Process: com.indianservers.aichemistryexplorer, PID: 32078
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: java.lang.IllegalStateException: visitAncestors called on an unattached node
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at cj0.b(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:3)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at dv0.C(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:12)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at sl.s0(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:15)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at g4.a(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:145)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at tz1.d(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:279)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at po0.F(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:60)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at k61.g(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:82)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at zu1.a(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:436)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at j4.g(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:61)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at l7.f(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:498)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at cz1.e(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:48)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at cz1.a(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:3)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at h.r(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:1073)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at me.h(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:8)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at c10.run(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:110)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at m9.z(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:24)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at l9.run(r8-map-id-2320c1337b15ef9f9c90640aafb34fc6b18badc70dd9b80f089d0e62ea4f1eb5:3)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:1027)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:108)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:302)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:412)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:9992)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:613)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1074)
+10-18 10:19:51.882 32078 32078 E AndroidRuntime: 	Suppressed: p00: [o9@465d0f2, k02{Cancelling}@22fe343, m9@e745dc0]
